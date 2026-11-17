@@ -7,13 +7,7 @@ import xml.etree.ElementTree as ET
 import requests
 from datetime import datetime, timezone
 
-# ==============================================================================
-# NATIVAGAS CLOUD WORKER — VERSÃO 100% GRATUITA (SEM RAPIDAPI)
-# Busca vagas reais em feeds RSS/APIs abertas + indexação pública do LinkedIn
-# Calcula % Match com o perfil da Natália Cristine e envia no WhatsApp
-# ==============================================================================
-
-WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "5511991226615")
+WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "5511959074897")
 CALLMEBOT_APIKEY = os.getenv("CALLMEBOT_APIKEY", "")
 MIN_MATCH_ALERT = int(os.getenv("MIN_MATCH_ALERT", "72"))
 SENT_CACHE_FILE = "sent_jobs.json"
@@ -57,7 +51,7 @@ def save_sent_jobs(job_ids):
     with open(SENT_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(list(job_ids)[-800:], f, ensure_ascii=False, indent=2)
 
-def calculate_match(title: str, description: str) -> tuple[int, list[str]]:
+def calculate_match(title, description):
     text = f"{title} {description}".lower()
     score = 35
     matched_tags = []
@@ -69,8 +63,7 @@ def calculate_match(title: str, description: str) -> tuple[int, list[str]]:
                 matched_tags.append(tag)
     return min(score, 99), matched_tags[:6]
 
-def fetch_bing_linkedin_rss(query: str) -> list[dict]:
-    """Lê feed RSS público do Bing indexando vagas recentes do LinkedIn (100% gratuito)"""
+def fetch_bing_linkedin_rss(query):
     encoded = urllib.parse.quote_plus(query)
     url = f"https://www.bing.com/search?q={encoded}&format=rss"
     results = []
@@ -93,8 +86,7 @@ def fetch_bing_linkedin_rss(query: str) -> list[dict]:
         print(f"[Aviso RSS Bing] {query}: {e}")
     return results
 
-def fetch_remotive_api() -> list[dict]:
-    """API pública e gratuita da Remotive para vagas remotas"""
+def fetch_remotive_api():
     results = []
     for kw in ["logistics", "supply chain", "data analyst", "operations"]:
         try:
@@ -114,10 +106,10 @@ def fetch_remotive_api() -> list[dict]:
             print(f"[Aviso Remotive] {kw}: {e}")
     return results
 
-def send_whatsapp_callmebot(message: str):
+def send_whatsapp_callmebot(message):
     if not CALLMEBOT_APIKEY:
-        print("[SIMULAÇÃO WHATSAPP - Configure CALLMEBOT_APIKEY nos Secrets]
-" + message)
+        print("[SIMULACAO WHATSAPP] Configure CALLMEBOT_APIKEY nos Secrets:")
+        print(message)
         return
     url = "https://api.callmebot.com/whatsapp.php"
     params = {
@@ -160,16 +152,10 @@ def run_cycle():
         if match_pct >= MIN_MATCH_ALERT:
             tags_str = ", ".join(tags) if tags else "Logística / Processos / Dados"
             msg = (
-                f"🚀 *NATIVAGAS — {match_pct}% MATCH*
-
-"
-                f"💼 *{title}*
-"
-                f"📡 Fonte: {source}
-"
-                f"🎯 *Palavras-chave do seu CV:* {tags_str}
-
-"
+                f"🚀 *NATIVAGAS — {match_pct}% MATCH*\n\n"
+                f"💼 *{title}*\n"
+                f"📡 Fonte: {source}\n"
+                f"🎯 *Palavras-chave do seu CV:* {tags_str}\n\n"
                 f"🔗 *Acessar vaga:* {link}"
             )
             send_whatsapp_callmebot(msg)
