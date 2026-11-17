@@ -1,88 +1,109 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NATIVAGAS — Na Ativa nas Melhores Vagas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0b1120; }
-    .bg-grid-pattern {
-      background-color: #f8fafc;
-      background-image: linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
-      background-size: 24px 24px;
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top center, #111c33 0%, #060911 70%);
+      color: #f1f5f9;
+    }
+    .font-editorial {
+      font-family: 'Playfair Display', serif;
+    }
+    .bg-dark-grid {
+      background-color: rgba(15, 23, 42, 0.88);
+      background-image:
+        linear-gradient(to right, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .glass-card {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.92) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.65);
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 189, 248, 0.35);
     }
   </style>
 </head>
-<body class="min-h-screen py-6 px-3 sm:px-6 text-slate-900">
+<body class="min-h-screen py-6 px-3 sm:px-6 antialiased selection:bg-sky-500/30 selection:text-sky-200">
 
-  <div class="max-w-5xl mx-auto bg-grid-pattern rounded-[28px] shadow-2xl border border-slate-200/80 overflow-hidden">
+  <div class="max-w-5xl mx-auto bg-dark-grid backdrop-blur-xl rounded-[30px] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] border border-slate-800/90 overflow-hidden">
     
-    <!-- TOP BAR -->
-    <header class="px-6 sm:px-10 pt-7 pb-5 border-b border-slate-200/70 bg-white/80 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-          nv
+    <!-- TOP BAR ELEGANTE -->
+    <header class="px-6 sm:px-10 pt-7 pb-6 border-b border-slate-800/80 bg-slate-950/60 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <!-- Monograma NV Sofisticado -->
+        <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-black border border-sky-400/30 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.2)]">
+          <span class="font-editorial italic text-xl font-bold bg-gradient-to-r from-sky-300 via-blue-400 to-indigo-300 bg-clip-text text-transparent tracking-tight">
+            nv
+          </span>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-slate-950"></span>
         </div>
+
         <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-2xl font-black tracking-tight">
-              <span class="text-blue-600">NATI</span><span class="text-slate-900">VAGAS</span>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="text-2xl sm:text-[26px] tracking-[0.14em] uppercase font-light text-slate-100 flex items-baseline">
+              <span class="font-extrabold bg-gradient-to-r from-sky-300 via-blue-400 to-cyan-300 bg-clip-text text-transparent">NATI</span><span class="font-light text-slate-300">VAGAS</span>
             </h1>
-            <span class="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wide uppercase">
-              ● Na Ativa nas Vagas
+            <span class="px-3 py-0.5 rounded-full bg-sky-500/10 border border-sky-400/25 text-sky-300 text-[11px] font-medium tracking-wide">
+              <span class="font-editorial italic text-xs text-white">Na Ativa</span> • Carreira & Inteligência
             </span>
           </div>
-          <p class="text-xs text-slate-500 font-medium mt-0.5">
-            Radares Temáticos Reais & ATS • Perfil: <strong id="activeUserLabel" class="text-slate-700">Natália Cristine (Logística & WMS)</strong>
+          <p class="text-xs text-slate-400 font-medium mt-1">
+            Curadoria Executiva & Radar ATS • Perfil: <strong id="activeUserLabel" class="text-slate-200">Natália Cristine (Logística & WMS)</strong>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5 flex-wrap">
-        <div class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold flex items-center gap-2 shadow-sm">
+        <div class="px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 text-xs font-semibold flex items-center gap-2 shadow-inner">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>Radar: <strong id="timerDisplay" class="font-mono text-emerald-300">03:00</strong></span>
-          <button onclick="triggerScan()" class="ml-1 px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-[11px] font-bold transition">
+          <span>Radar: <strong id="timerDisplay" class="font-mono text-emerald-400">03:00</strong></span>
+          <button onclick="triggerScan()" class="ml-1 px-2.5 py-0.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/30 text-[11px] font-bold transition">
             Atualizar
           </button>
         </div>
 
-        <button onclick="openModal('cvModal')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+        <button onclick="openModal('cvModal')" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-400/30 text-xs font-bold shadow-sm transition">
           Meu Currículo & Otimizador ATS
         </button>
 
-        <button onclick="openModal('authModal')" id="authBtn" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-sm transition">
-          Entrar / Criar Conta
+        <button onclick="openModal('authModal')" id="authBtn" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 text-xs font-semibold transition">
+          Entrar / Conta
         </button>
       </div>
     </header>
 
-    <!-- AVISO DE TRANSPARÊNCIA -->
-    <div class="px-6 sm:px-10 py-3 bg-blue-50/90 border-b border-blue-200/70 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-900">
+    <!-- BARRA DE TRANSPARÊNCIA -->
+    <div class="px-6 sm:px-10 py-3 bg-sky-950/30 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
       <div>
-        <strong>Como funciona:</strong> Cada cartão abaixo é um <strong>Radar Inteligente</strong> calibrado com as skills do seu currículo. Ao clicar em <strong>Abrir Vagas Reais no LinkedIn</strong>, ele abre a listagem oficial ao vivo já filtrada por tempo e baixa concorrência.
+        <span class="text-sky-400 font-semibold">Radares Temáticos Reais:</span> Cada cartão abre a listagem oficial ao vivo no LinkedIn já calibrada com as skills do seu currículo e baixa concorrência.
       </div>
-      <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold">
-        WhatsApp Bot 24/7 Ativo
+      <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold">
+        ● WhatsApp Bot 24/7 Ativo
       </span>
     </div>
 
     <!-- FILTROS DE BUSCA REAL NO LINKEDIN -->
-    <section class="px-6 sm:px-10 py-5 bg-white/60 border-b border-slate-200/70">
+    <section class="px-6 sm:px-10 py-5 bg-slate-950/40 border-b border-slate-800/80">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="lg:col-span-2">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Busca Livre no LinkedIn</label>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Busca Livre no LinkedIn</label>
           <input id="filterKeyword" oninput="renderRadars()" type="text" placeholder="Ex: WMS, Torre de Controle, Power BI..."
-            class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Modalidade</label>
-          <select id="filterModality" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Modalidade</label>
+          <select id="filterModality" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
             <option value="2" selected>100% Remoto</option>
             <option value="3">Híbrido</option>
             <option value="1">Presencial</option>
@@ -91,8 +112,8 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</label>
-          <select id="filterContract" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Contrato</label>
+          <select id="filterContract" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
             <option value="all" selected>Todos (CLT / PJ / Temp)</option>
             <option value="F">Tempo Integral (CLT)</option>
             <option value="C">Contrato / PJ</option>
@@ -101,30 +122,30 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Janela de Publicação</label>
-          <select id="filterTimeWindow" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Janela de Publicação</label>
+          <select id="filterTimeWindow" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-bold text-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
             <option value="r3600">Última 1 hora</option>
             <option value="r10800">Últimas 3 horas</option>
             <option value="r21600">Últimas 6 horas</option>
-            <option value="r86400" selected>Últimas 24 horas (Recomendado)</option>
+            <option value="r86400" selected>Últimas 24 horas (Ideal)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concorrência LinkedIn</label>
-          <select id="filterEarlyApplicant" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Concorrência LinkedIn</label>
+          <select id="filterEarlyApplicant" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-bold text-emerald-300 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
             <option value="true" selected>Menos de 10 candidaturas</option>
             <option value="false">Todas as candidaturas</option>
           </select>
         </div>
       </div>
 
-      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
         <div>
-          <strong id="jobsCount" class="text-slate-800">0</strong> radares temáticos ativos calibrados para o seu currículo
+          <strong id="jobsCount" class="text-slate-100">0</strong> radares temáticos ativos calibrados para o seu currículo
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="openDirectLinkedInSearch()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition">
+          <button onclick="openDirectLinkedInSearch()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-sky-500/20 transition">
             Pesquisar Palavra-Chave Acima no LinkedIn Agora ↗
           </button>
         </div>
@@ -137,64 +158,64 @@
   </div>
 
   <!-- MODAL CURRÍCULO & OTIMIZADOR ATS -->
-  <div id="cvModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+  <div id="cvModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
         <div>
-          <h2 class="text-xl font-black text-slate-900">Analisador de Currículo & Otimizador ATS</h2>
-          <p class="text-xs text-slate-500">Edite seu currículo abaixo para recalcular o % Match de cada radar e gerar uma versão otimizada para recrutadores.</p>
+          <h2 class="text-xl font-extrabold text-white">Analisador de Currículo & Otimizador ATS</h2>
+          <p class="text-xs text-slate-400">Edite seu currículo abaixo para recalcular o % Match de cada radar e gerar uma versão otimizada para recrutadores.</p>
         </div>
-        <button onclick="closeModal('cvModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+        <button onclick="closeModal('cvModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">✕</button>
       </div>
 
       <div class="mt-4">
-        <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Texto do seu Currículo Atual</label>
-        <textarea id="cvTextarea" rows="7" class="w-full p-3.5 rounded-2xl border border-slate-200 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5">Texto do seu Currículo Atual</label>
+        <textarea id="cvTextarea" rows="7" class="w-full p-3.5 rounded-2xl bg-slate-950 border border-slate-700 text-slate-200 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
       </div>
 
       <div class="mt-4 flex flex-wrap gap-3">
-        <button onclick="saveAndRecalculateCV()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow">
+        <button onclick="saveAndRecalculateCV()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow">
           Salvar & Recalcular % Match dos Radares
         </button>
-        <button onclick="runATSOptimizer()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow">
+        <button onclick="runATSOptimizer()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow">
           Analisar CV & Gerar Sugestão Otimizada (ATS)
         </button>
       </div>
 
-      <div id="atsResultBox" class="hidden mt-6 p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+      <div id="atsResultBox" class="hidden mt-6 p-5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-black uppercase tracking-wider text-emerald-700">Diagnóstico de Recrutamento & Seleção</span>
-          <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">Score ATS: 95/100</span>
+          <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Diagnóstico de Recrutamento & Seleção</span>
+          <span class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-black">Score ATS: 95/100</span>
         </div>
-        <div id="atsAnalysisText" class="text-xs text-slate-700 space-y-2 leading-relaxed"></div>
+        <div id="atsAnalysisText" class="text-xs text-slate-300 space-y-2 leading-relaxed"></div>
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-bold text-slate-800">Sugestão de Novo Currículo Otimizado (Pronto para Copiar):</span>
-            <button onclick="copyOptimizedCV()" class="text-xs font-bold text-blue-600 hover:underline">Copiar Texto</button>
+            <span class="text-xs font-bold text-slate-200">Sugestão de Novo Currículo Otimizado (Pronto para Copiar):</span>
+            <button onclick="copyOptimizedCV()" class="text-xs font-bold text-sky-400 hover:underline">Copiar Texto</button>
           </div>
-          <textarea id="optimizedCvOutput" rows="8" readonly class="w-full p-3.5 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-800"></textarea>
+          <textarea id="optimizedCvOutput" rows="8" readonly class="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-200"></textarea>
         </div>
       </div>
     </div>
   </div>
 
   <!-- MODAL LOGIN / CADASTRO -->
-  <div id="authModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-        <h2 class="text-lg font-black text-slate-900">Acesso NATIVAGAS</h2>
-        <button onclick="closeModal('authModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+  <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 text-slate-100 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <h2 class="text-lg font-extrabold text-white">Acesso <span class="text-sky-400">NATI</span>VAGAS</h2>
+        <button onclick="closeModal('authModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">✕</button>
       </div>
       <div class="mt-4 space-y-3">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">Seu Nome</label>
-          <input id="loginName" type="text" placeholder="Ex: Natália Cristine" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm" />
+          <label class="block text-xs font-bold text-slate-400 mb-1">Seu Nome</label>
+          <input id="loginName" type="text" placeholder="Ex: Natália Cristine" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1">E-mail</label>
-          <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm" />
+          <label class="block text-xs font-bold text-slate-400 mb-1">E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
-        <button onclick="saveUserAccount()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow mt-2">
+        <button onclick="saveUserAccount()" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-sm font-bold shadow mt-2">
           Entrar & Salvar Perfil no Navegador
         </button>
       </div>
@@ -207,7 +228,6 @@ ANALISTA DE LOGÍSTICA SÊNIOR / PLENO | KEY USER WMS & PROCESSOS | TORRE DE CON
 São Paulo - SP | +10 anos de experiência em Logística, Armazenagem, Transporte Rodoviário, Torre de Controle, Comércio Exterior (AWB, BL, Invoice, Packing List, CT-e) e Análise de Dados (Power BI, SQL Server, Oracle, Excel Avançado/VBA, Alteryx).
 Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: planta virtual, endereçamento, putaway, picking, coletores RF, inventário cíclico, conciliação físico vs. fiscal, mapeamento BPMN (AS-IS/TO-BE), POPs, Matriz RACI, testes homologatórios (UAT) e roteirização LIFO/Cutoff.`;
 
-    // Radares temáticos reais com termos amplos para o LinkedIn retornar resultados exatos
     const RADARS = [
       {
         id: 1,
@@ -345,78 +365,78 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       container.innerHTML = enriched.map(radar => {
         const linkedInLink = buildRealLinkedInUrl(radar.linkedinQuery);
         return `
-        <article class="bg-white/95 rounded-[24px] p-6 sm:p-8 shadow-md border border-slate-200/90 hover:shadow-xl transition">
+        <article class="glass-card rounded-[26px] p-6 sm:p-8 transition duration-300">
           <!-- Cabeçalho do Radar -->
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span class="px-3.5 py-1.5 rounded-xl bg-slate-900 text-white font-bold shadow-sm">
+              <span class="px-3.5 py-1.5 rounded-xl bg-slate-950/90 text-sky-300 border border-sky-400/25 font-bold">
                 📡 ${radar.badge}
               </span>
-              <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-bold">
+              <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-300 border border-sky-400/20 font-semibold">
                 ⏱ ${timeLabel}
               </span>
-              ${earlyApp ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">🔥 Menos de 10 candidaturas</span>` : ""}
+              ${earlyApp ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-400/25 font-semibold">🔥 Menos de 10 candidaturas</span>` : ""}
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-black shadow-sm">
+              <span class="px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-extrabold shadow-lg shadow-emerald-500/20">
                 🎯 ${radar.match}% MATCH COM SEU CV
               </span>
             </div>
           </div>
 
           <!-- Título e Stack -->
-          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">${radar.title}</h2>
-          <div class="mt-2 flex items-center gap-2 text-xs text-slate-500 font-semibold">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">${radar.title}</h2>
+          <div class="mt-2 flex items-center gap-2 text-xs text-slate-400 font-semibold">
             <span class="uppercase tracking-wider text-[11px]">STACK:</span>
-            <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">${radar.stack}</span>
+            <span class="px-2.5 py-0.5 rounded-md bg-slate-800/90 text-slate-200 border border-slate-700">${radar.stack}</span>
           </div>
 
           <!-- 3 Cards Centrais -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
-            <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
               <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Filtro de Modalidade</div>
-              <div class="text-base font-black text-blue-600 mt-1">${modLabel}</div>
-              <div class="text-xs text-slate-500 mt-0.5">Aplicado direto na URL do LinkedIn</div>
+              <div class="text-base font-extrabold text-sky-400 mt-1">${modLabel}</div>
+              <div class="text-xs text-slate-400 mt-0.5">Aplicado direto na URL do LinkedIn</div>
             </div>
 
-            <div class="p-4 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/70 shadow-sm">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Faixa Salarial Estimada</div>
-              <div class="text-lg font-black text-slate-900 mt-1">${radar.targetSalary}</div>
-              <div class="text-xs font-semibold text-emerald-700 mt-0.5">${radar.salaryNote}</div>
+            <div class="p-4 rounded-2xl bg-emerald-950/35 border border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.1)]">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Faixa Salarial Estimada</div>
+              <div class="text-lg font-extrabold text-white mt-1">${radar.targetSalary}</div>
+              <div class="text-xs font-medium text-emerald-300 mt-0.5">${radar.salaryNote}</div>
             </div>
 
-            <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
               <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Termo de Busca Exato</div>
-              <div class="text-base font-black text-slate-900 mt-1">"${radar.linkedinQuery}"</div>
-              <div class="text-xs text-slate-500 mt-0.5">Otimizado para resultados reais</div>
+              <div class="text-base font-extrabold text-slate-100 mt-1">"${radar.linkedinQuery}"</div>
+              <div class="text-xs text-slate-400 mt-0.5">Otimizado para resultados reais</div>
             </div>
           </div>
 
           <!-- Aderência & Estratégia -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80">
-              <div class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">☑ Aderência ao Seu Perfil</div>
-              <ul class="space-y-1.5 text-xs text-slate-600">
-                ${radar.highlights.map(r => `<li class="p-2 rounded-lg bg-slate-50 border border-slate-100">› ${r}</li>`).join("")}
+            <div class="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/90">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-2">☑ Aderência ao Seu Perfil</div>
+              <ul class="space-y-1.5 text-xs text-slate-300">
+                ${radar.highlights.map(r => `<li class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">› ${r}</li>`).join("")}
               </ul>
             </div>
 
-            <div class="p-4 rounded-2xl bg-white border border-slate-200/80">
-              <div class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">★ Filtros Ativos neste Link</div>
-              <ul class="space-y-1.5 text-xs text-slate-600">
-                ${radar.tips.map(b => `<li class="p-2 rounded-lg bg-slate-50 border border-slate-100">✓ ${b}</li>`).join("")}
+            <div class="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/90">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-2">★ Filtros Ativos neste Link</div>
+              <ul class="space-y-1.5 text-xs text-slate-300">
+                ${radar.tips.map(b => `<li class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">✓ ${b}</li>`).join("")}
               </ul>
             </div>
           </div>
 
           <!-- Banner Escuro Inferior -->
-          <div class="mt-5 p-4 sm:px-6 rounded-2xl bg-slate-950 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="mt-5 p-4 sm:px-6 rounded-2xl bg-black/75 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
             <div>
               <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">⚡ Busca Real ao Vivo no LinkedIn</div>
-              <div class="text-xs sm:text-sm font-semibold text-slate-200">Abre as vagas reais desta área já filtradas e ordenadas por data:</div>
+              <div class="text-xs sm:text-sm font-medium text-slate-300">Abre as vagas reais desta área já filtradas e ordenadas por data:</div>
             </div>
             <a href="${linkedInLink}" target="_blank" rel="noopener noreferrer"
-               class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-xs sm:text-sm font-black shadow-lg shadow-blue-500/30 transition">
+               class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-sky-500/25 transition">
               Abrir Vagas Reais no LinkedIn →
             </a>
           </div>
