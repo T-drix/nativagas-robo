@@ -2,6 +2,8 @@ import os
 import json
 import time
 import hashlib
+import urllib.parse
+import xml.etree.ElementTree as ET
 import requests
 from datetime import datetime, timezone
 
@@ -12,19 +14,28 @@ SENT_CACHE_FILE = "sent_jobs.json"
 
 CANDIDATE_PROFILE = {
     "name": "Natália Cristine",
+    "queries_br": [
+        '"vaga" ("WMS" OR "Key User") ("remoto" OR "home office")',
+        '"vaga" "Torre de Controle" ("logística" OR "remoto" OR "home office")',
+        '"vaga" ("Analista de Logística" OR "Planejamento Logístico") ("remoto" OR "home office")',
+        '"vaga" ("Power BI" OR "SQL" OR "MIS") "logística" ("remoto" OR "home office")',
+        '"vaga" ("Comércio Exterior" OR "Comex") ("remoto" OR "home office")',
+        'site:linkedin.com/jobs ("Logística" OR "WMS" OR "Torre de Controle") "remoto" Brasil',
+        'site:gupy.io ("Logística" OR "WMS" OR "Torre de Controle" OR "Power BI") "remoto"'
+    ],
     "core_skills": {
         "wms": 22, "key user": 22, "torre de controle": 20, "logistica": 18,
-        "logística": 18, "logistics": 18, "supply chain": 18, "operations": 14,
-        "power bi": 16, "sql": 16, "vba": 14, "excel": 12, "erp": 14,
-        "roteirizacao": 15, "inventario": 14, "inventory": 14, "kpi": 12,
-        "sla": 12, "bpmn": 12, "uat": 14, "comex": 14, "freight": 14,
-        "forecast": 12, "warehouse": 15, "data analyst": 14, "bi": 12,
-        "remoto": 10, "home office": 10, "remote": 10, "latam": 10, "brazil": 12
+        "logística": 18, "power bi": 16, "sql": 16, "vba": 14, "excel": 12,
+        "erp": 14, "roteirizacao": 15, "roteirização": 15, "inventario": 14,
+        "inventário": 14, "kpi": 12, "sla": 12, "bpmn": 12, "uat": 14,
+        "comex": 14, "comércio exterior": 14, "ct-e": 12, "forecast": 12,
+        "armazenagem": 14, "mis": 15, "oracle": 12, "alteryx": 12,
+        "remoto": 12, "home office": 12, "brasil": 10
     }
 }
 
 HEADERS = {
-    "User-Agent": "NATIVAGAS-Radar/2.0 (https://github.com)"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 }
 
 def load_sent_jobs():
@@ -42,7 +53,7 @@ def save_sent_jobs(job_ids):
 
 def calculate_match(title, description):
     text = f"{title} {description}".lower()
-    score = 42
+    score = 45
     matched_tags = []
     for skill, weight in CANDIDATE_PROFILE["core_skills"].items():
         if skill in text:
@@ -52,76 +63,40 @@ def calculate_match(title, description):
                 matched_tags.append(tag)
     return min(score, 99), matched_tags[:6]
 
-def fetch_remotive_jobs():
-    results = []
-    for cat in ["data", "business", "all-others"]:
-        try:
-            url = f"https://remotive.com/api/remote-jobs?category={cat}&limit=25"
-            resp = requests.get(url, headers=HEADERS, timeout=20)
-            for j in resp.json().get("jobs", []):
-                title = j.get("title", "")
-                company = j.get("company_name", "Empresa Remota")
-                loc = j.get("candidate_required_location", "Worldwide")
-                desc = f"{title} {j.get('category', '')} {loc} {' '.join(j.get('tags', []))}"
-                if any(k in desc.lower() for k in ["logistic", "supply", "warehouse", "erp", "power bi", "sql", "operations", "data analyst", "inventory", "freight"]):
-                    results.append({
-                        "company": company,
-                        "title": title,
-                        "location": loc,
-                        "link": j.get("url"),
-                        "description": desc,
-                        "source": "Remotive (100% Remoto)"
-                    })
-        except Exception as e:
-            print(f"[Erro Remotive {cat}] {e}")
-    return results
-
-def fetch_himalayas_jobs():
+def fetch_google_news_br_rss(query):
+    # Busca indexada em tempo real no Brasil (último 1 dia)
+    encoded = urllib.parse.quote_plus(f"{query} when:1d")
+    url = f"https://news.google.com/rss/search?q={encoded}&hl=pt-BR&gl=BR&ceid=BR:pt-419"
     results = []
     try:
-        url = "https://himalayas.app/jobs/api?limit=40"
         resp = requests.get(url, headers=HEADERS, timeout=20)
-        for j in resp.json().get("jobs", []):
-            title = j.get("title", "")
-            company = j.get("companyName", "Empresa Global")
-            excerpt = j.get("excerpt", "")
-            full_text = f"{title} {excerpt}".lower()
-            if any(k in full_text for k in ["logistic", "supply", "warehouse", "erp", "power bi", "sql", "operations", "data analyst", "inventory", "freight"]):
+        resp.raise_for_status()
+        root = ET.fromstring(resp.content)
+        for item in root.findall(".//item"):
+            raw_title = (item.findtext("title") or "").strip()
+            link = (item.findtext("link") or "").strip()
+            pub_date = (item.findtext("pubDate") or "").strip()
+            source_el = item.find("source")
+            source_name = source_el.text.strip() if source_el is not None and source_el.text else "Portal Brasil"
+
+            if raw_title and link:
+                # Limpa o sufixo " - Nome do Portal" do título
+                clean_title = raw_title.rsplit(" - ", 1)[0].strip()
                 results.append({
-                    "company": company,
-                    "title": title,
-                    "location": "Remoto Global / LATAM",
-                    "link": j.get("applicationLink") or f"https://himalayas.app/jobs/{j.get('slug', '')}",
-                    "description": full_text,
-                    "source": "Himalayas Remote"
+                    "company": source_name,
+                    "title": clean_title,
+                    "location": "Brasil • 100% Remoto / Home Office",
+                    "link": link,
+                    "description": f"{clean_title} {source_name} {pub_date}",
+                    "source": f"{source_name} (Brasil)"
                 })
     except Exception as e:
-        print(f"[Erro Himalayas] {e}")
-    return results
-
-def fetch_jobicy_jobs():
-    results = []
-    for tag in ["logistics", "supply-chain", "data-analyst", "operations"]:
-        try:
-            url = f"https://jobicy.com/api/v2/remote-jobs?count=15&tag={tag}"
-            resp = requests.get(url, headers=HEADERS, timeout=20)
-            for j in resp.json().get("jobs", []):
-                results.append({
-                    "company": j.get("companyName", "Empresa Remota"),
-                    "title": j.get("jobTitle", "Vaga Remota"),
-                    "location": j.get("jobGeo", "Anywhere"),
-                    "link": j.get("url"),
-                    "description": f"{j.get('jobTitle', '')} {j.get('jobIndustry', '')} {j.get('jobExcerpt', '')}",
-                    "source": "Jobicy 100% Remoto"
-                })
-        except Exception as e:
-            print(f"[Erro Jobicy {tag}] {e}")
+        print(f"[Aviso Busca BR] {query}: {e}")
     return results
 
 def send_whatsapp_callmebot(message):
     if not CALLMEBOT_APIKEY:
-        print("[AVISO] CALLMEBOT_APIKEY vazia nos Secrets! Configure em Settings > Secrets.")
-        print(message)
+        print("[AVISO] CALLMEBOT_APIKEY vazia nos Secrets!")
         return False
     url = "https://api.callmebot.com/whatsapp.php"
     params = {
@@ -131,66 +106,57 @@ def send_whatsapp_callmebot(message):
     }
     try:
         r = requests.get(url, params=params, timeout=25)
-        print(f"[CallMeBot Resposta] HTTP {r.status_code} | {r.text[:120]}")
+        print(f"[CallMeBot Resposta] HTTP {r.status_code}")
         return r.status_code == 200
     except Exception as e:
         print(f"[Erro envio WhatsApp] {e}")
         return False
 
 def run_cycle():
-    print(f"=== NATIVAGAS Radar Multi-Fontes: {datetime.now(timezone.utc).isoformat()} ===")
-    print(f"Destino WhatsApp: {WHATSAPP_NUMBER} | APIKey configurada: {'SIM' if CALLMEBOT_APIKEY else 'NÃO'}")
-
+    print(f"=== NATIVAGAS Radar Brasil (100% Português): {datetime.now(timezone.utc).isoformat()} ===")
     sent_jobs = load_sent_jobs()
-    first_run = len(sent_jobs) == 0
-
     candidates = []
-    candidates.extend(fetch_remotive_jobs())
-    candidates.extend(fetch_himalayas_jobs())
-    candidates.extend(fetch_jobicy_jobs())
-    print(f"Total de vagas brutas coletadas nas APIs: {len(candidates)}")
 
-    if first_run:
-        send_whatsapp_callmebot(
-            "✅ *NATIVAGAS Conectado!*\n"
-            "Seu radar automático na nuvem está ativo e monitorando vagas 100% remotas compatíveis com o perfil da Natália Cristine."
-        )
-        time.sleep(3)
+    for q in CANDIDATE_PROFILE["queries_br"]:
+        candidates.extend(fetch_google_news_br_rss(q))
+        time.sleep(1)
+
+    print(f"Total de oportunidades encontradas no Brasil hoje: {len(candidates)}")
 
     new_alerts = 0
     for job in candidates:
         link = job.get("link", "")
-        if not link:
+        title = job.get("title", "")
+        if not link or not title:
             continue
-        job_id = hashlib.md5(link.split("?")[0].encode("utf-8")).hexdigest()
+        # Usa hash do título normalizado para evitar duplicadas de portais diferentes
+        job_id = hashlib.md5(title.lower().strip().encode("utf-8")).hexdigest()
         if job_id in sent_jobs:
             continue
 
-        company = job.get("company", "Empresa Remota")
-        title = job.get("title", "Vaga Compatível")
-        loc = job.get("location", "100% Remoto")
+        company = job.get("company", "Portal de Vagas BR")
+        loc = job.get("location", "Brasil • Remoto")
         desc = job.get("description", "")
-        source = job.get("source", "Remoto")
-        match_pct, tags = calculate_match(f"{company} {title}", desc)
+        source = job.get("source", "Brasil")
+        match_pct, tags = calculate_match(title, desc)
         sent_jobs.add(job_id)
 
         if match_pct >= MIN_MATCH_ALERT and new_alerts < 5:
-            tags_str = ", ".join(tags) if tags else "Logística / Operações / Dados"
+            tags_str = ", ".join(tags) if tags else "Logística / WMS / Dados"
             msg = (
-                f"🚀 *NATIVAGAS — {match_pct}% MATCH*\n\n"
-                f"🏢 *Empresa:* {company}\n"
+                f"🇧🇷 *NATIVAGAS — {match_pct}% MATCH*\n\n"
                 f"💼 *Vaga:* {title}\n"
+                f"🏢 *Portal/Fonte:* {company}\n"
                 f"📍 *Local:* {loc}\n"
-                f"📡 *Fonte:* {source}\n"
                 f"🎯 *Skills:* {tags_str}\n\n"
-                f"🔗 *Candidatar-se:* {link}"
+                f"🔗 *Acessar vaga:* {link}"
             )
             if send_whatsapp_callmebot(msg):
                 new_alerts += 1
                 time.sleep(4)
 
     save_sent_jobs(sent_jobs)
-    print(f"=== Varredura concluída. Alertas enviados nesta rodada: {new_alerts} ===")
+    print(f"=== Varredura Brasil concluída. Alertas enviados: {new_alerts} ===")
 
 if __name__ == "__main__":
     run_cycle()
