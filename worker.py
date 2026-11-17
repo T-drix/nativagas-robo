@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import hashlib
@@ -15,12 +16,16 @@ SENT_CACHE_FILE = "sent_jobs.json"
 CANDIDATE_PROFILE = {
     "name": "Natália Cristine",
     "search_queries": [
-        "site:linkedin.com/jobs Analista de Logistica WMS",
-        "site:linkedin.com/jobs Key User WMS",
-        "site:linkedin.com/jobs Torre de Controle Logistica",
-        "site:linkedin.com/jobs Analista MIS Power BI SQL",
-        "site:linkedin.com/jobs Analista Planejamento Logistico remoto",
-        "site:linkedin.com/jobs Analista Comercio Exterior"
+        # Vagas oficiais remotas
+        "site:linkedin.com/jobs Analista de Logistica WMS remoto",
+        "site:linkedin.com/jobs Key User WMS remoto",
+        "site:linkedin.com/jobs Torre de Controle Logistica remoto",
+        "site:linkedin.com/jobs Analista MIS Power BI SQL remoto",
+        "site:linkedin.com/jobs Analista Comercio Exterior remoto",
+        # Publicacoes diretas de recrutadores no Feed (Posts)
+        "site:linkedin.com/posts vaga logistica WMS remoto",
+        "site:linkedin.com/posts vaga torre de controle remoto",
+        "site:linkedin.com/posts vaga power bi logistica home office"
     ],
     "core_skills": {
         "wms": 20, "key user": 20, "torre de controle": 18, "logistica": 16,
@@ -30,7 +35,7 @@ CANDIDATE_PROFILE = {
         "uat": 14, "faturamento": 10, "ct-e": 12, "comex": 12, "awb": 10,
         "control desk": 14, "forecast": 12, "armazenagem": 12, "picking": 10,
         "putaway": 10, "alteryx": 12, "oracle": 12, "sql server": 14,
-        "remoto": 10, "home office": 10, "remote": 10, "supply chain": 12
+        "remoto": 12, "home office": 12, "remote": 10, "supply chain": 12
     }
 }
 
@@ -51,6 +56,33 @@ def save_sent_jobs(job_ids):
     with open(SENT_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(list(job_ids)[-800:], f, ensure_ascii=False, indent=2)
 
+def extract_company_and_role(raw_title, link):
+    clean = raw_title.replace(" | LinkedIn", "").strip()
+    if "/posts/" in link:
+        author = clean.split(" no LinkedIn:")[0].split(" on LinkedIn:")[0].strip()
+        return f"Post Feed ({author})", clean
+    m_en = re.match(r"^(.*?)\s+hiring\s+(.*?)(?:\s+in\s+.*)?$", clean, re.IGNORECASE)
+    if m_en:
+        return m_en.group(1).strip(), m_en.group(2).strip()
+    m_pt = re.match(r"^(.*?)\s+contratando\s+(.*?)(?:\s+em\s+.*)?$", clean, re.IGNORECASE)
+    if m_pt:
+        return m_pt.group(1).strip(), m_pt.group(2).strip()
+    if " - " in clean:
+        parts = clean.split(" - ")
+        return parts[1].strip(), parts[0].strip()
+    return "Empresa verificada no LinkedIn", clean
+
+def is_stale_or_crowded(description):
+    text = description.lower()
+    if any(x in text for x in ["mais de 100", "over 100", "100+ applicants", "100+ candidaturas", "200 candidaturas"]):
+        return True
+    if any(x in text for x in ["days ago", "dias atrás", "week", "semana", "month", "mês", "meses"]):
+        return True
+    m_hours = re.search(r"(\d+)\s*(?:hours?|horas?)", text)
+    if m_hours and int(m_hours.group(1)) > 12:
+        return True
+    return False
+
 def calculate_match(title, description):
     text = f"{title} {description}".lower()
     score = 35
@@ -65,50 +97,35 @@ def calculate_match(title, description):
 
 def fetch_bing_linkedin_rss(query):
     encoded = urllib.parse.quote_plus(query)
-    url = f"https://www.bing.com/search?q={encoded}&format=rss"
+    url = f"https://www.bing.com/search?q={encoded}&tbs=qdr:d&format=rss"
     results = []
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
         root = ET.fromstring(resp.content)
         for item in root.findall(".//item"):
-            title = (item.findtext("title") or "").strip()
+            raw_title = (item.findtext("title") or "").strip()
             link = (item.findtext("link") or "").strip()
             desc = (item.findtext("description") or "").strip()
-            if "linkedin.com" in link and title:
+            if "linkedin.com" in link and raw_title:
+                if is_stale_or_crowded(f"{raw_title} {desc}"):
+                    continue
+                company, role = extract_company_and_role(raw_title, link)
+                source_label = "Publicação do Feed (Recrutador)" if "/posts/" in link else "Vaga Oficial LinkedIn"
                 results.append({
-                    "title": title.replace(" | LinkedIn", ""),
+                    "company": company,
+                    "title": role,
                     "link": link,
                     "description": desc,
-                    "source": "LinkedIn (Indexado)"
+                    "source": source_label
                 })
     except Exception as e:
         print(f"[Aviso RSS Bing] {query}: {e}")
     return results
 
-def fetch_remotive_api():
-    results = []
-    for kw in ["logistics", "supply chain", "data analyst", "operations"]:
-        try:
-            url = f"https://remotive.com/api/remote-jobs?search={urllib.parse.quote(kw)}&limit=10"
-            resp = requests.get(url, headers=HEADERS, timeout=15)
-            data = resp.json().get("jobs", [])
-            for j in data:
-                loc = (j.get("candidate_required_location") or "").lower()
-                if any(x in loc for x in ["worldwide", "anywhere", "latam", "latin america", "brazil", "americas"]):
-                    results.append({
-                        "title": f"{j.get('title')} — {j.get('company_name')}",
-                        "link": j.get("url"),
-                        "description": f"{j.get('category', '')} {j.get('candidate_required_location', '')} {j.get('salary', '')}",
-                        "source": "Remotive 100% Remoto"
-                    })
-        except Exception as e:
-            print(f"[Aviso Remotive] {kw}: {e}")
-    return results
-
 def send_whatsapp_callmebot(message):
     if not CALLMEBOT_APIKEY:
-        print("[SIMULACAO WHATSAPP] Configure CALLMEBOT_APIKEY nos Secrets:")
+        print("[SIMULACAO WHATSAPP]")
         print(message)
         return
     url = "https://api.callmebot.com/whatsapp.php"
@@ -124,15 +141,13 @@ def send_whatsapp_callmebot(message):
         print(f"[Erro envio WhatsApp] {e}")
 
 def run_cycle():
-    print(f"=== NATIVAGAS Radar Gratuito: {datetime.now(timezone.utc).isoformat()} ===")
+    print(f"=== NATIVAGAS Radar Vagas + Feed (10 min): {datetime.now(timezone.utc).isoformat()} ===")
     sent_jobs = load_sent_jobs()
     candidates = []
 
     for q in CANDIDATE_PROFILE["search_queries"]:
         candidates.extend(fetch_bing_linkedin_rss(q))
         time.sleep(1)
-
-    candidates.extend(fetch_remotive_api())
 
     new_alerts = 0
     for job in candidates:
@@ -143,20 +158,22 @@ def run_cycle():
         if job_id in sent_jobs:
             continue
 
+        company = job.get("company", "Empresa Confidencial")
         title = job.get("title", "Vaga Compatível")
         desc = job.get("description", "")
-        source = job.get("source", "Web")
-        match_pct, tags = calculate_match(title, desc)
+        source = job.get("source", "LinkedIn")
+        match_pct, tags = calculate_match(f"{company} {title}", desc)
         sent_jobs.add(job_id)
 
         if match_pct >= MIN_MATCH_ALERT:
             tags_str = ", ".join(tags) if tags else "Logística / Processos / Dados"
             msg = (
                 f"🚀 *NATIVAGAS — {match_pct}% MATCH*\n\n"
-                f"💼 *{title}*\n"
-                f"📡 Fonte: {source}\n"
-                f"🎯 *Palavras-chave do seu CV:* {tags_str}\n\n"
-                f"🔗 *Acessar vaga:* {link}"
+                f"🏢 *Origem:* {company}\n"
+                f"💼 *Oportunidade:* {title}\n"
+                f"📡 *Canal:* {source}\n"
+                f"🎯 *Skills do seu CV:* {tags_str}\n\n"
+                f"🔗 *Acessar publicação/vaga:* {link}"
             )
             send_whatsapp_callmebot(msg)
             new_alerts += 1
