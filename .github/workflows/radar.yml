@@ -1,0 +1,39 @@
+name: NATIVAGAS Radar Gratuito 24x7
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  buscar-vagas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Rodar NATIVAGAS e notificar WhatsApp
+        env:
+          WHATSAPP_NUMBER: ${{ secrets.WHATSAPP_NUMBER }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+          MIN_MATCH_ALERT: "72"
+        run: python worker.py
+
+      - name: Salvar historico de vagas enviadas
+        run: |
+          git config user.name "NATIVAGAS Bot"
+          git config user.email "bot@nativagas.local"
+          git add sent_jobs.json || true
+          git commit -m "Atualiza historico de vagas enviadas" || exit 0
+          git push
