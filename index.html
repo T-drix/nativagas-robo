@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NATIVAGAS — Na Ativa nas Melhores Vagas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b1120; }
+    .bg-grid-pattern {
+      background-color: #f8fafc;
+      background-image: linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-6 px-3 sm:px-6 text-slate-900">
+
+  <div class="max-w-5xl mx-auto bg-grid-pattern rounded-[28px] shadow-2xl border border-slate-200/80 overflow-hidden">
+    
+    <!-- TOP BAR -->
+    <header class="px-6 sm:px-10 pt-7 pb-5 border-b border-slate-200/70 bg-white/80 backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+          nv
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-2xl font-black tracking-tight">
+              <span class="text-blue-600">NATI</span><span class="text-slate-900">VAGAS</span>
+            </h1>
+            <span class="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wide uppercase">
+              ● Na Ativa nas Vagas
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium mt-0.5">
+            Curadoria Inteligente & Radar ATS • Perfil: <strong id="activeUserLabel" class="text-slate-700">Natália Cristine (Logística & WMS)</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold flex items-center gap-2 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Radar: <strong id="timerDisplay" class="font-mono text-emerald-300">03:00</strong></span>
+          <button onclick="triggerScan(true)" class="ml-1 px-2 py-0.5 rounded bg-blue-600 hover:bg-blue-500 text-[11px] font-bold transition">
+            Atualizar
+          </button>
+        </div>
+
+        <button onclick="openModal('cvModal')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+          Meu Currículo & Otimizador ATS
+        </button>
+
+        <button onclick="openModal('authModal')" id="authBtn" class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-sm transition">
+          Entrar / Criar Conta
+        </button>
+      </div>
+    </header>
+
+    <!-- FILTROS DE BUSCA -->
+    <section class="px-6 sm:px-10 py-5 bg-white/60 border-b border-slate-200/70">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="lg:col-span-2">
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Cargo, Skill ou Cidade</label>
+          <input id="filterKeyword" oninput="renderJobs()" type="text" placeholder="Ex: Key User WMS, Torre de Controle, Power BI..."
+            class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Modalidade</label>
+          <select id="filterModality" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todas (Remoto/Híb/Pres)</option>
+            <option value="100% Remoto">100% Remoto</option>
+            <option value="Híbrido">Híbrido</option>
+            <option value="Presencial">Presencial</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</label>
+          <select id="filterContract" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Todos (CLT / PJ / Free)</option>
+            <option value="CLT">CLT</option>
+            <option value="PJ">PJ</option>
+            <option value="Freelance">Freelance</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Faixa Salarial Mín.</label>
+          <select id="filterSalary" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="0">Qualquer valor</option>
+            <option value="4000">Acima de R$ 4.000</option>
+            <option value="6000">Acima de R$ 6.000</option>
+            <option value="8000">Acima de R$ 8.000</option>
+            <option value="10000">Acima de R$ 10.000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <div>
+          Exibindo <strong id="jobsCount" class="text-slate-800">0</strong> oportunidades ordenadas por aderência ao seu currículo
+        </div>
+        <div class="flex items-center gap-2">
+          <span>Ordenar por:</span>
+          <select id="sortBy" onchange="renderJobs()" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-semibold text-slate-700">
+            <option value="match">Maior % Match</option>
+            <option value="recent">Mais Recentes</option>
+            <option value="salary">Maior Salário</option>
+            <option value="applicants">Menor Concorrência</option>
+          </select>
+          <button onclick="openDirectLinkedInSearch()" class="ml-2 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition">
+            Pesquisar Direto no LinkedIn ↗
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LISTA DE VAGAS -->
+    <main id="jobsContainer" class="p-6 sm:p-10 space-y-7"></main>
+
+  </div>
+
+  <!-- MODAL CURRÍCULO & OTIMIZADOR ATS -->
+  <div id="cvModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h2 class="text-xl font-black text-slate-900">Analisador de Currículo & Otimizador ATS</h2>
+          <p class="text-xs text-slate-500">Cole ou edite seu currículo abaixo para recalcular o % Match das vagas e gerar uma versão otimizada.</p>
+        </div>
+        <button onclick="closeModal('cvModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+      </div>
+
+      <div class="mt-4">
+        <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Texto do seu Currículo Atual</label>
+        <textarea id="cvTextarea" rows="7" class="w-full p-3.5 rounded-2xl border border-slate-200 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button onclick="saveAndRecalculateCV()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow">
+          Salvar & Recalcular % Match das Vagas
+        </button>
+        <button onclick="runATSOptimizer()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow">
+          Analisar CV & Gerar Sugestão Otimizada (ATS)
+        </button>
+      </div>
+
+      <div id="atsResultBox" class="hidden mt-6 p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black uppercase tracking-wider text-emerald-700">Diagnóstico de Recrutamento & Seleção</span>
+          <span id="atsScoreBadge" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">Score ATS: 94/100</span>
+        </div>
+        <div id="atsAnalysisText" class="text-xs text-slate-700 space-y-2 leading-relaxed"></div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-slate-800">Sugestão de Novo Currículo Otimizado (Pronto para Copiar):</span>
+            <button onclick="copyOptimizedCV()" class="text-xs font-bold text-blue-600 hover:underline">Copiar Texto</button>
+          </div>
+          <textarea id="optimizedCvOutput" rows="8" readonly class="w-full p-3.5 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-800"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LOGIN / CADASTRO -->
+  <div id="authModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h2 class="text-lg font-black text-slate-900">Acesso NATIVAGAS</h2>
+        <button onclick="closeModal('authModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+      </div>
+      <div class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">Seu Nome</label>
+          <input id="loginName" type="text" placeholder="Ex: Natália Cristine" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">E-mail</label>
+          <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm" />
+        </div>
+        <button onclick="saveUserAccount()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow mt-2">
+          Entrar & Salvar Perfil no Navegador
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_CV = `NATÁLIA CRISTINE DA SILVA
+ANALISTA DE LOGÍSTICA SÊNIOR / PLENO | KEY USER WMS & PROCESSOS | TORRE DE CONTROLE | POWER BI, SQL & VBA
+São Paulo - SP | +10 anos de experiência em Logística, Armazenagem, Transporte Rodoviário, Torre de Controle, Comércio Exterior (AWB, BL, Invoice, Packing List, CT-e) e Análise de Dados (Power BI, SQL Server, Oracle, Excel Avançado/VBA, Alteryx).
+Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: planta virtual, endereçamento, putaway, picking, coletores RF, inventário cíclico, conciliação físico vs. fiscal, mapeamento BPMN (AS-IS/TO-BE), POPs, Matriz RACI, testes homologatórios (UAT) e roteirização LIFO/Cutoff.`;
+
+    const INITIAL_JOBS = [
+      {
+        id: 1,
+        title: "Analista de Logística Sênior — Key User WMS & Processos",
+        company: "Operador Logístico Nacional (Confidencial)",
+        modality: "100% Remoto",
+        location: "100% Remoto • Qualquer lugar do Brasil",
+        salaryMin: 8500,
+        salaryDisplay: "R$ 8.500 – R$ 10.200",
+        salaryNote: "Pacote Competitivo + Bônus",
+        contract: "CLT",
+        contractNote: "Início Imediato",
+        applicants: 14,
+        postedMinutes: 4,
+        stack: "WMS • BPMN • UAT",
+        requirements: [
+          "Vivência como Key User em implantação/parametrização de WMS e coletores RF",
+          "Mapeamento de processos (AS-IS/TO-BE), criação de POPs e liderança de testes UAT"
+        ],
+        benefits: [
+          "100% Home Office com auxílio estrutura",
+          "Plano de saúde nacional + VA/VR R$ 1.150"
+        ],
+        keywords: ["wms", "key user", "bpmn", "uat", "pop", "logistica", "inventario", "picking", "putaway"]
+      },
+      {
+        id: 2,
+        title: "Especialista de Torre de Controle & Roteirização (LIFO / SLA)",
+        company: "Transportes & Supply Chain Brasil",
+        modality: "100% Remoto",
+        location: "100% Remoto • Base SP (Atuação Nacional)",
+        salaryMin: 7800,
+        salaryDisplay: "R$ 7.800 – R$ 9.500",
+        salaryNote: "CLT ou PJ à escolha",
+        contract: "CLT",
+        contractNote: "Flexível CLT / PJ",
+        applicants: 19,
+        postedMinutes: 11,
+        stack: "Torre de Controle • Power BI",
+        requirements: [
+          "Gestão de Torre de Controle, janela de Cutoff, roteirização LIFO e tracking em tempo real",
+          "Domínio de Power BI, SQL e Excel/VBA para painéis executivos de SLA e frete"
+        ],
+        benefits: [
+          "Trabalho 100% remoto sem deslocamento",
+          "PLR anual + Seguro de vida + Auxílio home office"
+        ],
+        keywords: ["torre de controle", "roteirizacao", "lifo", "cutoff", "power bi", "sql", "vba", "sla", "logistica"]
+      },
+      {
+        id: 3,
+        title: "Analista de MIS & Dados Logísticos Pleno/Sênior (SQL / Power BI)",
+        company: "Tech Logistics & Varejo S.A.",
+        modality: "100% Remoto",
+        location: "100% Remoto • Brasil",
+        salaryMin: 7200,
+        salaryDisplay: "R$ 7.200 – R$ 8.800",
+        salaryNote: "Pacote Completo",
+        contract: "CLT",
+        contractNote: "Contratação Direta",
+        applicants: 27,
+        postedMinutes: 18,
+        stack: "SQL Server • Power BI • VBA",
+        requirements: [
+          "Automação de relatórios gerenciais usando SQL Server/Oracle e Excel com VBA",
+          "Construção de dashboards estratégicos de KPIs operacionais e produtividade"
+        ],
+        benefits: [
+          "100% Remoto + Horário flexível",
+          "Vale-alimentação/refeição flexível + Gympass"
+        ],
+        keywords: ["mis", "sql", "oracle", "power bi", "vba", "excel", "kpi", "logistica"]
+      },
+      {
+        id: 4,
+        title: "Analista de Transporte & Comércio Exterior Sênior",
+        company: "Global Cargo & Comex Solutions",
+        modality: "Híbrido",
+        location: "Híbrido • São Paulo / Barueri - SP",
+        salaryMin: 6800,
+        salaryDisplay: "R$ 6.800 – R$ 8.200",
+        salaryNote: "2x presencial / 3x remoto",
+        contract: "CLT",
+        contractNote: "Início Imediato",
+        applicants: 11,
+        postedMinutes: 25,
+        stack: "Comex • CT-e • AWB / BL",
+        requirements: [
+          "Conferência documental internacional (AWB, BL, Invoice, Packing List, CT-e)",
+          "Negociação de fretes rodoviários e prevenção de perdas/gerenciamento de risco"
+        ],
+        benefits: [
+          "Modelo híbrido flexível (3 dias home office)",
+          "Assistência médica e odontológica + VR"
+        ],
+        keywords: ["comex", "comercio exterior", "awb", "bl", "invoice", "packing list", "ct-e", "transporte"]
+      },
+      {
+        id: 5,
+        title: "Consultor Funcional WMS / Implantação (Projeto)",
+        company: "Consultoria ERP & Supply Chain",
+        modality: "100% Remoto",
+        location: "100% Remoto • Brasil",
+        salaryMin: 9500,
+        salaryDisplay: "R$ 9.500 – R$ 12.000",
+        salaryNote: "Contrato PJ",
+        contract: "PJ",
+        contractNote: "Remoto Integral",
+        applicants: 8,
+        postedMinutes: 32,
+        stack: "Consultoria WMS • ERP",
+        requirements: [
+          "Experiência prática em planta virtual, endereçamento, curva ABC e inventário cíclico",
+          "Capacidade de atuar como ponte entre operação de armazém e equipe de TI"
+        ],
+        benefits: [
+          "100% Remoto com autonomia de agenda",
+          "Possibilidade de renovação contínua"
+        ],
+        keywords: ["wms", "erp", "planta virtual", "inventario", "curva abc", "key user", "logistica"]
+      }
+    ];
+
+    let jobsData = [...INITIAL_JOBS];
+    let secondsLeft = 180;
+
+    function getCVText() {
+      return localStorage.getItem("nativagas_cv") || DEFAULT_CV;
+    }
+
+    function computeMatch(job) {
+      const cv = getCVText().toLowerCase();
+      let score = 48;
+      job.keywords.forEach(kw => {
+        if (cv.includes(kw)) score += 7;
+      });
+      if (job.modality === "100% Remoto") score += 4;
+      return Math.min(score, 98);
+    }
+
+    function buildLinkedInUrl(job) {
+      const q = encodeURIComponent(job.title.split("—")[0].trim());
+      const wt = job.modality === "100% Remoto" ? "&f_WT=2" : (job.modality === "Híbrido" ? "&f_WT=3" : "&f_WT=1");
+      return `https://www.linkedin.com/jobs/search/?keywords=${q}&location=Brasil${wt}&sortBy=DD`;
+    }
+
+    function openDirectLinkedInSearch() {
+      const kw = document.getElementById("filterKeyword").value.trim() || "Analista de Logística WMS";
+      const mod = document.getElementById("filterModality").value;
+      const wt = mod === "100% Remoto" ? "&f_WT=2" : (mod === "Híbrido" ? "&f_WT=3" : (mod === "Presencial" ? "&f_WT=1" : ""));
+      window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(kw)}&location=Brasil${wt}&sortBy=DD`, "_blank");
+    }
+
+    function renderJobs() {
+      const kw = document.getElementById("filterKeyword").value.toLowerCase().trim();
+      const mod = document.getElementById("filterModality").value;
+      const contract = document.getElementById("filterContract").value;
+      const minSal = Number(document.getElementById("filterSalary").value);
+      const sortBy = document.getElementById("sortBy").value;
+
+      let enriched = jobsData.map(j => ({ ...j, match: computeMatch(j) }));
+
+      let filtered = enriched.filter(j => {
+        const textMatch = !kw || `${j.title} ${j.company} ${j.location} ${j.stack}`.toLowerCase().includes(kw);
+        const modMatch = mod === "all" || j.modality === mod;
+        const contractMatch = contract === "all" || j.contract === contract;
+        const salMatch = j.salaryMin >= minSal;
+        return textMatch && modMatch && contractMatch && salMatch;
+      });
+
+      if (sortBy === "match") filtered.sort((a, b) => b.match - a.match);
+      if (sortBy === "recent") filtered.sort((a, b) => a.postedMinutes - b.postedMinutes);
+      if (sortBy === "salary") filtered.sort((a, b) => b.salaryMin - a.salaryMin);
+      if (sortBy === "applicants") filtered.sort((a, b) => a.applicants - b.applicants);
+
+      document.getElementById("jobsCount").textContent = filtered.length;
+      const container = document.getElementById("jobsContainer");
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-10 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-sm">Nenhuma vaga encontrada com esses filtros. Tente limpar a busca ou clicar em <strong>Pesquisar Direto no LinkedIn</strong>.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(job => {
+        const linkedInLink = buildLinkedInUrl(job);
+        const matchColor = job.match >= 85 ? "bg-emerald-600 text-white" : "bg-blue-600 text-white";
+        return `
+        <article class="bg-white/95 rounded-[24px] p-6 sm:p-8 shadow-md border border-slate-200/90 hover:shadow-xl transition">
+          <!-- Linha superior de badges -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+              <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">🏢 ${job.company}</span>
+              <span class="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">● Contratação Aberta</span>
+              <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600">👥 ${job.applicants} candidatos</span>
+              <span class="px-3 py-1 rounded-lg bg-amber-50 text-amber-700">⏱ Há ${job.postedMinutes} min</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full ${matchColor} text-xs font-black shadow-sm">
+                🎯 ${job.match}% MATCH
+              </span>
+              <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                ● VAGA VERIFICADA
+              </span>
+            </div>
+          </div>
+
+          <!-- Título e Stack -->
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">${job.title}</h2>
+          <div class="mt-2 flex items-center gap-2 text-xs text-slate-500 font-semibold">
+            <span class="uppercase tracking-wider text-[11px]">STACK:</span>
+            <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200">${job.stack}</span>
+          </div>
+
+          <!-- 3 Cards Centrais -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+            <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Modalidade & Local</div>
+              <div class="text-base font-black text-blue-600 mt-1">${job.modality}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${job.location}</div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400/70 shadow-sm">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Faixa Salarial</div>
+              <div class="text-lg font-black text-slate-900 mt-1">${job.salaryDisplay}</div>
+              <div class="text-xs font-semibold text-emerald-700 mt-0.5">${job.salaryNote}</div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Contrato</div>
+              <div class="text-base font-black text-slate-900 mt-1">${job.contract}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${job.contractNote}</div>
+            </div>
+          </div>
+
+          <!-- Requisitos & Benefícios -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80">
+              <div class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">☑ Requisitos Principais</div>
+              <ul class="space-y-1.5 text-xs text-slate-600">
+                ${job.requirements.map(r => `<li class="p-2 rounded-lg bg-slate-50 border border-slate-100">› ${r}</li>`).join("")}
+              </ul>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-white border border-slate-200/80">
+              <div class="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">★ Benefícios & Vantagens</div>
+              <ul class="space-y-1.5 text-xs text-slate-600">
+                ${job.benefits.map(b => `<li class="p-2 rounded-lg bg-slate-50 border border-slate-100">✓ ${b}</li>`).join("")}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Banner Escuro Inferior -->
+          <div class="mt-5 p-4 sm:px-6 rounded-2xl bg-slate-950 text-white flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-blue-400">⚡ Candidatura Direta & Filtrada</div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-200">Acesse as vagas correspondentes agora no LinkedIn:</div>
+            </div>
+            <a href="${linkedInLink}" target="_blank" rel="noopener noreferrer"
+               class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-xs sm:text-sm font-black shadow-lg shadow-blue-500/30 transition">
+              Candidatar-se no LinkedIn →
+            </a>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    function triggerScan(manual = false) {
+      secondsLeft = 180;
+      jobsData = jobsData.map(j => ({
+        ...j,
+        postedMinutes: manual ? Math.max(1, j.postedMinutes - 1) : j.postedMinutes + 3
+      }));
+      renderJobs();
+    }
+
+    setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) triggerScan(false);
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
+      const s = String(secondsLeft % 60).padStart(2, "0");
+      document.getElementById("timerDisplay").textContent = `${m}:${s}`;
+    }, 1000);
+
+    function openModal(id) {
+      if (id === "cvModal") {
+        document.getElementById("cvTextarea").value = getCVText();
+      }
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    function saveAndRecalculateCV() {
+      const txt = document.getElementById("cvTextarea").value.trim();
+      if (txt) {
+        localStorage.setItem("nativagas_cv", txt);
+        renderJobs();
+        alert("Currículo salvo! Todas as porcentagens de Match foram recalculadas.");
+      }
+    }
+
+    function runATSOptimizer() {
+      const cv = document.getElementById("cvTextarea").value.trim();
+      document.getElementById("atsResultBox").classList.remove("hidden");
+      document.getElementById("atsAnalysisText").innerHTML = `
+        <p><strong>• Pontos Fortes Detectados:</strong> Excelente combinação híbrida entre operação logística (WMS, Torre de Controle, Comex) e inteligência de dados (Power BI, SQL, VBA), perfil altamente disputado por filtros ATS.</p>
+        <p><strong>• Recomendação de Recrutadores:</strong> Incluir métricas quantitativas de impacto no topo do resumo (ex: % de redução de tempo em doca, acuracidade de inventário e economia de frete) e padronizar o título profissional com palavras-chave exatas buscadas por headhunters.</p>
+      `;
+      document.getElementById("optimizedCvOutput").value = `NATÁLIA CRISTINE DA SILVA
+Analista de Logística Sênior | Key User WMS & Processos | Torre de Controle | Power BI, SQL & VBA
+São Paulo - SP (Disponível 100% Remoto / Híbrido) | (11) 95907-4897 | linkedin.com/in/nataliacristinesalles
+
+RESUMO EXECUTIVO (OTIMIZADO PARA FILTROS ATS)
+Especialista em Logística, Armazenagem, Torre de Controle e Inteligência de Dados (BI) com +10 anos de experiência na interface estratégica entre Operação, Processos e Tecnologia. Atuação comprovada como Key User na implantação de sistemas WMS/ERP, mapeamento BPMN (AS-IS/TO-BE), criação de POPs, Matriz RACI, testes homologatórios (UAT) e automação de KPIs/SLAs via Power BI, SQL Server, Oracle e Excel/VBA.
+
+COMPETÊNCIAS-CHAVE & SISTEMAS
+• WMS & Armazenagem: Planta Virtual, Endereçamento, Curva ABC, Putaway, Picking, Coletores RF, Inventário Cíclico, Conciliação Físico vs. Fiscal.
+• Torre de Controle & Transporte: Roteirização Geoespacial (LIFO/Cutoff), Gestão de SLA, Negociação de Fretes, Comércio Exterior (AWB, BL, Invoice, Packing List, CT-e).
+• Dados & Automação: Power BI, SQL Server, Oracle, Excel Avançado com VBA, Alteryx, Jira, BPMN.
+
+${cv}`;
+    }
+
+    function copyOptimizedCV() {
+      const out = document.getElementById("optimizedCvOutput");
+      out.select();
+      document.execCommand("copy");
+      alert("Novo currículo otimizado copiado!");
+    }
+
+    function saveUserAccount() {
+      const name = document.getElementById("loginName").value.trim();
+      const email = document.getElementById("loginEmail").value.trim();
+      if (!name) return alert("Digite seu nome para salvar.");
+      localStorage.setItem("nativagas_user", JSON.stringify({ name, email }));
+      document.getElementById("activeUserLabel").textContent = name;
+      document.getElementById("authBtn").textContent = `👤 ${name.split(" ")[0]}`;
+      closeModal("authModal");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedUser = localStorage.getItem("nativagas_user");
+      if (savedUser) {
+        const u = JSON.parse(savedUser);
+        document.getElementById("activeUserLabel").textContent = u.name;
+        document.getElementById("authBtn").textContent = `👤 ${u.name.split(" ")[0]}`;
+      }
+      renderJobs();
+    });
+  </script>
+</body>
+</html>
