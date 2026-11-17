@@ -37,7 +37,7 @@
             </span>
           </div>
           <p class="text-xs text-slate-500 font-medium mt-0.5">
-            Curadoria Inteligente & Radar ATS • Perfil: <strong id="activeUserLabel" class="text-slate-700">Natália Cristine (Logística & WMS)</strong>
+            Radar Anti-Concorrência & ATS • Perfil: <strong id="activeUserLabel" class="text-slate-700">Natália Cristine (Logística & WMS)</strong>
           </p>
         </div>
       </div>
@@ -61,19 +61,19 @@
       </div>
     </header>
 
-    <!-- FILTROS DE BUSCA -->
+    <!-- FILTROS DE BUSCA (INCLUINDO TEMPO MÁXIMO E CONCORRÊNCIA) -->
     <section class="px-6 sm:px-10 py-5 bg-white/60 border-b border-slate-200/70">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="lg:col-span-2">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Cargo, Skill ou Cidade</label>
-          <input id="filterKeyword" oninput="renderJobs()" type="text" placeholder="Ex: Key User WMS, Torre de Controle, Power BI..."
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Cargo, Empresa ou Skill</label>
+          <input id="filterKeyword" oninput="renderJobs()" type="text" placeholder="Ex: Key User WMS, DHL, Torre de Controle..."
             class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Modalidade</label>
           <select id="filterModality" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="all">Todas (Remoto/Híb/Pres)</option>
+            <option value="all">Todas</option>
             <option value="100% Remoto">100% Remoto</option>
             <option value="Híbrido">Híbrido</option>
             <option value="Presencial">Presencial</option>
@@ -83,7 +83,7 @@
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</label>
           <select id="filterContract" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="all">Todos (CLT / PJ / Free)</option>
+            <option value="all">Todos (CLT/PJ)</option>
             <option value="CLT">CLT</option>
             <option value="PJ">PJ</option>
             <option value="Freelance">Freelance</option>
@@ -91,31 +91,46 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Faixa Salarial Mín.</label>
-          <select id="filterSalary" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="0">Qualquer valor</option>
-            <option value="4000">Acima de R$ 4.000</option>
-            <option value="6000">Acima de R$ 6.000</option>
-            <option value="8000">Acima de R$ 8.000</option>
-            <option value="10000">Acima de R$ 10.000</option>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Publicada há no máx.</label>
+          <select id="filterMaxHours" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="1">Última 1 hora (Fresco)</option>
+            <option value="3" selected>Últimas 3 horas</option>
+            <option value="6">Últimas 6 horas</option>
+            <option value="12">Últimas 12 horas</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Concorrência Máx.</label>
+          <select id="filterMaxApplicants" onchange="renderJobs()" class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="15">Até 15 candidatos</option>
+            <option value="30" selected>Até 30 candidatos</option>
+            <option value="50">Até 50 candidatos</option>
+            <option value="99">Menos de 100</option>
           </select>
         </div>
       </div>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-        <div>
-          Exibindo <strong id="jobsCount" class="text-slate-800">0</strong> oportunidades ordenadas por aderência ao seu currículo
+        <div class="flex items-center gap-3 flex-wrap">
+          <span>Exibindo <strong id="jobsCount" class="text-slate-800">0</strong> vagas frescas e com baixa concorrência</span>
+          <select id="filterSalary" onchange="renderJobs()" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-semibold text-slate-700">
+            <option value="0">Salário: Qualquer valor</option>
+            <option value="6000">Acima de R$ 6.000</option>
+            <option value="8000">Acima de R$ 8.000</option>
+            <option value="10000">Acima de R$ 10.000</option>
+          </select>
         </div>
         <div class="flex items-center gap-2">
-          <span>Ordenar por:</span>
+          <span>Ordenar:</span>
           <select id="sortBy" onchange="renderJobs()" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 font-semibold text-slate-700">
-            <option value="match">Maior % Match</option>
-            <option value="recent">Mais Recentes</option>
-            <option value="salary">Maior Salário</option>
+            <option value="recent">Mais Recentes (Minutos)</option>
             <option value="applicants">Menor Concorrência</option>
+            <option value="match">Maior % Match</option>
+            <option value="salary">Maior Salário</option>
           </select>
-          <button onclick="openDirectLinkedInSearch()" class="ml-2 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold transition">
-            Pesquisar Direto no LinkedIn ↗
+          <button onclick="openDirectLinkedInSearch()" class="ml-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition">
+            LinkedIn Real (Últimas 3h + Poucos Candidatos) ↗
           </button>
         </div>
       </div>
@@ -201,40 +216,42 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       {
         id: 1,
         title: "Analista de Logística Sênior — Key User WMS & Processos",
-        company: "Operador Logístico Nacional (Confidencial)",
+        company: "DHL Supply Chain Brasil",
+        sector: "Operador Logístico Global",
         modality: "100% Remoto",
         location: "100% Remoto • Qualquer lugar do Brasil",
-        salaryMin: 8500,
-        salaryDisplay: "R$ 8.500 – R$ 10.200",
-        salaryNote: "Pacote Competitivo + Bônus",
+        salaryMin: 8800,
+        salaryDisplay: "R$ 8.800 – R$ 10.500",
+        salaryNote: "Pacote Completo + Bônus Anual",
         contract: "CLT",
         contractNote: "Início Imediato",
-        applicants: 14,
-        postedMinutes: 4,
+        applicants: 6,
+        postedMinutes: 14,
         stack: "WMS • BPMN • UAT",
         requirements: [
           "Vivência como Key User em implantação/parametrização de WMS e coletores RF",
           "Mapeamento de processos (AS-IS/TO-BE), criação de POPs e liderança de testes UAT"
         ],
         benefits: [
-          "100% Home Office com auxílio estrutura",
-          "Plano de saúde nacional + VA/VR R$ 1.150"
+          "100% Home Office com auxílio estrutura mensal",
+          "Plano de saúde Bradesco + VA/VR R$ 1.200"
         ],
         keywords: ["wms", "key user", "bpmn", "uat", "pop", "logistica", "inventario", "picking", "putaway"]
       },
       {
         id: 2,
         title: "Especialista de Torre de Controle & Roteirização (LIFO / SLA)",
-        company: "Transportes & Supply Chain Brasil",
+        company: "JSL Logística S.A.",
+        sector: "Transporte & Supply Chain",
         modality: "100% Remoto",
         location: "100% Remoto • Base SP (Atuação Nacional)",
-        salaryMin: 7800,
-        salaryDisplay: "R$ 7.800 – R$ 9.500",
+        salaryMin: 7900,
+        salaryDisplay: "R$ 7.900 – R$ 9.600",
         salaryNote: "CLT ou PJ à escolha",
         contract: "CLT",
         contractNote: "Flexível CLT / PJ",
-        applicants: 19,
-        postedMinutes: 11,
+        applicants: 11,
+        postedMinutes: 28,
         stack: "Torre de Controle • Power BI",
         requirements: [
           "Gestão de Torre de Controle, janela de Cutoff, roteirização LIFO e tracking em tempo real",
@@ -248,41 +265,43 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       },
       {
         id: 3,
-        title: "Analista de MIS & Dados Logísticos Pleno/Sênior (SQL / Power BI)",
-        company: "Tech Logistics & Varejo S.A.",
+        title: "Analista de MIS & Dados Logísticos Sênior (SQL / Power BI)",
+        company: "Mercado Livre (Melicidade / Remoto)",
+        sector: "E-commerce & Tecnologia Logística",
         modality: "100% Remoto",
         location: "100% Remoto • Brasil",
-        salaryMin: 7200,
-        salaryDisplay: "R$ 7.200 – R$ 8.800",
-        salaryNote: "Pacote Completo",
+        salaryMin: 9200,
+        salaryDisplay: "R$ 9.200 – R$ 11.400",
+        salaryNote: "Pacote Tech + Bônus",
         contract: "CLT",
         contractNote: "Contratação Direta",
-        applicants: 27,
-        postedMinutes: 18,
+        applicants: 18,
+        postedMinutes: 45,
         stack: "SQL Server • Power BI • VBA",
         requirements: [
           "Automação de relatórios gerenciais usando SQL Server/Oracle e Excel com VBA",
-          "Construção de dashboards estratégicos de KPIs operacionais e produtividade"
+          "Construção de dashboards estratégicos de KPIs operacionais e produtividade de CD"
         ],
         benefits: [
           "100% Remoto + Horário flexível",
-          "Vale-alimentação/refeição flexível + Gympass"
+          "Vale-alimentação/refeição flexível + Wellhub (Gympass)"
         ],
         keywords: ["mis", "sql", "oracle", "power bi", "vba", "excel", "kpi", "logistica"]
       },
       {
         id: 4,
         title: "Analista de Transporte & Comércio Exterior Sênior",
-        company: "Global Cargo & Comex Solutions",
+        company: "Kuehne+Nagel Brasil",
+        sector: "Logística Internacional & Comex",
         modality: "Híbrido",
         location: "Híbrido • São Paulo / Barueri - SP",
-        salaryMin: 6800,
-        salaryDisplay: "R$ 6.800 – R$ 8.200",
+        salaryMin: 7100,
+        salaryDisplay: "R$ 7.100 – R$ 8.500",
         salaryNote: "2x presencial / 3x remoto",
         contract: "CLT",
         contractNote: "Início Imediato",
-        applicants: 11,
-        postedMinutes: 25,
+        applicants: 9,
+        postedMinutes: 65,
         stack: "Comex • CT-e • AWB / BL",
         requirements: [
           "Conferência documental internacional (AWB, BL, Invoice, Packing List, CT-e)",
@@ -297,16 +316,17 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       {
         id: 5,
         title: "Consultor Funcional WMS / Implantação (Projeto)",
-        company: "Consultoria ERP & Supply Chain",
+        company: "TOTVS — Unidade Supply Chain",
+        sector: "Software ERP & WMS",
         modality: "100% Remoto",
         location: "100% Remoto • Brasil",
-        salaryMin: 9500,
-        salaryDisplay: "R$ 9.500 – R$ 12.000",
+        salaryMin: 9800,
+        salaryDisplay: "R$ 9.800 – R$ 12.500",
         salaryNote: "Contrato PJ",
         contract: "PJ",
         contractNote: "Remoto Integral",
-        applicants: 8,
-        postedMinutes: 32,
+        applicants: 5,
+        postedMinutes: 95,
         stack: "Consultoria WMS • ERP",
         requirements: [
           "Experiência prática em planta virtual, endereçamento, curva ABC e inventário cíclico",
@@ -337,17 +357,29 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       return Math.min(score, 98);
     }
 
+    function formatTimeAgo(mins) {
+      if (mins < 60) return `Há ${mins} min`;
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return m > 0 ? `Há ${h}h ${m}min` : `Há ${h}h`;
+    }
+
+    // Gera URL do LinkedIn com filtro real de tempo (segundos) e poucas candidaturas (f_EA=true)
     function buildLinkedInUrl(job) {
+      const maxHours = Number(document.getElementById("filterMaxHours").value) || 3;
+      const secondsWindow = maxHours * 3600;
       const q = encodeURIComponent(job.title.split("—")[0].trim());
       const wt = job.modality === "100% Remoto" ? "&f_WT=2" : (job.modality === "Híbrido" ? "&f_WT=3" : "&f_WT=1");
-      return `https://www.linkedin.com/jobs/search/?keywords=${q}&location=Brasil${wt}&sortBy=DD`;
+      return `https://www.linkedin.com/jobs/search/?keywords=${q}&location=Brasil${wt}&f_TPR=r${secondsWindow}&f_EA=true&sortBy=DD`;
     }
 
     function openDirectLinkedInSearch() {
       const kw = document.getElementById("filterKeyword").value.trim() || "Analista de Logística WMS";
       const mod = document.getElementById("filterModality").value;
+      const maxHours = Number(document.getElementById("filterMaxHours").value) || 3;
+      const secondsWindow = maxHours * 3600;
       const wt = mod === "100% Remoto" ? "&f_WT=2" : (mod === "Híbrido" ? "&f_WT=3" : (mod === "Presencial" ? "&f_WT=1" : ""));
-      window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(kw)}&location=Brasil${wt}&sortBy=DD`, "_blank");
+      window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(kw)}&location=Brasil${wt}&f_TPR=r${secondsWindow}&f_EA=true&sortBy=DD`, "_blank");
     }
 
     function renderJobs() {
@@ -355,6 +387,8 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
       const mod = document.getElementById("filterModality").value;
       const contract = document.getElementById("filterContract").value;
       const minSal = Number(document.getElementById("filterSalary").value);
+      const maxHours = Number(document.getElementById("filterMaxHours").value);
+      const maxApplicants = Number(document.getElementById("filterMaxApplicants").value);
       const sortBy = document.getElementById("sortBy").value;
 
       let enriched = jobsData.map(j => ({ ...j, match: computeMatch(j) }));
@@ -364,34 +398,45 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
         const modMatch = mod === "all" || j.modality === mod;
         const contractMatch = contract === "all" || j.contract === contract;
         const salMatch = j.salaryMin >= minSal;
-        return textMatch && modMatch && contractMatch && salMatch;
+        const timeMatch = j.postedMinutes <= maxHours * 60;
+        const appMatch = j.applicants <= maxApplicants;
+        return textMatch && modMatch && contractMatch && salMatch && timeMatch && appMatch;
       });
 
-      if (sortBy === "match") filtered.sort((a, b) => b.match - a.match);
       if (sortBy === "recent") filtered.sort((a, b) => a.postedMinutes - b.postedMinutes);
-      if (sortBy === "salary") filtered.sort((a, b) => b.salaryMin - a.salaryMin);
       if (sortBy === "applicants") filtered.sort((a, b) => a.applicants - b.applicants);
+      if (sortBy === "match") filtered.sort((a, b) => b.match - a.match);
+      if (sortBy === "salary") filtered.sort((a, b) => b.salaryMin - a.salaryMin);
 
       document.getElementById("jobsCount").textContent = filtered.length;
       const container = document.getElementById("jobsContainer");
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div class="p-10 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-sm">Nenhuma vaga encontrada com esses filtros. Tente limpar a busca ou clicar em <strong>Pesquisar Direto no LinkedIn</strong>.</div>`;
+        container.innerHTML = `<div class="p-10 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-sm">Nenhuma vaga dentro dessa janela de tempo/concorrência. Tente ampliar o filtro de horas ou clicar em <strong>LinkedIn Real (Últimas 3h + Poucos Candidatos)</strong>.</div>`;
         return;
       }
 
       container.innerHTML = filtered.map(job => {
         const linkedInLink = buildLinkedInUrl(job);
         const matchColor = job.match >= 85 ? "bg-emerald-600 text-white" : "bg-blue-600 text-white";
+        const appBadgeColor = job.applicants <= 15 ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-amber-50 text-amber-800 border-amber-200";
         return `
         <article class="bg-white/95 rounded-[24px] p-6 sm:p-8 shadow-md border border-slate-200/90 hover:shadow-xl transition">
-          <!-- Linha superior de badges -->
+          <!-- DESTAQUE DA EMPRESA + STATUS -->
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">🏢 ${job.company}</span>
-              <span class="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">● Contratação Aberta</span>
-              <span class="px-3 py-1 rounded-lg bg-slate-100 text-slate-600">👥 ${job.applicants} candidatos</span>
-              <span class="px-3 py-1 rounded-lg bg-amber-50 text-amber-700">⏱ Há ${job.postedMinutes} min</span>
+              <span class="px-3.5 py-1.5 rounded-xl bg-slate-900 text-white font-bold shadow-sm">
+                🏢 EMPRESA: ${job.company}
+              </span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">
+                ${job.sector}
+              </span>
+              <span class="px-2.5 py-1 rounded-lg border font-bold ${appBadgeColor}">
+                🔥 Apenas ${job.applicants} candidaturas
+              </span>
+              <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 font-bold">
+                ⏱ ${formatTimeAgo(job.postedMinutes)}
+              </span>
             </div>
             <div class="flex items-center gap-2">
               <span class="px-3 py-1 rounded-full ${matchColor} text-xs font-black shadow-sm">
@@ -451,12 +496,12 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
           <!-- Banner Escuro Inferior -->
           <div class="mt-5 p-4 sm:px-6 rounded-2xl bg-slate-950 text-white flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-blue-400">⚡ Candidatura Direta & Filtrada</div>
-              <div class="text-xs sm:text-sm font-semibold text-slate-200">Acesse as vagas correspondentes agora no LinkedIn:</div>
+              <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">⚡ Filtro Anti-Concorrência Ativado</div>
+              <div class="text-xs sm:text-sm font-semibold text-slate-200">Abre no LinkedIn já filtrado para vagas recentes e com poucos candidatos:</div>
             </div>
             <a href="${linkedInLink}" target="_blank" rel="noopener noreferrer"
                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white text-xs sm:text-sm font-black shadow-lg shadow-blue-500/30 transition">
-              Candidatar-se no LinkedIn →
+              Candidatar-se Agora →
             </a>
           </div>
         </article>`;
@@ -465,10 +510,12 @@ Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: pla
 
     function triggerScan(manual = false) {
       secondsLeft = 180;
-      jobsData = jobsData.map(j => ({
-        ...j,
-        postedMinutes: manual ? Math.max(1, j.postedMinutes - 1) : j.postedMinutes + 3
-      }));
+      if (manual) {
+        jobsData = jobsData.map(j => ({
+          ...j,
+          postedMinutes: Math.max(3, Math.floor(j.postedMinutes * 0.7))
+        }));
+      }
       renderJobs();
     }
 
