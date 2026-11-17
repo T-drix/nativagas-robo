@@ -2,7 +2,7 @@ name: NATIVAGAS Radar Gratuito 24x7
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/45 * * * *'
   workflow_dispatch:
 
 permissions:
