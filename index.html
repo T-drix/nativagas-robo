@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NATIVAGAS • Radar Inteligente de Vagas & Otimizador ATS</title>
+  <title>NATIVAGAS • Buscador Avançado de Vagas & Analisador Real ATS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #020617; color: #f8fafc; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    .glass { background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.7); }
+    .glass { background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.75); }
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -26,20 +26,16 @@
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-lg tracking-tight text-white">NATIVAGAS</h1>
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Multi-Áreas • Brasil
+              Filtros Reais & ATS
             </span>
           </div>
           <p class="text-xs text-slate-400">
-            Radar em Tempo Real + Otimizador ATS • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante (Modo Aberto)</strong>
+            Busca Direta nos Portais + Análise Real de Currículo • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante</strong>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5">
-        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-3 py-1.5 rounded-xl">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Prioridade: 100% Remoto
-        </span>
         <button onclick="openProfileModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-100 transition">
           Personalizar Meu Perfil
         </button>
@@ -50,31 +46,30 @@
   <!-- Conteúdo Principal -->
   <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- Painel Completo de Busca e Filtros -->
+    <!-- Bloco 1: Configurador de Filtros Reais dos Portais -->
     <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
-      <!-- Linha 1: Palavra-chave (Opcional) + Botão -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div class="flex-1">
           <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Cargo, Área ou Palavra-Chave <span class="text-slate-500 font-normal normal-case">(Opcional — deixe em branco para buscar qualquer vaga nos filtros abaixo)</span>
+            Cargo, Área ou Palavra-Chave <span class="text-slate-500 font-normal normal-case">(Opcional — deixe vazio para buscar todas as vagas nos filtros abaixo)</span>
           </label>
           <input
             id="searchKeywordInput"
             type="text"
-            placeholder="Deixe vazio para todas as vagas ou digite: Bancário, Financeiro, RH, Atendimento..."
+            placeholder="Ex: Control Desk, Gerente Bancário, Financeiro, RH, Atendimento ou deixe em branco..."
             class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
           />
         </div>
 
         <button
-          onclick="applySearchAndRefresh()"
+          onclick="updateAllLinksAndSummary()"
           class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 shrink-0"
         >
-          Buscar Vagas
+          Aplicar Filtros
         </button>
       </div>
 
-      <!-- Linha 2: Todos os Filtros (Modelo, Contrato, Tempo, Candidaturas, Estado, Cidade IBGE) -->
+      <!-- 6 Filtros Reais -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
         <!-- Modelo de Trabalho -->
         <div>
@@ -82,6 +77,7 @@
             Modelo de Trabalho
           </label>
           <select id="modalitySelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="all">Todos os Modelos</option>
             <option value="remoto" selected>100% Remoto</option>
             <option value="hibrido">Híbrido</option>
             <option value="presencial">Presencial</option>
@@ -95,9 +91,10 @@
           </label>
           <select id="contractSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="all" selected>Todos (CLT / PJ)</option>
-            <option value="clt">CLT (Efetivo)</option>
-            <option value="pj">PJ (Pessoa Jurídica)</option>
-            <option value="temp">Temporário / Estágio</option>
+            <option value="clt">CLT (Tempo Integral)</option>
+            <option value="pj">PJ / Contrato</option>
+            <option value="temp">Temporário</option>
+            <option value="intern">Estágio</option>
           </select>
         </div>
 
@@ -162,7 +159,7 @@
           </select>
         </div>
 
-        <!-- Cidade (Autocomplete Customizado com TODOS os 5.570 municípios do IBGE + Digitação Livre) -->
+        <!-- Cidade (Base IBGE 5.570 municípios + Digitação Livre) -->
         <div class="relative" id="cityAutocompleteWrapper">
           <label for="cityInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
             Cidade (Todas do Brasil)
@@ -192,116 +189,135 @@
         </div>
       </div>
 
-      <!-- Atalhos de Busca Direta nos Principais Portais -->
-      <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-        <span class="text-xs text-slate-400 mr-1">Abrir Todas as Vagas nos Portais (Com seus filtros):</span>
-        <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-medium transition">
-          LinkedIn Vagas ↗
-        </a>
-        <a id="radarLinkedinPosts" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 font-medium transition">
-          Posts de Recrutadores (LinkedIn) ↗
-        </a>
-        <a id="radarGupy" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium transition">
-          Portal Gupy ↗
-        </a>
-        <a id="radarIndeed" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-medium transition">
-          Indeed Brasil ↗
-        </a>
-      </div>
-    </section>
-
-    <!-- Grid Principal: Mural de Vagas + Currículo / Otimizador ATS -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- Coluna Esquerda (7 cols): Mural de Vagas Acuradas -->
-      <section class="lg:col-span-7 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 class="text-base font-bold text-white flex flex-wrap items-center gap-2">
-              Mural de Vagas Recentes
-              <span id="muralBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                100% Remoto
-              </span>
-              <span id="regionBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                Brasil
-              </span>
-            </h2>
-            <p id="muralSubtitle" class="text-xs text-slate-400">
-              Monitoramento atualizado • Busca aberta por filtros ou por cargo específico
+      <!-- Resumo Transparente da Busca Configurada + Portais Diretos -->
+      <div class="pt-4 border-t border-slate-800/80 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-3">
+          <div class="space-y-0.5">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+              Filtros Prontos para Pesquisa Oficial nos Portais:
+            </span>
+            <p id="activeFilterSummary" class="text-xs text-slate-200 font-medium">
+              Todas as vagas • 100% Remoto • Brasil
             </p>
           </div>
-          <span id="lastUpdatedTag" class="text-[11px] text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg">
-            Atualizado agora
+          <span class="text-[11px] text-slate-400">
+            Os botões ao lado abrem a lista real de vagas diretamente em cada portal
           </span>
         </div>
 
-        <div id="jobsMuralContainer" class="space-y-3">
-          <!-- Cards renderizados dinamicamente -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 text-sky-200 border border-sky-500/40 text-xs font-bold transition">
+            <span>Abrir Vagas no LinkedIn</span>
+            <span>↗</span>
+          </a>
+          <a id="radarLinkedinPosts" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition">
+            <span>Posts de Recrutadores</span>
+            <span>↗</span>
+          </a>
+          <a id="radarGupy" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition">
+            <span>Abrir Vagas na Gupy</span>
+            <span>↗</span>
+          </a>
+          <a id="radarIndeed" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition">
+            <span>Abrir Vagas no Indeed</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bloco 2: Analisador Real de Compatibilidade (Currículo Real x Vaga Real) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Passo 1: Currículo Real do Candidato (6 cols) -->
+      <section class="lg:col-span-6 glass rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Passo 1 • Seus Dados Reais</span>
+            <h2 class="text-base font-bold text-white">Seu Currículo</h2>
+            <p class="text-xs text-slate-400">Cole o texto do seu currículo para extrair suas competências reais</p>
+          </div>
+          <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
+            Limpar
+          </button>
+        </div>
+
+        <textarea
+          id="userCvInput"
+          rows="8"
+          placeholder="Cole aqui o texto completo do seu currículo (cargos, experiências, ferramentas, formação, certificações e idiomas)..."
+          class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
+        ></textarea>
+
+        <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            Competências reais identificadas no seu texto:
+          </span>
+          <div id="keywordsChips" class="flex flex-wrap gap-1.5">
+            <span class="text-xs text-slate-500">Nenhum currículo inserido ainda.</span>
+          </div>
         </div>
       </section>
 
-      <!-- Coluna Direita (5 cols): Currículo do Usuário & Otimizador ATS -->
-      <section class="lg:col-span-5 space-y-4">
-        <div class="glass rounded-2xl p-5 space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-base font-bold text-white">Seu Currículo & Match ATS</h2>
-              <p class="text-xs text-slate-400">Cole seu currículo abaixo para recalcular a aderência das vagas</p>
-            </div>
-            <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
-              Limpar texto
-            </button>
-          </div>
-
+      <!-- Passo 2: Descrição Real da Vaga & Cálculo Verdadeiro de Match (6 cols) -->
+      <section class="lg:col-span-6 glass rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
           <div>
-            <textarea
-              id="userCvInput"
-              rows="7"
-              placeholder="Cole aqui o texto completo do seu currículo (cargo atual, experiências, ferramentas, formação e idiomas)..."
-              class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
-            ></textarea>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Passo 2 • Vaga Real Encontrada</span>
+            <h2 class="text-base font-bold text-white">Analisador Real de Match & Otimizador ATS</h2>
+            <p class="text-xs text-slate-400">Cole a descrição da vaga que você abriu no LinkedIn/Gupy para calcular o Match real</p>
           </div>
+          <button onclick="clearJobDescBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
+            Limpar
+          </button>
+        </div>
 
-          <div id="detectedKeywordsBox" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800">
-            <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-              Palavras-chave identificadas no seu currículo:
+        <textarea
+          id="targetJobDesc"
+          rows="5"
+          placeholder="Copie e cole aqui os requisitos e responsabilidades da vaga real que você encontrou nos portais..."
+          class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-sky-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
+        ></textarea>
+
+        <!-- Painel de Resultado Real (Só calcula quando ambos os textos existem) -->
+        <div id="realMatchPanel" class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300">Aderência Real (Currículo × Vaga):</span>
+            <span id="realMatchScoreBadge" class="text-xs font-extrabold px-3 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
+              Aguardando currículo e vaga
             </span>
-            <div id="keywordsChips" class="flex flex-wrap gap-1.5">
-              <span class="text-xs text-slate-500">Aguardando inserção do seu currículo...</span>
-            </div>
           </div>
 
-          <div class="pt-2 border-t border-slate-800 space-y-3">
-            <label for="targetJobDesc" class="block text-xs font-bold text-slate-300">
-              Otimizador ATS para Vaga Específica (Opcional)
-            </label>
-            <textarea
-              id="targetJobDesc"
-              rows="3"
-              placeholder="Cole aqui a descrição da vaga desejada para gerar um cabeçalho e resumo alinhados aos requisitos dela..."
-              class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200"
-            ></textarea>
-
-            <button
-              onclick="runATSOptimizer()"
-              class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-emerald-600 border border-slate-700 hover:border-emerald-500 text-xs font-bold text-white transition"
-            >
-              Gerar Currículo Otimizado para ATS
-            </button>
-
-            <div id="atsResultWrapper" class="hidden space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-emerald-400">Versão Estruturada Pronta:</span>
-                <button onclick="copyOptimizedCv()" class="text-xs text-sky-400 hover:underline">Copiar texto</button>
-              </div>
-              <textarea
-                id="optimizedCvOutput"
-                rows="6"
-                readonly
-                class="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-slate-200 leading-relaxed"
-              ></textarea>
+          <div id="matchBreakdownArea" class="hidden space-y-2 text-xs">
+            <div>
+              <span class="text-emerald-400 font-semibold">✔ Requisitos da vaga encontrados no seu currículo:</span>
+              <p id="matchedSkillsText" class="text-slate-300 mt-0.5">—</p>
+            </div>
+            <div>
+              <span class="text-amber-400 font-semibold">⚠ Requisitos pedidos na vaga que não apareceram no seu currículo:</span>
+              <p id="missingSkillsText" class="text-slate-300 mt-0.5">—</p>
             </div>
           </div>
+        </div>
+
+        <button
+          onclick="runATSOptimizer()"
+          class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition"
+        >
+          Estruturar Meu Currículo para Esta Vaga (ATS)
+        </button>
+
+        <div id="atsResultWrapper" class="hidden space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-emerald-400">Versão Estruturada (Baseada apenas nos seus dados reais):</span>
+            <button onclick="copyOptimizedCv()" class="text-xs text-sky-400 hover:underline">Copiar texto</button>
+          </div>
+          <textarea
+            id="optimizedCvOutput"
+            rows="6"
+            readonly
+            class="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-slate-200 leading-relaxed"
+          ></textarea>
         </div>
       </section>
     </div>
@@ -309,7 +325,7 @@
 
   <!-- Rodapé -->
   <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
-    NATIVAGAS • Base oficial de municípios IBGE • Seus dados ficam salvos apenas localmente no seu navegador (LGPD).
+    NATIVAGAS • Dados 100% reais sem simulação • Base oficial de municípios IBGE • Privacidade LGPD (salvo apenas no seu navegador).
   </footer>
 
   <!-- Modal de Perfil do Visitante -->
@@ -320,7 +336,7 @@
         <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
       <p class="text-xs text-slate-400">
-        Essas informações ficam armazenadas somente no seu navegador para personalizar o cálculo de Match e o cabeçalho ATS.
+        Essas informações ficam armazenadas somente no seu navegador para preencher o cabeçalho do seu currículo ATS.
       </p>
       <div class="space-y-3">
         <div>
@@ -329,11 +345,11 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área / Cargo Principal</label>
-          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Atendimento / Financeiro / RH" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Control Desk / Financeiro" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Cidade / Estado (Opcional)</label>
-          <input id="profileCityInput" type="text" placeholder="Ex: Vargem Grande Paulista - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <input id="profileCityInput" type="text" placeholder="Ex: São Paulo - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
@@ -356,135 +372,16 @@
       "SE": "Sergipe", "TO": "Tocantins"
     };
 
-    const MULTI_AREA_JOBS = [
-      {
-        area: "Bancário & Finanças",
-        title: "Analista de Atendimento Bancário e Crédito Digital",
-        company: "Instituição Financeira Nacional",
-        modality: "remoto",
-        contract: "clt",
-        applicants: "6 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 3 min",
-        tags: ["atendimento", "bancário", "crédito", "financeiro", "cpa-10", "cpa-20", "relacionamento", "carteira", "clientes"],
-        query: "Analista Atendimento Bancário Crédito"
-      },
-      {
-        area: "Bancário & Comercial",
-        title: "Gerente de Relacionamento PJ / Consultor Financeiro",
-        company: "Banco Digital & Meios de Pagamento",
-        modality: "remoto",
-        contract: "clt",
-        applicants: "8 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 5 min",
-        tags: ["gerente", "relacionamento", "pj", "banco", "bancário", "investimentos", "vendas", "negociação", "metas", "cpa"],
-        query: "Gerente Relacionamento Bancário Financeiro"
-      },
-      {
-        area: "Financeiro & Controladoria",
-        title: "Analista Financeiro Pleno (Contas a Pagar/Receber & Conciliação)",
-        company: "Grupo Empresarial Brasil",
-        modality: "remoto",
-        contract: "clt",
-        applicants: "14 candidatos",
-        lowApplicants: false,
-        postedAgo: "Há 6 min",
-        tags: ["financeiro", "conciliação", "fluxo de caixa", "excel", "erp", "faturamento", "contábil", "fiscal"],
-        query: "Analista Financeiro Conciliação"
-      },
-      {
-        area: "Recursos Humanos",
-        title: "Analista de Recrutamento e Seleção / People",
-        company: "Consultoria de Talentos RH",
-        modality: "remoto",
-        contract: "pj",
-        applicants: "5 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 7 min",
-        tags: ["rh", "recursos humanos", "recrutamento", "seleção", "entrevistas", "treinamento", "dp", "pessoas"],
-        query: "Analista Recrutamento Seleção RH"
-      },
-      {
-        area: "Operações & Atendimento",
-        title: "Especialista de Sucesso do Cliente (Customer Success)",
-        company: "Plataforma SaaS B2B",
-        modality: "remoto",
-        contract: "clt",
-        applicants: "9 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 8 min",
-        tags: ["customer success", "atendimento", "suporte", "cliente", "crm", "retenção", "onboarding", "comunicação"],
-        query: "Customer Success Atendimento"
-      },
-      {
-        area: "Administrativo & Processos",
-        title: "Analista Administrativo e Operações",
-        company: "Rede de Serviços Corporativos",
-        modality: "remoto",
-        contract: "clt",
-        applicants: "19 candidatos",
-        lowApplicants: false,
-        postedAgo: "Há 9 min",
-        tags: ["administrativo", "operações", "processos", "planilhas", "excel", "relatórios", "indicadores", "gestão"],
-        query: "Analista Administrativo Operações"
-      },
-      {
-        area: "Tecnologia & Dados",
-        title: "Analista de Dados / Business Intelligence",
-        company: "Empresa de Tecnologia & Inovação",
-        modality: "remoto",
-        contract: "pj",
-        applicants: "7 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 9 min",
-        tags: ["dados", "bi", "power bi", "sql", "excel", "indicadores", "dashboard", "análise"],
-        query: "Analista de Dados BI"
-      },
-      {
-        area: "Bancário & Operações",
-        title: "Especialista de Prevenção a Fraudes e Compliance Bancário",
-        company: "Fintech de Serviços Financeiros",
-        modality: "hibrido",
-        contract: "clt",
-        applicants: "6 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 4 min",
-        tags: ["fraudes", "compliance", "bancário", "risco", "pld", "auditoria", "financeiro", "análise"],
-        query: "Prevenção a Fraudes Compliance Bancário"
-      },
-      {
-        area: "Comercial & Vendas",
-        title: "Executivo de Contas Corporativas (B2B)",
-        company: "Soluções Corporativas Brasil",
-        modality: "hibrido",
-        contract: "pj",
-        applicants: "11 candidatos",
-        lowApplicants: false,
-        postedAgo: "Há 7 min",
-        tags: ["comercial", "vendas", "b2b", "prospecção", "negociação", "crm", "contas", "metas"],
-        query: "Executivo de Contas B2B"
-      },
-      {
-        area: "Bancário & Atendimento",
-        title: "Gerente de Agência / Atendimento Presencial",
-        company: "Instituição Bancária Tradicional",
-        modality: "presencial",
-        contract: "clt",
-        applicants: "4 candidatos",
-        lowApplicants: true,
-        postedAgo: "Há 8 min",
-        tags: ["agência", "bancário", "gerente", "atendimento", "cpa-10", "cpa-20", "varejo", "crédito"],
-        query: "Gerente Bancário Atendimento"
-      }
-    ];
-
     const STOPWORDS = new Set([
       "para", "com", "sem", "uma", "uns", "umas", "dos", "das", "nos", "nas", "pelo", "pela",
       "como", "mais", "menos", "muito", "sobre", "entre", "após", "antes", "onde", "quando",
       "que", "por", "ser", "ter", "estar", "fazer", "anos", "experiência", "experiencia",
       "trabalho", "atuação", "atuacao", "responsável", "responsavel", "atividades", "empresa",
-      "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional"
+      "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional",
+      "vaga", "requisitos", "desejável", "desejavel", "diferencial", "benefícios", "beneficios",
+      "conhecimento", "conhecimentos", "habilidades", "formação", "formacao", "ensino", "superior",
+      "completo", "cursando", "boa", "bom", "buscamos", "procuramos", "oportunidade", "equipe",
+      "dia", "dias", "horário", "horario", "salário", "salario", "vale", "plano", "saúde", "saude"
     ]);
 
     function normalizeText(str) {
@@ -570,18 +467,97 @@
       }
       document.getElementById("clearCityBtn").classList.remove("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      applySearchAndRefresh();
+      updateAllLinksAndSummary();
     }
 
     function clearCitySelection() {
       document.getElementById("cityInput").value = "";
       document.getElementById("clearCityBtn").classList.add("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      applySearchAndRefresh();
+      updateAllLinksAndSummary();
     }
 
-    function extractCvKeywords(text) {
-      if (!text || text.trim().length < 10) return [];
+    function buildLocationString(uf, city) {
+      if (city && uf) return `${city}, ${STATE_NAMES[uf] || uf}, Brasil`;
+      if (city) return `${city}, Brasil`;
+      if (uf) return `${STATE_NAMES[uf] || uf}, Brasil`;
+      return "Brasil";
+    }
+
+    function updateAllLinksAndSummary() {
+      const keyword = document.getElementById("searchKeywordInput").value.trim();
+      const modality = document.getElementById("modalitySelect").value;
+      const contract = document.getElementById("contractSelect").value;
+      const timePosted = document.getElementById("timePostedSelect").value;
+      const applicants = document.getElementById("applicantsSelect").value;
+      const uf = document.getElementById("stateSelect").value;
+      const city = document.getElementById("cityInput").value.trim();
+
+      // Mapeamento exato dos parâmetros oficiais do LinkedIn
+      const modMap = {
+        all: { li: "", text: "" },
+        remoto: { li: "&f_WT=2", text: "Remoto" },
+        hibrido: { li: "&f_WT=3", text: "Híbrido" },
+        presencial: { li: "&f_WT=1", text: "Presencial" }
+      };
+      const contractMap = {
+        all: { li: "", text: "" },
+        clt: { li: "&f_JT=F", text: "CLT" },
+        pj: { li: "&f_JT=C", text: "PJ" },
+        temp: { li: "&f_JT=T", text: "Temporário" },
+        intern: { li: "&f_JT=I", text: "Estágio" }
+      };
+
+      const chosenMod = modMap[modality] || modMap.all;
+      const chosenContract = contractMap[contract] || contractMap.all;
+      // LinkedIn usa f_JIYN=true (Menos de 10 candidaturas)
+      const lowAppParam = applicants === "low" ? "&f_JIYN=true" : "";
+      const locationStr = buildLocationString(uf, city);
+
+      // Mantém keywords limpo (apenas o cargo digitado, sem sujar a busca)
+      const qLi = encodeURIComponent(keyword);
+      const qLoc = encodeURIComponent(locationStr);
+
+      // 1. LinkedIn Vagas (com todos os parâmetros nativos aplicados)
+      document.getElementById("radarLinkedinJobs").href =
+        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=${qLoc}${chosenMod.li}${chosenContract.li}${lowAppParam}&f_TPR=${timePosted}`;
+
+      // 2. LinkedIn Posts de Recrutadores
+      const postParts = [keyword || "vaga", chosenMod.text, chosenContract.text, city || (uf ? STATE_NAMES[uf] : "")].filter(Boolean);
+      document.getElementById("radarLinkedinPosts").href =
+        `https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(postParts.join(" "))}&sortBy=%22date_posted%22`;
+
+      // 3. Portal Gupy
+      const gupyParts = ["site:gupy.io", keyword ? `"${keyword}"` : "", chosenMod.text ? `"${chosenMod.text}"` : "", city || uf || ""].filter(Boolean);
+      document.getElementById("radarGupy").href =
+        `https://www.google.com/search?q=${encodeURIComponent(gupyParts.join(" "))}&tbs=qdr:d`;
+
+      // 4. Indeed Brasil
+      const indeedKw = [keyword, chosenMod.text, chosenContract.text].filter(Boolean).join(" ");
+      const indeedLoc = city ? `${city}${uf ? ", " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
+      const indeedDays = (timePosted === "r3600" || timePosted === "r86400") ? "1" : (timePosted === "r604800" ? "7" : "30");
+      document.getElementById("radarIndeed").href =
+        `https://br.indeed.com/jobs?q=${encodeURIComponent(indeedKw)}&l=${encodeURIComponent(indeedLoc)}&fromage=${indeedDays}`;
+
+      // Atualiza o texto de resumo transparente
+      const modLabels = { all: "Todos os Modelos", remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
+      const contractLabels = { all: "Todos os Contratos", clt: "CLT", pj: "PJ", temp: "Temporário", intern: "Estágio" };
+      const timeLabels = { r3600: "Última 1 hora", r86400: "Últimas 24 horas", r604800: "Últimos 7 dias", r2592000: "Últimos 30 dias" };
+
+      const summaryParts = [
+        keyword ? `Cargo: "${keyword}"` : "Todas as vagas abertas",
+        modLabels[modality],
+        contractLabels[contract],
+        timeLabels[timePosted],
+        applicants === "low" ? "Menos de 10 candidatos" : null,
+        locationStr
+      ].filter(Boolean);
+
+      document.getElementById("activeFilterSummary").textContent = summaryParts.join(" • ");
+    }
+
+    function extractKeywords(text) {
+      if (!text || text.trim().length < 15) return [];
       const words = text
         .toLowerCase()
         .replace(/[^\wà-ú\-]/g, " ")
@@ -593,201 +569,72 @@
 
       return Object.entries(freq)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 14)
+        .slice(0, 22)
         .map(entry => entry[0]);
     }
 
-    function computeDynamicMatch(job, cvKeywords, searchQuery) {
-      let score = 62;
-      const haystack = `${job.title} ${job.area} ${job.tags.join(" ")}`.toLowerCase();
+    function evaluateRealMatch() {
+      const cvText = document.getElementById("userCvInput").value.trim();
+      const jobText = document.getElementById("targetJobDesc").value.trim();
 
-      if (cvKeywords.length > 0) {
-        let hits = 0;
-        cvKeywords.forEach(kw => {
-          if (haystack.includes(kw)) hits++;
-        });
-        score += Math.min(hits * 7, 34);
-      }
-
-      if (searchQuery && searchQuery.trim().length > 1) {
-        const qTerms = searchQuery.toLowerCase().split(/\s+/);
-        qTerms.forEach(t => {
-          if (t.length > 2 && haystack.includes(t)) score += 10;
-        });
-      }
-
-      return Math.min(score, 98);
-    }
-
-    function buildLocationString(uf, city) {
-      if (city && uf) return `${city}, ${STATE_NAMES[uf] || uf}, Brasil`;
-      if (city) return `${city}, Brasil`;
-      if (uf) return `${STATE_NAMES[uf] || uf}, Brasil`;
-      return "Brasil";
-    }
-
-    function buildPortalLinks(keyword, modality, contract, timePosted, lowApplicants, uf, city) {
-      // Se o campo de cargo estiver vazio, deixa keywords aberto ("") para trazer TODAS as vagas nos filtros
-      const baseKw = keyword && keyword.trim() ? keyword.trim() : "";
-      const contractText = contract === "clt" ? "CLT" : (contract === "pj" ? "PJ" : (contract === "temp" ? "Temporário" : ""));
-      const fullKw = `${baseKw} ${contractText}`.trim();
-
-      const modMap = {
-        remoto: { li: "&f_WT=2", text: "Remoto" },
-        hibrido: { li: "&f_WT=3", text: "Híbrido" },
-        presencial: { li: "&f_WT=1", text: "Presencial" }
-      };
-      const chosen = modMap[modality] || modMap.remoto;
-      const contractParam = contract === "clt" ? "&f_JT=F" : (contract === "pj" ? "&f_JT=C" : (contract === "temp" ? "&f_JT=T" : ""));
-      const lowAppParam = lowApplicants === "low" ? "&f_EA=true" : "";
-      const locationStr = buildLocationString(uf, city);
-
-      const qLi = encodeURIComponent(fullKw);
-      const qLoc = encodeURIComponent(locationStr);
-      const qPost = encodeURIComponent(`${fullKw || "vaga"} ${chosen.text} ${city || uf || ""}`.trim());
-      const qGupy = encodeURIComponent(`site:gupy.io ${baseKw ? `"${baseKw}"` : ""} "${chosen.text}" ${city || uf || ""}`.trim());
-      const qIndeed = encodeURIComponent(`${fullKw} ${chosen.text}`.trim());
-      const indeedLoc = encodeURIComponent(city ? `${city}, ${uf}` : (uf ? STATE_NAMES[uf] : "Brasil"));
-      const indeedDays = timePosted === "r3600" || timePosted === "r86400" ? "1" : (timePosted === "r604800" ? "7" : "30");
-
-      document.getElementById("radarLinkedinJobs").href =
-        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=${qLoc}${chosen.li}${contractParam}${lowAppParam}&f_TPR=${timePosted}`;
-      document.getElementById("radarLinkedinPosts").href =
-        `https://www.linkedin.com/search/results/content/?keywords=${qPost}&sortBy=%22date_posted%22`;
-      document.getElementById("radarGupy").href =
-        `https://www.google.com/search?q=${qGupy}&tbs=qdr:d`;
-      document.getElementById("radarIndeed").href =
-        `https://br.indeed.com/jobs?q=${qIndeed}&l=${indeedLoc}&fromage=${indeedDays}`;
-    }
-
-    function renderMural() {
-      const container = document.getElementById("jobsMuralContainer");
-      const keyword = document.getElementById("searchKeywordInput").value.trim();
-      const modality = document.getElementById("modalitySelect").value;
-      const contract = document.getElementById("contractSelect").value;
-      const timePosted = document.getElementById("timePostedSelect").value;
-      const applicants = document.getElementById("applicantsSelect").value;
-      const uf = document.getElementById("stateSelect").value;
-      const city = document.getElementById("cityInput").value.trim();
-
-      const cvText = document.getElementById("userCvInput").value;
-      const cvKeywords = extractCvKeywords(cvText);
-
+      const cvKeywords = extractKeywords(cvText);
       const chipsEl = document.getElementById("keywordsChips");
+
       if (cvKeywords.length > 0) {
         chipsEl.innerHTML = cvKeywords
           .map(k => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${k}</span>`)
           .join("");
       } else {
-        chipsEl.innerHTML = `<span class="text-xs text-slate-500">Cole seu currículo acima para destacar suas competências aqui.</span>`;
+        chipsEl.innerHTML = `<span class="text-xs text-slate-500">Nenhum currículo inserido ainda.</span>`;
       }
 
-      const modalityLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
-      const contractLabels = { all: "CLT / PJ", clt: "CLT", pj: "PJ", temp: "Temporário / Estágio" };
-      const timeLabels = { r3600: "Última 1 hora", r86400: "Últimas 24h", r604800: "Últimos 7 dias", r2592000: "Últimos 30 dias" };
+      const badgeEl = document.getElementById("realMatchScoreBadge");
+      const breakdownEl = document.getElementById("matchBreakdownArea");
 
-      document.getElementById("muralBadge").textContent = modalityLabels[modality];
-      document.getElementById("regionBadge").textContent = city ? `${city}${uf ? " - " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
-
-      buildPortalLinks(keyword, modality, contract, timePosted, applicants, uf, city);
-
-      let filtered = MULTI_AREA_JOBS.filter(j => j.modality === modality);
-      if (contract !== "all") {
-        filtered = filtered.filter(j => j.contract === contract);
-      }
-      if (applicants === "low") {
-        filtered = filtered.filter(j => j.lowApplicants);
+      // Só calcula porcentagem quando EXISTE currículo real E descrição real de vaga
+      if (cvText.length < 30 || jobText.length < 30) {
+        badgeEl.textContent = "Aguardando currículo e descrição da vaga";
+        badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
+        breakdownEl.classList.add("hidden");
+        return;
       }
 
-      const kwLow = keyword.toLowerCase();
-      const matches = keyword
-        ? filtered.filter(j => `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow))
-        : filtered;
+      const jobKeywords = extractKeywords(jobText);
+      if (jobKeywords.length === 0) return;
 
-      // Sempre gera o card principal com TODOS os filtros aplicados (mesmo com o cargo em branco!)
-      const titleLabel = keyword ? keyword : "Todas as Vagas Abertas (Qualquer Cargo)";
-      const regionLabel = city ? ` • ${city}${uf ? "/" + uf : ""}` : (uf ? ` • ${uf}` : " • Brasil");
-      const openSearchCard = {
-        area: keyword ? "Busca por Cargo + Filtros" : "Busca Aberta por Filtros",
-        title: `${titleLabel} (${modalityLabels[modality]}${regionLabel})`,
-        company: `Filtros ativos: ${contractLabels[contract]} • ${timeLabels[timePosted]}${applicants === "low" ? " • < 10 candidatos" : ""}`,
-        modality: modality,
-        contract: contract === "all" ? "clt" : contract,
-        applicants: applicants === "low" ? "< 10 candidatos" : "Todas as candidaturas",
-        lowApplicants: true,
-        postedAgo: timeLabels[timePosted],
-        tags: kwLow ? kwLow.split(/\s+/).filter(w => w.length > 2) : [],
-        query: keyword // Se vazio, vai como "" para trazer TODAS as vagas nos filtros!
-      };
+      const cvNorm = normalizeText(cvText);
+      const matched = [];
+      const missing = [];
 
-      const finalList = [openSearchCard, ...matches];
+      jobKeywords.forEach(jk => {
+        if (cvNorm.includes(normalizeText(jk))) {
+          matched.push(jk);
+        } else {
+          missing.push(jk);
+        }
+      });
 
-      const scored = finalList
-        .map((job, idx) => ({
-          ...job,
-          match: idx === 0 ? 99 : computeDynamicMatch(job, cvKeywords, keyword)
-        }))
-        .sort((a, b) => b.match - a.match);
+      const pct = Math.round((matched.length / jobKeywords.length) * 100);
+      badgeEl.textContent = `${pct}% de Aderência Real`;
+      badgeEl.className = pct >= 65
+        ? "text-xs font-extrabold px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+        : "text-xs font-extrabold px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40";
 
-      const now = new Date();
-      document.getElementById("lastUpdatedTag").textContent =
-        `Atualizado às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
-
-      const modParam = modality === "remoto" ? "&f_WT=2" : (modality === "hibrido" ? "&f_WT=3" : "&f_WT=1");
-      const contractParam = contract === "clt" ? "&f_JT=F" : (contract === "pj" ? "&f_JT=C" : (contract === "temp" ? "&f_JT=T" : ""));
-      const lowAppParam = applicants === "low" ? "&f_EA=true" : "";
-      const locEncoded = encodeURIComponent(buildLocationString(uf, city));
-
-      container.innerHTML = scored.map((job, idx) => {
-        const directUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.query)}&location=${locEncoded}${modParam}${contractParam}${lowAppParam}&f_TPR=${timePosted}`;
-        const contractTag = job.contract === "pj" ? "PJ" : (job.contract === "temp" ? "Temp/Estágio" : "CLT");
-        const isTopFilterCard = idx === 0;
-
-        return `
-          <article class="glass rounded-2xl p-4 ${isTopFilterCard ? "border-emerald-500/60 bg-emerald-950/15" : "hover:border-emerald-500/50"} transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="space-y-1.5">
-              <div class="flex flex-wrap items-center gap-1.5">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${isTopFilterCard ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-slate-800 text-slate-300 border border-slate-700"}">
-                  ${job.area}
-                </span>
-                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  ${modalityLabels[job.modality]}
-                </span>
-                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
-                  ${contractTag}
-                </span>
-                <span class="text-[11px] text-slate-400">• ${job.applicants} • ${job.postedAgo}</span>
-              </div>
-              <h3 class="text-sm font-bold text-white">${job.title}</h3>
-              <p class="text-xs text-slate-400">${job.company}</p>
-            </div>
-
-            <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
-              <span class="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                ${isTopFilterCard ? "Filtro Exato" : `${job.match}% Match`}
-              </span>
-              <a
-                href="${directUrl}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition"
-              >
-                Ver Vagas Agora ↗
-              </a>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    function applySearchAndRefresh() {
-      renderMural();
+      document.getElementById("matchedSkillsText").textContent = matched.length > 0 ? matched.join(", ") : "Nenhum termo direto encontrado ainda.";
+      document.getElementById("missingSkillsText").textContent = missing.length > 0 ? missing.join(", ") : "Todos os termos principais já constam no seu currículo!";
+      breakdownEl.classList.remove("hidden");
     }
 
     function clearCvBox() {
       document.getElementById("userCvInput").value = "";
       localStorage.removeItem("nativagas_user_cv");
-      renderMural();
+      evaluateRealMatch();
+    }
+
+    function clearJobDescBox() {
+      document.getElementById("targetJobDesc").value = "";
+      document.getElementById("atsResultWrapper").classList.add("hidden");
+      evaluateRealMatch();
     }
 
     function runATSOptimizer() {
@@ -795,26 +642,35 @@
       const jobDesc = document.getElementById("targetJobDesc").value.trim();
       const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
 
-      if (!cv) {
-        alert("Cole primeiro o texto do seu currículo na caixa acima para otimizar.");
+      if (cv.length < 30) {
+        alert("Cole primeiro o texto real do seu currículo no Passo 1.");
         return;
       }
 
       const name = profile.name || "SEU NOME COMPLETO";
-      const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Alvo";
-      const city = profile.city || document.getElementById("cityInput").value.trim() || "Brasil (Disponível 100% Remoto)";
-      const cvKeywords = extractCvKeywords(cv).map(k => k.toUpperCase()).join(" • ");
-      const jobKeywords = jobDesc ? extractCvKeywords(jobDesc).slice(0, 8).map(k => k.toUpperCase()).join(", ") : "";
+      const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Pretendido";
+      const city = profile.city || document.getElementById("cityInput").value.trim() || "Brasil";
+      const cvKeywords = extractKeywords(cv).slice(0, 12).map(k => k.toUpperCase()).join(" • ");
+
+      let jobAlignment = "";
+      if (jobDesc.length >= 30) {
+        const jobKw = extractKeywords(jobDesc);
+        const cvNorm = normalizeText(cv);
+        const confirmed = jobKw.filter(k => cvNorm.includes(normalizeText(k))).map(k => k.toUpperCase());
+        if (confirmed.length > 0) {
+          jobAlignment = `\nCOMPETÊNCIAS COMPROVADAS ADERENTES À VAGA:\n${confirmed.join(" • ")}`;
+        }
+      }
 
       const optimized = [
         name.toUpperCase(),
         `${role.toUpperCase()} | ${city}`,
         "",
-        "PALAVRAS-CHAVE & COMPETÊNCIAS PRINCIPAIS (ATS):",
-        cvKeywords || "Preencha suas principais ferramentas e habilidades",
-        jobKeywords ? `\nALINHAMENTO COM A VAGA ALVO:\nRequisitos destacados: ${jobKeywords}` : "",
+        "PRINCIPAIS COMPETÊNCIAS EXTRAÍDAS DO SEU CURRÍCULO:",
+        cvKeywords,
+        jobAlignment,
         "",
-        "EXPERIÊNCIA & RESUMO PROFISSIONAL ESTRUTURADO:",
+        "CURRÍCULO ORIGINAL ESTRUTURADO:",
         cv
       ].filter(Boolean).join("\n");
 
@@ -826,7 +682,7 @@
       const out = document.getElementById("optimizedCvOutput");
       out.select();
       document.execCommand("copy");
-      alert("Currículo otimizado copiado para a área de transferência!");
+      alert("Texto copiado!");
     }
 
     function openProfileModal() {
@@ -854,28 +710,29 @@
         document.getElementById("activeUserLabel").textContent =
           profile.role ? `${profile.name} (${profile.role})` : profile.name;
       }
-      if (profile.role && !document.getElementById("searchKeywordInput").value) {
-        document.getElementById("searchKeywordInput").value = profile.role;
-      }
       closeProfileModal();
-      renderMural();
     }
 
+    // Eventos
+    document.getElementById("searchKeywordInput").addEventListener("input", updateAllLinksAndSummary);
     document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
-        applySearchAndRefresh();
+        updateAllLinksAndSummary();
       }
     });
 
     const cityInputEl = document.getElementById("cityInput");
     cityInputEl.addEventListener("focus", renderCitySuggestions);
-    cityInputEl.addEventListener("input", renderCitySuggestions);
+    cityInputEl.addEventListener("input", function () {
+      renderCitySuggestions();
+      updateAllLinksAndSummary();
+    });
     cityInputEl.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
         document.getElementById("cityDropdownList").classList.add("hidden");
-        applySearchAndRefresh();
+        updateAllLinksAndSummary();
       }
     });
     cityInputEl.addEventListener("blur", function () {
@@ -885,20 +742,22 @@
     });
 
     ["modalitySelect", "contractSelect", "timePostedSelect", "applicantsSelect"].forEach(id => {
-      document.getElementById(id).addEventListener("change", applySearchAndRefresh);
+      document.getElementById(id).addEventListener("change", updateAllLinksAndSummary);
     });
 
     document.getElementById("stateSelect").addEventListener("change", function () {
       if (document.getElementById("cityInput").value) {
         renderCitySuggestions();
       }
-      applySearchAndRefresh();
+      updateAllLinksAndSummary();
     });
 
     document.getElementById("userCvInput").addEventListener("input", function (e) {
       localStorage.setItem("nativagas_user_cv", e.target.value);
-      renderMural();
+      evaluateRealMatch();
     });
+
+    document.getElementById("targetJobDesc").addEventListener("input", evaluateRealMatch);
 
     window.addEventListener("DOMContentLoaded", async () => {
       await loadAllBrazilianCities();
@@ -910,7 +769,8 @@
         document.getElementById("activeUserLabel").textContent =
           profile.role ? `${profile.name} (${profile.role})` : profile.name;
       }
-      renderMural();
+      updateAllLinksAndSummary();
+      evaluateRealMatch();
     });
   </script>
 </body>
