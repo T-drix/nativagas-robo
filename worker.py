@@ -6,7 +6,7 @@ import urllib.parse
 import requests
 from datetime import datetime, timezone
 
-WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "5511959074897")
+WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "")
 CALLMEBOT_APIKEY = os.getenv("CALLMEBOT_APIKEY", "")
 MIN_MATCH_ALERT = int(os.getenv("MIN_MATCH_ALERT", "65"))
 SENT_CACHE_FILE = "sent_jobs.json"
