@@ -74,7 +74,7 @@
         </button>
       </div>
 
-      <!-- Linha 2: Todos os Filtros (Modelo, Contrato, Tempo, Candidaturas, Estado, Cidade) -->
+      <!-- Linha 2: Todos os Filtros (Modelo, Contrato, Tempo, Candidaturas, Estado, Cidade IBGE) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
         <!-- Modelo de Trabalho -->
         <div>
@@ -162,19 +162,34 @@
           </select>
         </div>
 
-        <!-- Cidade (Lista + Digitação Livre) -->
-        <div>
+        <!-- Cidade (Autocomplete Customizado com TODOS os 5.570 municípios do IBGE + Digitação Livre) -->
+        <div class="relative" id="cityAutocompleteWrapper">
           <label for="cityInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Cidade (Selecione ou digite)
+            Cidade (Todas do Brasil)
           </label>
-          <input
-            id="cityInput"
-            list="citiesDatalist"
-            type="text"
-            placeholder="Todas ou digite..."
-            class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
-          />
-          <datalist id="citiesDatalist"></datalist>
+          <div class="relative flex items-center">
+            <input
+              id="cityInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Digite qualquer cidade..."
+              class="w-full pl-3 pr-7 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
+            />
+            <button
+              id="clearCityBtn"
+              type="button"
+              onclick="clearCitySelection()"
+              title="Limpar cidade"
+              class="hidden absolute right-2 text-slate-400 hover:text-white text-xs"
+            >
+              ✕
+            </button>
+          </div>
+          <!-- Lista flutuante filtrada em tempo real -->
+          <div
+            id="cityDropdownList"
+            class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-40 divide-y divide-slate-800/70"
+          ></div>
         </div>
       </div>
 
@@ -295,7 +310,7 @@
 
   <!-- Rodapé -->
   <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
-    NATIVAGAS • Seus dados ficam salvos apenas localmente no seu navegador (Privacidade LGPD).
+    NATIVAGAS • Base oficial de municípios IBGE • Seus dados ficam salvos apenas localmente no seu navegador (LGPD).
   </footer>
 
   <!-- Modal de Perfil do Visitante -->
@@ -319,7 +334,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Cidade / Estado (Opcional)</label>
-          <input id="profileCityInput" type="text" placeholder="Ex: São Paulo - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <input id="profileCityInput" type="text" placeholder="Ex: Vargem Grande Paulista - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
@@ -330,37 +345,8 @@
   </div>
 
   <script>
-    // Principais cidades por Estado (além de permitir digitação livre de qualquer município)
-    const CITIES_BY_STATE = {
-      "": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre", "Brasília", "Salvador", "Recife", "Fortaleza", "Campinas", "Goiânia", "Florianópolis", "Manaus", "Belém", "Vitória"],
-      "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira"],
-      "AL": ["Maceió", "Arapiraca", "Rio Largo"],
-      "AP": ["Macapá", "Santana", "Laranjal do Jari"],
-      "AM": ["Manaus", "Parintins", "Itacoatiara"],
-      "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista", "Camaçari", "Itabuna", "Juazeiro", "Lauro de Freitas"],
-      "CE": ["Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral"],
-      "DF": ["Brasília", "Taguatinga", "Ceilândia", "Águas Claras"],
-      "ES": ["Vitória", "Vila Velha", "Serra", "Cariacica", "Linhares"],
-      "GO": ["Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde"],
-      "MA": ["São Luís", "Imperatriz", "São José de Ribamar", "Timon"],
-      "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis", "Sinop"],
-      "MS": ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá"],
-      "MG": ["Belo Horizonte", "Uberlândia", "Contagem", "Juiz de Fora", "Betim", "Montes Claros", "Uberaba", "Governador Valadares"],
-      "PA": ["Belém", "Ananindeua", "Santarém", "Marabá", "Parauapebas"],
-      "PB": ["João Pessoa", "Campina Grande", "Santa Rita", "Patos"],
-      "PR": ["Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais", "Foz do Iguaçu"],
-      "PE": ["Recife", "Jaboatão dos Guararapes", "Olinda", "Caruaru", "Petrolina"],
-      "PI": ["Teresina", "Parnaíba", "Picos"],
-      "RJ": ["Rio de Janeiro", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Niterói", "Campos dos Goytacazes", "Petrópolis", "Volta Redonda"],
-      "RN": ["Natal", "Mossoró", "Parnamirim"],
-      "RS": ["Porto Alegre", "Caxias do Sul", "Canoas", "Pelotas", "Santa Maria", "Gravataí", "Novo Hamburgo"],
-      "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes"],
-      "RR": ["Boa Vista", "Rorainópolis"],
-      "SC": ["Florianópolis", "Joinville", "Blumenau", "São José", "Chapecó", "Itajaí", "Criciúma"],
-      "SP": ["São Paulo", "Campinas", "Guarulhos", "São Bernardo do Campo", "Santo André", "Osasco", "Sorocaba", "Ribeirão Preto", "São José dos Campos", "Santos", "Jundiaí", "Piracicaba", "Bauru", "Mairinque", "Barueri", "Alphaville"],
-      "SE": ["Aracaju", "Nossa Senhora do Socorro", "Lagarto"],
-      "TO": ["Palmas", "Araguaína", "Gurupi"]
-    };
+    // Lista completa dos 5.570 municípios do Brasil carregada automaticamente da API oficial do IBGE
+    let ALL_BRAZIL_MUNICIPALITIES = [];
 
     const STATE_NAMES = {
       "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA": "Bahia",
@@ -503,11 +489,99 @@
       "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional"
     ]);
 
-    function updateCitiesDatalist() {
-      const uf = document.getElementById("stateSelect").value;
-      const datalist = document.getElementById("citiesDatalist");
-      const cities = CITIES_BY_STATE[uf] || CITIES_BY_STATE[""];
-      datalist.innerHTML = cities.map(c => `<option value="${c}">`).join("");
+    function normalizeText(str) {
+      return (str || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    // Carrega todos os 5.570 municípios do IBGE com cache local para abrir instantaneamente
+    async function loadAllBrazilianCities() {
+      const cached = localStorage.getItem("nativagas_ibge_cities_v1");
+      if (cached) {
+        try {
+          ALL_BRAZIL_MUNICIPALITIES = JSON.parse(cached);
+          if (ALL_BRAZIL_MUNICIPALITIES.length > 5000) return;
+        } catch (e) {}
+      }
+
+      try {
+        const resp = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome");
+        const data = await resp.json();
+        ALL_BRAZIL_MUNICIPALITIES = data.map(m => ({
+          name: m.nome,
+          uf: m.microrregiao?.mesorregiao?.UF?.sigla || ""
+        })).filter(item => item.name && item.uf);
+
+        localStorage.setItem("nativagas_ibge_cities_v1", JSON.stringify(ALL_BRAZIL_MUNICIPALITIES));
+      } catch (err) {
+        console.warn("Aviso ao carregar lista completa IBGE:", err);
+      }
+    }
+
+    function renderCitySuggestions() {
+      const inputEl = document.getElementById("cityInput");
+      const dropdown = document.getElementById("cityDropdownList");
+      const clearBtn = document.getElementById("clearCityBtn");
+      const selectedUf = document.getElementById("stateSelect").value;
+      const query = normalizeText(inputEl.value);
+
+      clearBtn.classList.toggle("hidden", inputEl.value.trim().length === 0);
+
+      let pool = ALL_BRAZIL_MUNICIPALITIES;
+      if (selectedUf) {
+        pool = pool.filter(c => c.uf === selectedUf);
+      }
+
+      let matches = [];
+      if (query.length > 0) {
+        // Prioriza cidades que começam com o que foi digitado, depois as que contêm o termo
+        const startsWith = pool.filter(c => normalizeText(c.name).startsWith(query));
+        const contains = pool.filter(c => !normalizeText(c.name).startsWith(query) && normalizeText(c.name).includes(query));
+        matches = [...startsWith, ...contains].slice(0, 40);
+      } else {
+        matches = pool.slice(0, 40);
+      }
+
+      if (matches.length === 0 && query.length > 0) {
+        dropdown.innerHTML = `
+          <div class="px-3 py-2.5 text-xs text-slate-400">
+            Usar cidade digitada: <strong class="text-emerald-400">"${inputEl.value.trim()}"</strong> (Pressione Enter)
+          </div>
+        `;
+      } else {
+        dropdown.innerHTML = matches.map(c => `
+          <button
+            type="button"
+            onmousedown="selectCityOption('${c.name.replace(/'/g, "\\'")}', '${c.uf}')"
+            class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-emerald-600/25 hover:text-emerald-300 flex items-center justify-between transition"
+          >
+            <span>${c.name}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${c.uf}</span>
+          </button>
+        `).join("");
+      }
+
+      dropdown.classList.remove("hidden");
+    }
+
+    function selectCityOption(cityName, cityUf) {
+      document.getElementById("cityInput").value = cityName;
+      if (cityUf && !document.getElementById("stateSelect").value) {
+        document.getElementById("stateSelect").value = cityUf;
+      }
+      document.getElementById("clearCityBtn").classList.remove("hidden");
+      document.getElementById("cityDropdownList").classList.add("hidden");
+      applySearchAndRefresh();
+    }
+
+    function clearCitySelection() {
+      document.getElementById("cityInput").value = "";
+      document.getElementById("clearCityBtn").classList.add("hidden");
+      document.getElementById("cityDropdownList").classList.add("hidden");
+      applySearchAndRefresh();
     }
 
     function extractCvKeywords(text) {
@@ -602,7 +676,6 @@
       const cvText = document.getElementById("userCvInput").value;
       const cvKeywords = extractCvKeywords(cvText);
 
-      // Atualiza chips de palavras-chave detectadas no currículo
       const chipsEl = document.getElementById("keywordsChips");
       if (cvKeywords.length > 0) {
         chipsEl.innerHTML = cvKeywords
@@ -612,7 +685,6 @@
         chipsEl.innerHTML = `<span class="text-xs text-slate-500">Cole seu currículo acima para destacar suas competências aqui.</span>`;
       }
 
-      // Atualiza badges
       const modalityLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
       const contractLabels = { all: "CLT / PJ", clt: "CLT", pj: "PJ", temp: "Temporário / Estágio" };
       document.getElementById("muralBadge").textContent = modalityLabels[modality];
@@ -620,7 +692,6 @@
 
       buildPortalLinks(keyword, modality, contract, timePosted, applicants, uf, city);
 
-      // Filtra o mural
       let filtered = MULTI_AREA_JOBS.filter(j => j.modality === modality);
       if (contract !== "all") {
         filtered = filtered.filter(j => j.contract === contract);
@@ -788,14 +859,28 @@
       renderMural();
     }
 
-    // Eventos de teclado e mudanças de filtros
-    ["searchKeywordInput", "cityInput"].forEach(id => {
-      document.getElementById(id).addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          applySearchAndRefresh();
-        }
-      });
+    // Eventos de teclado e autocomplete da Cidade
+    document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applySearchAndRefresh();
+      }
+    });
+
+    const cityInputEl = document.getElementById("cityInput");
+    cityInputEl.addEventListener("focus", renderCitySuggestions);
+    cityInputEl.addEventListener("input", renderCitySuggestions);
+    cityInputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("cityDropdownList").classList.add("hidden");
+        applySearchAndRefresh();
+      }
+    });
+    cityInputEl.addEventListener("blur", function () {
+      setTimeout(() => {
+        document.getElementById("cityDropdownList").classList.add("hidden");
+      }, 180);
     });
 
     ["modalitySelect", "contractSelect", "timePostedSelect", "applicantsSelect"].forEach(id => {
@@ -803,19 +888,19 @@
     });
 
     document.getElementById("stateSelect").addEventListener("change", function () {
-      updateCitiesDatalist();
+      if (document.getElementById("cityInput").value) {
+        renderCitySuggestions();
+      }
       applySearchAndRefresh();
     });
-
-    document.getElementById("cityInput").addEventListener("change", applySearchAndRefresh);
 
     document.getElementById("userCvInput").addEventListener("input", function (e) {
       localStorage.setItem("nativagas_user_cv", e.target.value);
       renderMural();
     });
 
-    window.addEventListener("DOMContentLoaded", () => {
-      updateCitiesDatalist();
+    window.addEventListener("DOMContentLoaded", async () => {
+      await loadAllBrazilianCities();
       const savedCv = localStorage.getItem("nativagas_user_cv");
       if (savedCv) document.getElementById("userCvInput").value = savedCv;
 
