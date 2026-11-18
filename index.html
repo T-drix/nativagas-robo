@@ -50,46 +50,137 @@
   <!-- Conteúdo Principal -->
   <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- Barra de Pesquisa e Filtro de Modalidade -->
-    <section class="glass rounded-2xl p-5 shadow-xl">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <!-- Painel Completo de Busca e Filtros -->
+    <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
+      <!-- Linha 1: Palavra-chave + Botão -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div class="flex-1">
           <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Buscar Cargo, Área ou Palavra-Chave (Pressione Enter para atualizar)
+            Cargo, Área ou Palavra-Chave (Pressione Enter para atualizar)
           </label>
           <input
             id="searchKeywordInput"
             type="text"
             placeholder="Ex: Analista Financeiro, Gerente Bancário, Atendimento, RH, Administrativo, TI..."
-            class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
           />
-        </div>
-
-        <div class="w-full md:w-56">
-          <label for="modalitySelect" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Modelo de Trabalho
-          </label>
-          <select
-            id="modalitySelect"
-            class="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
-          >
-            <option value="remoto" selected>100% Remoto (Prioritário)</option>
-            <option value="hibrido">Híbrido</option>
-            <option value="presencial">Presencial</option>
-          </select>
         </div>
 
         <button
           onclick="applySearchAndRefresh()"
-          class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50"
+          class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 shrink-0"
         >
           Atualizar Vagas
         </button>
       </div>
 
+      <!-- Linha 2: Todos os Filtros (Modelo, Contrato, Tempo, Candidaturas, Estado, Cidade) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
+        <!-- Modelo de Trabalho -->
+        <div>
+          <label for="modalitySelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Modelo de Trabalho
+          </label>
+          <select id="modalitySelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="remoto" selected>100% Remoto</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="presencial">Presencial</option>
+          </select>
+        </div>
+
+        <!-- Tipo de Contrato -->
+        <div>
+          <label for="contractSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Tipo de Contrato
+          </label>
+          <select id="contractSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="all" selected>Todos (CLT / PJ)</option>
+            <option value="clt">CLT (Efetivo)</option>
+            <option value="pj">PJ (Pessoa Jurídica)</option>
+            <option value="temp">Temporário / Estágio</option>
+          </select>
+        </div>
+
+        <!-- Tempo de Postagem -->
+        <div>
+          <label for="timePostedSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Tempo de Postagem
+          </label>
+          <select id="timePostedSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="r3600">Última 1 hora</option>
+            <option value="r86400" selected>Últimas 24 horas</option>
+            <option value="r604800">Últimos 7 dias</option>
+            <option value="r2592000">Últimos 30 dias</option>
+          </select>
+        </div>
+
+        <!-- Número de Candidaturas -->
+        <div>
+          <label for="applicantsSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Nº de Candidaturas
+          </label>
+          <select id="applicantsSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="all" selected>Qualquer volume</option>
+            <option value="low">Menos de 10 candidatos</option>
+          </select>
+        </div>
+
+        <!-- Estado (UF) -->
+        <div>
+          <label for="stateSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Estado (UF)
+          </label>
+          <select id="stateSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="" selected>Brasil (Todos)</option>
+            <option value="AC">Acre (AC)</option>
+            <option value="AL">Alagoas (AL)</option>
+            <option value="AP">Amapá (AP)</option>
+            <option value="AM">Amazonas (AM)</option>
+            <option value="BA">Bahia (BA)</option>
+            <option value="CE">Ceará (CE)</option>
+            <option value="DF">Distrito Federal (DF)</option>
+            <option value="ES">Espírito Santo (ES)</option>
+            <option value="GO">Goiás (GO)</option>
+            <option value="MA">Maranhão (MA)</option>
+            <option value="MT">Mato Grosso (MT)</option>
+            <option value="MS">Mato Grosso do Sul (MS)</option>
+            <option value="MG">Minas Gerais (MG)</option>
+            <option value="PA">Pará (PA)</option>
+            <option value="PB">Paraíba (PB)</option>
+            <option value="PR">Paraná (PR)</option>
+            <option value="PE">Pernambuco (PE)</option>
+            <option value="PI">Piauí (PI)</option>
+            <option value="RJ">Rio de Janeiro (RJ)</option>
+            <option value="RN">Rio Grande do Norte (RN)</option>
+            <option value="RS">Rio Grande do Sul (RS)</option>
+            <option value="RO">Rondônia (RO)</option>
+            <option value="RR">Roraima (RR)</option>
+            <option value="SC">Santa Catarina (SC)</option>
+            <option value="SP">São Paulo (SP)</option>
+            <option value="SE">Sergipe (SE)</option>
+            <option value="TO">Tocantins (TO)</option>
+          </select>
+        </div>
+
+        <!-- Cidade (Lista + Digitação Livre) -->
+        <div>
+          <label for="cityInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Cidade (Selecione ou digite)
+          </label>
+          <input
+            id="cityInput"
+            list="citiesDatalist"
+            type="text"
+            placeholder="Todas ou digite..."
+            class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
+          />
+          <datalist id="citiesDatalist"></datalist>
+        </div>
+      </div>
+
       <!-- Atalhos de Busca Direta nos Principais Portais -->
-      <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-        <span class="text-xs text-slate-400 mr-1">Radares Instantâneos (Últimas 24h):</span>
+      <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+        <span class="text-xs text-slate-400 mr-1">Radares Instantâneos (Com seus filtros):</span>
         <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-medium transition">
           LinkedIn Vagas ↗
         </a>
@@ -112,10 +203,13 @@
       <section class="lg:col-span-7 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 class="text-base font-bold text-white flex items-center gap-2">
-              Mural de Vagas Recentes (Multi-Áreas)
+            <h2 class="text-base font-bold text-white flex flex-wrap items-center gap-2">
+              Mural de Vagas Recentes
               <span id="muralBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 100% Remoto
+              </span>
+              <span id="regionBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                Brasil
               </span>
             </h2>
             <p id="muralSubtitle" class="text-xs text-slate-400">
@@ -236,13 +330,57 @@
   </div>
 
   <script>
-    // Banco de oportunidades multi-áreas para o Mural Inicial (com links reais de busca atualizados)
+    // Principais cidades por Estado (além de permitir digitação livre de qualquer município)
+    const CITIES_BY_STATE = {
+      "": ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre", "Brasília", "Salvador", "Recife", "Fortaleza", "Campinas", "Goiânia", "Florianópolis", "Manaus", "Belém", "Vitória"],
+      "AC": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira"],
+      "AL": ["Maceió", "Arapiraca", "Rio Largo"],
+      "AP": ["Macapá", "Santana", "Laranjal do Jari"],
+      "AM": ["Manaus", "Parintins", "Itacoatiara"],
+      "BA": ["Salvador", "Feira de Santana", "Vitória da Conquista", "Camaçari", "Itabuna", "Juazeiro", "Lauro de Freitas"],
+      "CE": ["Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral"],
+      "DF": ["Brasília", "Taguatinga", "Ceilândia", "Águas Claras"],
+      "ES": ["Vitória", "Vila Velha", "Serra", "Cariacica", "Linhares"],
+      "GO": ["Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde"],
+      "MA": ["São Luís", "Imperatriz", "São José de Ribamar", "Timon"],
+      "MT": ["Cuiabá", "Várzea Grande", "Rondonópolis", "Sinop"],
+      "MS": ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá"],
+      "MG": ["Belo Horizonte", "Uberlândia", "Contagem", "Juiz de Fora", "Betim", "Montes Claros", "Uberaba", "Governador Valadares"],
+      "PA": ["Belém", "Ananindeua", "Santarém", "Marabá", "Parauapebas"],
+      "PB": ["João Pessoa", "Campina Grande", "Santa Rita", "Patos"],
+      "PR": ["Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais", "Foz do Iguaçu"],
+      "PE": ["Recife", "Jaboatão dos Guararapes", "Olinda", "Caruaru", "Petrolina"],
+      "PI": ["Teresina", "Parnaíba", "Picos"],
+      "RJ": ["Rio de Janeiro", "São Gonçalo", "Duque de Caxias", "Nova Iguaçu", "Niterói", "Campos dos Goytacazes", "Petrópolis", "Volta Redonda"],
+      "RN": ["Natal", "Mossoró", "Parnamirim"],
+      "RS": ["Porto Alegre", "Caxias do Sul", "Canoas", "Pelotas", "Santa Maria", "Gravataí", "Novo Hamburgo"],
+      "RO": ["Porto Velho", "Ji-Paraná", "Ariquemes"],
+      "RR": ["Boa Vista", "Rorainópolis"],
+      "SC": ["Florianópolis", "Joinville", "Blumenau", "São José", "Chapecó", "Itajaí", "Criciúma"],
+      "SP": ["São Paulo", "Campinas", "Guarulhos", "São Bernardo do Campo", "Santo André", "Osasco", "Sorocaba", "Ribeirão Preto", "São José dos Campos", "Santos", "Jundiaí", "Piracicaba", "Bauru", "Mairinque", "Barueri", "Alphaville"],
+      "SE": ["Aracaju", "Nossa Senhora do Socorro", "Lagarto"],
+      "TO": ["Palmas", "Araguaína", "Gurupi"]
+    };
+
+    const STATE_NAMES = {
+      "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA": "Bahia",
+      "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo", "GO": "Goiás",
+      "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul", "MG": "Minas Gerais",
+      "PA": "Pará", "PB": "Paraíba", "PR": "Paraná", "PE": "Pernambuco", "PI": "Piauí",
+      "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte", "RS": "Rio Grande do Sul",
+      "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina", "SP": "São Paulo",
+      "SE": "Sergipe", "TO": "Tocantins"
+    };
+
     const MULTI_AREA_JOBS = [
       {
         area: "Bancário & Finanças",
         title: "Analista de Atendimento Bancário e Crédito Digital",
         company: "Instituição Financeira Nacional",
         modality: "remoto",
+        contract: "clt",
+        applicants: "6 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 3 min",
         tags: ["atendimento", "bancário", "crédito", "financeiro", "cpa-10", "cpa-20", "relacionamento", "carteira", "clientes"],
         query: "Analista Atendimento Bancário Crédito"
@@ -252,6 +390,9 @@
         title: "Gerente de Relacionamento PJ / Consultor Financeiro",
         company: "Banco Digital & Meios de Pagamento",
         modality: "remoto",
+        contract: "clt",
+        applicants: "8 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 5 min",
         tags: ["gerente", "relacionamento", "pj", "banco", "bancário", "investimentos", "vendas", "negociação", "metas", "cpa"],
         query: "Gerente Relacionamento Bancário Financeiro"
@@ -261,6 +402,9 @@
         title: "Analista Financeiro Pleno (Contas a Pagar/Receber & Conciliação)",
         company: "Grupo Empresarial Brasil",
         modality: "remoto",
+        contract: "clt",
+        applicants: "14 candidatos",
+        lowApplicants: false,
         postedAgo: "Há 6 min",
         tags: ["financeiro", "conciliação", "fluxo de caixa", "excel", "erp", "faturamento", "contábil", "fiscal"],
         query: "Analista Financeiro Conciliação"
@@ -270,6 +414,9 @@
         title: "Analista de Recrutamento e Seleção / People",
         company: "Consultoria de Talentos RH",
         modality: "remoto",
+        contract: "pj",
+        applicants: "5 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 7 min",
         tags: ["rh", "recursos humanos", "recrutamento", "seleção", "entrevistas", "treinamento", "dp", "pessoas"],
         query: "Analista Recrutamento Seleção RH"
@@ -279,6 +426,9 @@
         title: "Especialista de Sucesso do Cliente (Customer Success)",
         company: "Plataforma SaaS B2B",
         modality: "remoto",
+        contract: "clt",
+        applicants: "9 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 8 min",
         tags: ["customer success", "atendimento", "suporte", "cliente", "crm", "retenção", "onboarding", "comunicação"],
         query: "Customer Success Atendimento"
@@ -288,6 +438,9 @@
         title: "Analista Administrativo e Operações",
         company: "Rede de Serviços Corporativos",
         modality: "remoto",
+        contract: "clt",
+        applicants: "19 candidatos",
+        lowApplicants: false,
         postedAgo: "Há 9 min",
         tags: ["administrativo", "operações", "processos", "planilhas", "excel", "relatórios", "indicadores", "gestão"],
         query: "Analista Administrativo Operações"
@@ -297,6 +450,9 @@
         title: "Analista de Dados / Business Intelligence",
         company: "Empresa de Tecnologia & Inovação",
         modality: "remoto",
+        contract: "pj",
+        applicants: "7 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 9 min",
         tags: ["dados", "bi", "power bi", "sql", "excel", "indicadores", "dashboard", "análise"],
         query: "Analista de Dados BI"
@@ -306,6 +462,9 @@
         title: "Especialista de Prevenção a Fraudes e Compliance Bancário",
         company: "Fintech de Serviços Financeiros",
         modality: "hibrido",
+        contract: "clt",
+        applicants: "6 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 4 min",
         tags: ["fraudes", "compliance", "bancário", "risco", "pld", "auditoria", "financeiro", "análise"],
         query: "Prevenção a Fraudes Compliance Bancário"
@@ -315,6 +474,9 @@
         title: "Executivo de Contas Corporativas (B2B)",
         company: "Soluções Corporativas Brasil",
         modality: "hibrido",
+        contract: "pj",
+        applicants: "11 candidatos",
+        lowApplicants: false,
         postedAgo: "Há 7 min",
         tags: ["comercial", "vendas", "b2b", "prospecção", "negociação", "crm", "contas", "metas"],
         query: "Executivo de Contas B2B"
@@ -324,6 +486,9 @@
         title: "Gerente de Agência / Atendimento Presencial",
         company: "Instituição Bancária Tradicional",
         modality: "presencial",
+        contract: "clt",
+        applicants: "4 candidatos",
+        lowApplicants: true,
         postedAgo: "Há 8 min",
         tags: ["agência", "bancário", "gerente", "atendimento", "cpa-10", "cpa-20", "varejo", "crédito"],
         query: "Gerente Bancário Atendimento"
@@ -337,6 +502,13 @@
       "trabalho", "atuação", "atuacao", "responsável", "responsavel", "atividades", "empresa",
       "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional"
     ]);
+
+    function updateCitiesDatalist() {
+      const uf = document.getElementById("stateSelect").value;
+      const datalist = document.getElementById("citiesDatalist");
+      const cities = CITIES_BY_STATE[uf] || CITIES_BY_STATE[""];
+      datalist.innerHTML = cities.map(c => `<option value="${c}">`).join("");
+    }
 
     function extractCvKeywords(text) {
       if (!text || text.trim().length < 10) return [];
@@ -377,34 +549,56 @@
       return Math.min(score, 98);
     }
 
-    function buildPortalLinks(keyword, modality) {
-      const baseKw = keyword && keyword.trim() ? keyword.trim() : "Vagas Brasil";
+    function buildLocationString(uf, city) {
+      if (city && uf) return `${city}, ${STATE_NAMES[uf] || uf}, Brasil`;
+      if (city) return `${city}, Brasil`;
+      if (uf) return `${STATE_NAMES[uf] || uf}, Brasil`;
+      return "Brasil";
+    }
+
+    function buildPortalLinks(keyword, modality, contract, timePosted, lowApplicants, uf, city) {
+      const baseKw = keyword && keyword.trim() ? keyword.trim() : "Vagas";
+      const contractText = contract === "clt" ? "CLT" : (contract === "pj" ? "PJ" : (contract === "temp" ? "Temporário" : ""));
+      const fullKw = `${baseKw} ${contractText}`.trim();
+
       const modMap = {
         remoto: { li: "&f_WT=2", text: "Remoto" },
         hibrido: { li: "&f_WT=3", text: "Híbrido" },
         presencial: { li: "&f_WT=1", text: "Presencial" }
       };
       const chosen = modMap[modality] || modMap.remoto;
+      const contractParam = contract === "clt" ? "&f_JT=F" : (contract === "pj" ? "&f_JT=C" : (contract === "temp" ? "&f_JT=T" : ""));
+      const lowAppParam = lowApplicants === "low" ? "&f_EA=true" : "";
+      const locationStr = buildLocationString(uf, city);
 
-      const qLi = encodeURIComponent(baseKw);
-      const qPost = encodeURIComponent(`${baseKw} ${chosen.text} vaga`);
-      const qGupy = encodeURIComponent(`site:gupy.io "${baseKw}" "${chosen.text}"`);
-      const qIndeed = encodeURIComponent(`${baseKw} ${chosen.text}`);
+      const qLi = encodeURIComponent(fullKw);
+      const qLoc = encodeURIComponent(locationStr);
+      const qPost = encodeURIComponent(`${fullKw} ${chosen.text} ${city || uf || ""} vaga`.trim());
+      const qGupy = encodeURIComponent(`site:gupy.io "${baseKw}" "${chosen.text}" ${city || uf || ""}`.trim());
+      const qIndeed = encodeURIComponent(`${fullKw} ${chosen.text}`.trim());
+      const indeedLoc = encodeURIComponent(city ? `${city}, ${uf}` : (uf ? STATE_NAMES[uf] : "Brasil"));
+      const indeedDays = timePosted === "r3600" || timePosted === "r86400" ? "1" : (timePosted === "r604800" ? "7" : "30");
 
       document.getElementById("radarLinkedinJobs").href =
-        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=Brasil${chosen.li}&f_TPR=r86400`;
+        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=${qLoc}${chosen.li}${contractParam}${lowAppParam}&f_TPR=${timePosted}`;
       document.getElementById("radarLinkedinPosts").href =
         `https://www.linkedin.com/search/results/content/?keywords=${qPost}&sortBy=%22date_posted%22`;
       document.getElementById("radarGupy").href =
         `https://www.google.com/search?q=${qGupy}&tbs=qdr:d`;
       document.getElementById("radarIndeed").href =
-        `https://br.indeed.com/jobs?q=${qIndeed}&fromage=1`;
+        `https://br.indeed.com/jobs?q=${qIndeed}&l=${indeedLoc}&fromage=${indeedDays}`;
     }
 
     function renderMural() {
       const container = document.getElementById("jobsMuralContainer");
       const keyword = document.getElementById("searchKeywordInput").value.trim();
       const modality = document.getElementById("modalitySelect").value;
+      const contract = document.getElementById("contractSelect").value;
+      const timePosted = document.getElementById("timePostedSelect").value;
+      const applicants = document.getElementById("applicantsSelect").value;
+      const uf = document.getElementById("stateSelect").value;
+      const city = document.getElementById("cityInput").value.trim();
+
       const cvText = document.getElementById("userCvInput").value;
       const cvKeywords = extractCvKeywords(cvText);
 
@@ -418,40 +612,47 @@
         chipsEl.innerHTML = `<span class="text-xs text-slate-500">Cole seu currículo acima para destacar suas competências aqui.</span>`;
       }
 
-      // Atualiza badges e links dos radares
-      const modalityLabels = {
-        remoto: "100% Remoto",
-        hibrido: "Híbrido",
-        presencial: "Presencial"
-      };
+      // Atualiza badges
+      const modalityLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
+      const contractLabels = { all: "CLT / PJ", clt: "CLT", pj: "PJ", temp: "Temporário / Estágio" };
       document.getElementById("muralBadge").textContent = modalityLabels[modality];
-      buildPortalLinks(keyword, modality);
+      document.getElementById("regionBadge").textContent = city ? `${city}${uf ? " - " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
 
-      // Filtra por modalidade escolhida (priorizando Remoto por padrão)
+      buildPortalLinks(keyword, modality, contract, timePosted, applicants, uf, city);
+
+      // Filtra o mural
       let filtered = MULTI_AREA_JOBS.filter(j => j.modality === modality);
+      if (contract !== "all") {
+        filtered = filtered.filter(j => j.contract === contract);
+      }
+      if (applicants === "low") {
+        filtered = filtered.filter(j => j.lowApplicants);
+      }
 
-      // Se o usuário digitou um cargo/área, filtra ou cria card dinâmico sob medida
-      if (keyword) {
+      if (keyword || city || uf) {
         const kwLow = keyword.toLowerCase();
-        const matches = filtered.filter(j =>
-          `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow)
-        );
+        const matches = keyword
+          ? filtered.filter(j => `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow))
+          : filtered;
 
-        // Sempre adiciona um card dinâmico atualizado nos últimos 10 min para o cargo exato digitado
+        const titleLabel = keyword || "Vagas Recentes";
+        const regionLabel = city ? ` • ${city}${uf ? "/" + uf : ""}` : (uf ? ` • ${uf}` : "");
         const customCard = {
-          area: "Busca Personalizada",
-          title: `${keyword} (${modalityLabels[modality]})`,
-          company: "Vagas Abertas Agora • LinkedIn & Portais BR",
+          area: "Busca Sob Medida",
+          title: `${titleLabel} (${modalityLabels[modality]}${regionLabel})`,
+          company: `Filtro: ${contractLabels[contract]} • Portais Brasil`,
           modality: modality,
-          postedAgo: "Há 2 min",
-          tags: kwLow.split(/\s+/).filter(w => w.length > 2),
-          query: keyword
+          contract: contract === "all" ? "clt" : contract,
+          applicants: applicants === "low" ? "< 10 candidatos" : "Recente",
+          lowApplicants: true,
+          postedAgo: "Agora",
+          tags: kwLow ? kwLow.split(/\s+/).filter(w => w.length > 2) : [],
+          query: keyword || "Vagas"
         };
 
         filtered = [customCard, ...matches];
       }
 
-      // Ordena por maior Match com o currículo inserido
       const scored = filtered
         .map(job => ({ ...job, match: computeDynamicMatch(job, cvKeywords, keyword) }))
         .sort((a, b) => b.match - a.match);
@@ -460,21 +661,29 @@
       document.getElementById("lastUpdatedTag").textContent =
         `Atualizado às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
 
+      const modParam = modality === "remoto" ? "&f_WT=2" : (modality === "hibrido" ? "&f_WT=3" : "&f_WT=1");
+      const contractParam = contract === "clt" ? "&f_JT=F" : (contract === "pj" ? "&f_JT=C" : (contract === "temp" ? "&f_JT=T" : ""));
+      const lowAppParam = applicants === "low" ? "&f_EA=true" : "";
+      const locEncoded = encodeURIComponent(buildLocationString(uf, city));
+
       container.innerHTML = scored.map(job => {
-        const modParam = job.modality === "remoto" ? "&f_WT=2" : (job.modality === "hibrido" ? "&f_WT=3" : "&f_WT=1");
-        const directUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.query)}&location=Brasil${modParam}&f_TPR=r86400`;
+        const directUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.query)}&location=${locEncoded}${modParam}${contractParam}${lowAppParam}&f_TPR=${timePosted}`;
+        const contractTag = job.contract === "pj" ? "PJ" : (job.contract === "temp" ? "Temp/Estágio" : "CLT");
 
         return `
           <article class="glass rounded-2xl p-4 hover:border-emerald-500/50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="space-y-1.5">
-              <div class="flex flex-wrap items-center gap-2">
+              <div class="flex flex-wrap items-center gap-1.5">
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
                   ${job.area}
                 </span>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                   ${modalityLabels[job.modality]}
                 </span>
-                <span class="text-[11px] text-slate-400">• ${job.postedAgo}</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                  ${contractTag}
+                </span>
+                <span class="text-[11px] text-slate-400">• ${job.applicants} • ${job.postedAgo}</span>
               </div>
               <h3 class="text-sm font-bold text-white">${job.title}</h3>
               <p class="text-xs text-slate-400">${job.company}</p>
@@ -520,7 +729,7 @@
 
       const name = profile.name || "SEU NOME COMPLETO";
       const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Alvo";
-      const city = profile.city || "Brasil (Disponível 100% Remoto)";
+      const city = profile.city || document.getElementById("cityInput").value.trim() || "Brasil (Disponível 100% Remoto)";
       const cvKeywords = extractCvKeywords(cv).map(k => k.toUpperCase()).join(" • ");
       const jobKeywords = jobDesc ? extractCvKeywords(jobDesc).slice(0, 8).map(k => k.toUpperCase()).join(", ") : "";
 
@@ -547,7 +756,6 @@
       alert("Currículo otimizado copiado para a área de transferência!");
     }
 
-    // Modal de Perfil
     function openProfileModal() {
       const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
       document.getElementById("profileNameInput").value = profile.name || "";
@@ -580,23 +788,34 @@
       renderMural();
     }
 
-    // Eventos de teclado (Enter na busca e salvamento local do currículo)
-    document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        applySearchAndRefresh();
-      }
+    // Eventos de teclado e mudanças de filtros
+    ["searchKeywordInput", "cityInput"].forEach(id => {
+      document.getElementById(id).addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applySearchAndRefresh();
+        }
+      });
     });
 
-    document.getElementById("modalitySelect").addEventListener("change", applySearchAndRefresh);
+    ["modalitySelect", "contractSelect", "timePostedSelect", "applicantsSelect"].forEach(id => {
+      document.getElementById(id).addEventListener("change", applySearchAndRefresh);
+    });
+
+    document.getElementById("stateSelect").addEventListener("change", function () {
+      updateCitiesDatalist();
+      applySearchAndRefresh();
+    });
+
+    document.getElementById("cityInput").addEventListener("change", applySearchAndRefresh);
 
     document.getElementById("userCvInput").addEventListener("input", function (e) {
       localStorage.setItem("nativagas_user_cv", e.target.value);
       renderMural();
     });
 
-    // Inicialização limpa
     window.addEventListener("DOMContentLoaded", () => {
+      updateCitiesDatalist();
       const savedCv = localStorage.getItem("nativagas_user_cv");
       if (savedCv) document.getElementById("userCvInput").value = savedCv;
 
