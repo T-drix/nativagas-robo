@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NATIVAGAS • Buscador Avançado de Vagas & Analisador Real ATS</title>
+  <title>NATIVAGAS • Curadoria Real de Vagas & Analisador ATS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #020617; color: #f8fafc; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
@@ -26,18 +26,21 @@
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-lg tracking-tight text-white">NATIVAGAS</h1>
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Filtros Reais & ATS
+              Vagas Reais Auditadas
             </span>
           </div>
           <p class="text-xs text-slate-400">
-            Busca Direta nos Portais + Análise Real de Currículo • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante</strong>
+            Curadoria Automática com Leitura de Descrição • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante</strong>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5">
+        <span id="curatedSyncBadge" class="text-xs text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
+          Carregando base real...
+        </span>
         <button onclick="openProfileModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-100 transition">
-          Personalizar Meu Perfil
+          Meu Perfil
         </button>
       </div>
     </div>
@@ -46,39 +49,53 @@
   <!-- Conteúdo Principal -->
   <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- Bloco 1: Configurador de Filtros Reais dos Portais -->
+    <!-- Painel de Filtros sobre as Vagas Reais -->
     <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div class="flex-1">
           <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Cargo, Área ou Palavra-Chave <span class="text-slate-500 font-normal normal-case">(Opcional — deixe vazio para buscar todas as vagas nos filtros abaixo)</span>
+            Filtrar nas Vagas Curadas <span class="text-slate-500 font-normal normal-case">(Cargo, habilidade, empresa ou deixe vazio para ver todas)</span>
           </label>
           <input
             id="searchKeywordInput"
             type="text"
-            placeholder="Ex: Control Desk, Gerente Bancário, Financeiro, RH, Atendimento ou deixe em branco..."
+            placeholder="Ex: Bancário, Financeiro, Operacional, Atendimento, RH, Dados..."
             class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
           />
         </div>
 
         <button
-          onclick="updateAllLinksAndSummary()"
+          onclick="filterAndRenderJobs()"
           class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 shrink-0"
         >
-          Aplicar Filtros
+          Filtrar Vagas
         </button>
       </div>
 
-      <!-- 6 Filtros Reais -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+        <!-- Área -->
+        <div>
+          <label for="areaSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Área Profissional
+          </label>
+          <select id="areaSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="all" selected>Todas as Áreas</option>
+            <option value="Bancário & Finanças">Bancário & Finanças</option>
+            <option value="Operações & Logística">Operações & Logística</option>
+            <option value="Atendimento & Sucesso">Atendimento & Sucesso</option>
+            <option value="Recursos Humanos">Recursos Humanos</option>
+            <option value="Tecnologia & Dados">Tecnologia & Dados</option>
+          </select>
+        </div>
+
         <!-- Modelo de Trabalho -->
         <div>
           <label for="modalitySelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Modelo de Trabalho
+            Modelo Auditado
           </label>
           <select id="modalitySelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
-            <option value="all">Todos os Modelos</option>
-            <option value="remoto" selected>100% Remoto</option>
+            <option value="all" selected>Todos os Modelos</option>
+            <option value="remoto">100% Remoto</option>
             <option value="hibrido">Híbrido</option>
             <option value="presencial">Presencial</option>
           </select>
@@ -87,38 +104,13 @@
         <!-- Tipo de Contrato -->
         <div>
           <label for="contractSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Tipo de Contrato
+            Contrato
           </label>
           <select id="contractSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="all" selected>Todos (CLT / PJ)</option>
-            <option value="clt">CLT (Tempo Integral)</option>
-            <option value="pj">PJ / Contrato</option>
-            <option value="temp">Temporário</option>
+            <option value="clt">CLT</option>
+            <option value="pj">PJ</option>
             <option value="intern">Estágio</option>
-          </select>
-        </div>
-
-        <!-- Tempo de Postagem -->
-        <div>
-          <label for="timePostedSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Tempo de Postagem
-          </label>
-          <select id="timePostedSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
-            <option value="r3600">Última 1 hora</option>
-            <option value="r86400" selected>Últimas 24 horas</option>
-            <option value="r604800">Últimos 7 dias</option>
-            <option value="r2592000">Últimos 30 dias</option>
-          </select>
-        </div>
-
-        <!-- Número de Candidaturas -->
-        <div>
-          <label for="applicantsSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Nº de Candidaturas
-          </label>
-          <select id="applicantsSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
-            <option value="all" selected>Qualquer volume</option>
-            <option value="low">Menos de 10 candidatos</option>
           </select>
         </div>
 
@@ -129,40 +121,27 @@
           </label>
           <select id="stateSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="" selected>Brasil (Todos)</option>
-            <option value="AC">Acre (AC)</option>
-            <option value="AL">Alagoas (AL)</option>
-            <option value="AP">Amapá (AP)</option>
-            <option value="AM">Amazonas (AM)</option>
-            <option value="BA">Bahia (BA)</option>
-            <option value="CE">Ceará (CE)</option>
-            <option value="DF">Distrito Federal (DF)</option>
-            <option value="ES">Espírito Santo (ES)</option>
-            <option value="GO">Goiás (GO)</option>
-            <option value="MA">Maranhão (MA)</option>
-            <option value="MT">Mato Grosso (MT)</option>
-            <option value="MS">Mato Grosso do Sul (MS)</option>
-            <option value="MG">Minas Gerais (MG)</option>
-            <option value="PA">Pará (PA)</option>
-            <option value="PB">Paraíba (PB)</option>
-            <option value="PR">Paraná (PR)</option>
-            <option value="PE">Pernambuco (PE)</option>
-            <option value="PI">Piauí (PI)</option>
-            <option value="RJ">Rio de Janeiro (RJ)</option>
-            <option value="RN">Rio Grande do Norte (RN)</option>
-            <option value="RS">Rio Grande do Sul (RS)</option>
-            <option value="RO">Rondônia (RO)</option>
-            <option value="RR">Roraima (RR)</option>
-            <option value="SC">Santa Catarina (SC)</option>
-            <option value="SP">São Paulo (SP)</option>
-            <option value="SE">Sergipe (SE)</option>
+            <option value="AC">Acre (AC)</option><option value="AL">Alagoas (AL)</option>
+            <option value="AP">Amapá (AP)</option><option value="AM">Amazonas (AM)</option>
+            <option value="BA">Bahia (BA)</option><option value="CE">Ceará (CE)</option>
+            <option value="DF">Distrito Federal (DF)</option><option value="ES">Espírito Santo (ES)</option>
+            <option value="GO">Goiás (GO)</option><option value="MA">Maranhão (MA)</option>
+            <option value="MT">Mato Grosso (MT)</option><option value="MS">Mato Grosso do Sul (MS)</option>
+            <option value="MG">Minas Gerais (MG)</option><option value="PA">Pará (PA)</option>
+            <option value="PB">Paraíba (PB)</option><option value="PR">Paraná (PR)</option>
+            <option value="PE">Pernambuco (PE)</option><option value="PI">Piauí (PI)</option>
+            <option value="RJ">Rio de Janeiro (RJ)</option><option value="RN">Rio Grande do Norte (RN)</option>
+            <option value="RS">Rio Grande do Sul (RS)</option><option value="RO">Rondônia (RO)</option>
+            <option value="RR">Roraima (RR)</option><option value="SC">Santa Catarina (SC)</option>
+            <option value="SP">São Paulo (SP)</option><option value="SE">Sergipe (SE)</option>
             <option value="TO">Tocantins (TO)</option>
           </select>
         </div>
 
-        <!-- Cidade (Base IBGE 5.570 municípios + Digitação Livre) -->
-        <div class="relative" id="cityAutocompleteWrapper">
+        <!-- Cidade (Base IBGE 5.570 municípios) -->
+        <div class="relative">
           <label for="cityInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Cidade (Todas do Brasil)
+            Cidade (IBGE Brasil)
           </label>
           <div class="relative flex items-center">
             <input
@@ -172,205 +151,99 @@
               placeholder="Digite qualquer cidade..."
               class="w-full pl-3 pr-7 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
             />
-            <button
-              id="clearCityBtn"
-              type="button"
-              onclick="clearCitySelection()"
-              title="Limpar cidade"
-              class="hidden absolute right-2 text-slate-400 hover:text-white text-xs"
-            >
-              ✕
-            </button>
+            <button id="clearCityBtn" type="button" onclick="clearCitySelection()" class="hidden absolute right-2 text-slate-400 hover:text-white text-xs">✕</button>
           </div>
-          <div
-            id="cityDropdownList"
-            class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-40 divide-y divide-slate-800/70"
-          ></div>
-        </div>
-      </div>
-
-      <!-- Resumo Transparente da Busca Configurada + Portais Diretos -->
-      <div class="pt-4 border-t border-slate-800/80 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-3">
-          <div class="space-y-0.5">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-              Filtros Prontos para Pesquisa Oficial nos Portais:
-            </span>
-            <p id="activeFilterSummary" class="text-xs text-slate-200 font-medium">
-              Todas as vagas • 100% Remoto • Brasil
-            </p>
-          </div>
-          <span class="text-[11px] text-slate-400">
-            Os botões ao lado abrem a lista real de vagas diretamente em cada portal
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-sky-600/20 hover:bg-sky-600/30 text-sky-200 border border-sky-500/40 text-xs font-bold transition">
-            <span>Abrir Vagas no LinkedIn</span>
-            <span>↗</span>
-          </a>
-          <a id="radarLinkedinPosts" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition">
-            <span>Posts de Recrutadores</span>
-            <span>↗</span>
-          </a>
-          <a id="radarGupy" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition">
-            <span>Abrir Vagas na Gupy</span>
-            <span>↗</span>
-          </a>
-          <a id="radarIndeed" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-4 py-3 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition">
-            <span>Abrir Vagas no Indeed</span>
-            <span>↗</span>
-          </a>
+          <div id="cityDropdownList" class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-40 divide-y divide-slate-800/70"></div>
         </div>
       </div>
     </section>
 
-    <!-- Bloco 2: Analisador Real de Compatibilidade (Currículo Real x Vaga Real) -->
+    <!-- Grid Principal: Vagas Reais Curadas (7 cols) + Currículo & Match Real (5 cols) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Passo 1: Currículo Real do Candidato (6 cols) -->
-      <section class="lg:col-span-6 glass rounded-2xl p-5 space-y-4">
-        <div class="flex items-center justify-between">
+      <!-- Lista de Vagas Reais Auditadas -->
+      <section class="lg:col-span-7 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Passo 1 • Seus Dados Reais</span>
-            <h2 class="text-base font-bold text-white">Seu Currículo</h2>
-            <p class="text-xs text-slate-400">Cole o texto do seu currículo para extrair suas competências reais</p>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              Vagas Reais Auditadas pelo Robô
+              <span id="jobsCountBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                0 vagas
+              </span>
+            </h2>
+            <p class="text-xs text-slate-400">
+              Cada vaga abaixo foi lida diretamente na fonte original pelo robô NATIVAGAS.
+            </p>
           </div>
-          <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
-            Limpar
-          </button>
         </div>
 
-        <textarea
-          id="userCvInput"
-          rows="8"
-          placeholder="Cole aqui o texto completo do seu currículo (cargos, experiências, ferramentas, formação, certificações e idiomas)..."
-          class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
-        ></textarea>
-
-        <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800">
-          <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Competências reais identificadas no seu texto:
-          </span>
-          <div id="keywordsChips" class="flex flex-wrap gap-1.5">
-            <span class="text-xs text-slate-500">Nenhum currículo inserido ainda.</span>
-          </div>
+        <div id="realJobsContainer" class="space-y-3">
+          <!-- Cards de vagas reais carregados do vagas_curadas.json -->
         </div>
       </section>
 
-      <!-- Passo 2: Descrição Real da Vaga & Cálculo Verdadeiro de Match (6 cols) -->
-      <section class="lg:col-span-6 glass rounded-2xl p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Passo 2 • Vaga Real Encontrada</span>
-            <h2 class="text-base font-bold text-white">Analisador Real de Match & Otimizador ATS</h2>
-            <p class="text-xs text-slate-400">Cole a descrição da vaga que você abriu no LinkedIn/Gupy para calcular o Match real</p>
-          </div>
-          <button onclick="clearJobDescBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
-            Limpar
-          </button>
-        </div>
-
-        <textarea
-          id="targetJobDesc"
-          rows="5"
-          placeholder="Copie e cole aqui os requisitos e responsabilidades da vaga real que você encontrou nos portais..."
-          class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-sky-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
-        ></textarea>
-
-        <!-- Painel de Resultado Real (Só calcula quando ambos os textos existem) -->
-        <div id="realMatchPanel" class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+      <!-- Coluna Direita: Currículo Real (Calcula o Match verdadeiro em cada card) -->
+      <section class="lg:col-span-5 space-y-4">
+        <div class="glass rounded-2xl p-5 space-y-4 sticky top-20">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-300">Aderência Real (Currículo × Vaga):</span>
-            <span id="realMatchScoreBadge" class="text-xs font-extrabold px-3 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
-              Aguardando currículo e vaga
-            </span>
-          </div>
-
-          <div id="matchBreakdownArea" class="hidden space-y-2 text-xs">
             <div>
-              <span class="text-emerald-400 font-semibold">✔ Requisitos da vaga encontrados no seu currículo:</span>
-              <p id="matchedSkillsText" class="text-slate-300 mt-0.5">—</p>
+              <h2 class="text-base font-bold text-white">Seu Currículo Real</h2>
+              <p class="text-xs text-slate-400">Cole seu currículo para calcular o % Match real em cada vaga ao lado</p>
             </div>
-            <div>
-              <span class="text-amber-400 font-semibold">⚠ Requisitos pedidos na vaga que não apareceram no seu currículo:</span>
-              <p id="missingSkillsText" class="text-slate-300 mt-0.5">—</p>
-            </div>
+            <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">Limpar</button>
           </div>
-        </div>
 
-        <button
-          onclick="runATSOptimizer()"
-          class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition"
-        >
-          Estruturar Meu Currículo para Esta Vaga (ATS)
-        </button>
-
-        <div id="atsResultWrapper" class="hidden space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-emerald-400">Versão Estruturada (Baseada apenas nos seus dados reais):</span>
-            <button onclick="copyOptimizedCv()" class="text-xs text-sky-400 hover:underline">Copiar texto</button>
-          </div>
           <textarea
-            id="optimizedCvOutput"
-            rows="6"
-            readonly
-            class="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-slate-200 leading-relaxed"
+            id="userCvInput"
+            rows="9"
+            placeholder="Cole aqui o texto completo do seu currículo. O sistema só calcula o % Match quando você insere suas experiências reais aqui..."
+            class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
           ></textarea>
+
+          <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800">
+            <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              Competências reais extraídas do seu currículo:
+            </span>
+            <div id="keywordsChips" class="flex flex-wrap gap-1.5">
+              <span class="text-xs text-slate-500">Aguardando currículo...</span>
+            </div>
+          </div>
         </div>
       </section>
     </div>
   </main>
 
-  <!-- Rodapé -->
   <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
-    NATIVAGAS • Dados 100% reais sem simulação • Base oficial de municípios IBGE • Privacidade LGPD (salvo apenas no seu navegador).
+    NATIVAGAS • Curadoria Real de Vagas • Zero simulações • Privacidade LGPD (seu currículo fica apenas no seu navegador).
   </footer>
 
-  <!-- Modal de Perfil do Visitante -->
+  <!-- Modal Perfil -->
   <div id="profileModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-white">Personalizar Seu Perfil</h3>
+        <h3 class="text-base font-bold text-white">Seu Perfil Local</h3>
         <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
-      <p class="text-xs text-slate-400">
-        Essas informações ficam armazenadas somente no seu navegador para preencher o cabeçalho do seu currículo ATS.
-      </p>
       <div class="space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Seu Nome</label>
           <input id="profileNameInput" type="text" placeholder="Ex: Maria Silva" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área / Cargo Principal</label>
-          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Control Desk / Financeiro" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Cidade / Estado (Opcional)</label>
-          <input id="profileCityInput" type="text" placeholder="Ex: São Paulo - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área</label>
+          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Financeiro" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeProfileModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">Cancelar</button>
-        <button onclick="saveUserProfile()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white">Salvar Perfil</button>
+        <button onclick="saveUserProfile()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white">Salvar</button>
       </div>
     </div>
   </div>
 
   <script>
     let ALL_BRAZIL_MUNICIPALITIES = [];
-
-    const STATE_NAMES = {
-      "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA": "Bahia",
-      "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo", "GO": "Goiás",
-      "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul", "MG": "Minas Gerais",
-      "PA": "Pará", "PB": "Paraíba", "PR": "Paraná", "PE": "Pernambuco", "PI": "Piauí",
-      "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte", "RS": "Rio Grande do Sul",
-      "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina", "SP": "São Paulo",
-      "SE": "Sergipe", "TO": "Tocantins"
-    };
+    let REAL_CURATED_JOBS = [];
 
     const STOPWORDS = new Set([
       "para", "com", "sem", "uma", "uns", "umas", "dos", "das", "nos", "nas", "pelo", "pela",
@@ -380,16 +253,11 @@
       "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional",
       "vaga", "requisitos", "desejável", "desejavel", "diferencial", "benefícios", "beneficios",
       "conhecimento", "conhecimentos", "habilidades", "formação", "formacao", "ensino", "superior",
-      "completo", "cursando", "boa", "bom", "buscamos", "procuramos", "oportunidade", "equipe",
-      "dia", "dias", "horário", "horario", "salário", "salario", "vale", "plano", "saúde", "saude"
+      "completo", "cursando", "boa", "bom", "buscamos", "procuramos", "oportunidade", "equipe"
     ]);
 
     function normalizeText(str) {
-      return (str || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim();
+      return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     }
 
     async function loadAllBrazilianCities() {
@@ -400,19 +268,167 @@
           if (ALL_BRAZIL_MUNICIPALITIES.length > 5000) return;
         } catch (e) {}
       }
-
       try {
         const resp = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/municipios?orderBy=nome");
         const data = await resp.json();
         ALL_BRAZIL_MUNICIPALITIES = data.map(m => ({
           name: m.nome,
           uf: m.microrregiao?.mesorregiao?.UF?.sigla || ""
-        })).filter(item => item.name && item.uf);
-
+        })).filter(i => i.name && i.uf);
         localStorage.setItem("nativagas_ibge_cities_v1", JSON.stringify(ALL_BRAZIL_MUNICIPALITIES));
+      } catch (e) {}
+    }
+
+    async function loadRealCuratedJobs() {
+      const badge = document.getElementById("curatedSyncBadge");
+      try {
+        const resp = await fetch(`./vagas_curadas.json?t=${Date.now()}`);
+        if (!resp.ok) throw new Error("Aguardando primeira execução do robô");
+        const data = await resp.json();
+        REAL_CURATED_JOBS = data.jobs || [];
+        if (data.updated_at) {
+          const dt = new Date(data.updated_at);
+          badge.textContent = `Curadoria atualizada: ${dt.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
+        } else {
+          badge.textContent = `${REAL_CURATED_JOBS.length} vagas reais auditadas`;
+        }
       } catch (err) {
-        console.warn("Aviso ao carregar lista completa IBGE:", err);
+        REAL_CURATED_JOBS = [];
+        badge.textContent = "Aguardando primeira varredura do robô (Actions)";
       }
+      filterAndRenderJobs();
+    }
+
+    function extractKeywords(text) {
+      if (!text || text.trim().length < 20) return [];
+      const words = text.toLowerCase().replace(/[^\wà-ú\-]/g, " ").split(/\s+/).filter(w => w.length >= 3 && !STOPWORDS.has(w));
+      const freq = {};
+      words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 20).map(e => e[0]);
+    }
+
+    function computeRealJobMatch(job, cvText, cvKeywords) {
+      if (!cvText || cvText.trim().length < 30 || cvKeywords.length === 0) {
+        return null; // Nunca inventa porcentagem sem currículo preenchido!
+      }
+      const jobFull = normalizeText(`${job.title} ${job.full_text || job.excerpt || ""}`);
+      let hits = 0;
+      const matched = [];
+      cvKeywords.forEach(kw => {
+        if (jobFull.includes(normalizeText(kw))) {
+          hits++;
+          matched.push(kw);
+        }
+      });
+      const pct = Math.min(Math.round((hits / Math.min(cvKeywords.length, 10)) * 100), 99);
+      return { pct, matched: matched.slice(0, 5) };
+    }
+
+    function filterAndRenderJobs() {
+      const container = document.getElementById("realJobsContainer");
+      const kw = normalizeText(document.getElementById("searchKeywordInput").value);
+      const area = document.getElementById("areaSelect").value;
+      const modality = document.getElementById("modalitySelect").value;
+      const contract = document.getElementById("contractSelect").value;
+      const uf = document.getElementById("stateSelect").value;
+      const city = normalizeText(document.getElementById("cityInput").value);
+
+      const cvText = document.getElementById("userCvInput").value;
+      const cvKeywords = extractKeywords(cvText);
+
+      const chipsEl = document.getElementById("keywordsChips");
+      chipsEl.innerHTML = cvKeywords.length > 0
+        ? cvKeywords.map(k => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${k}</span>`).join("")
+        : `<span class="text-xs text-slate-500">Aguardando currículo...</span>`;
+
+      let filtered = REAL_CURATED_JOBS.filter(job => {
+        if (area !== "all" && job.area !== area) return false;
+        if (modality !== "all" && job.modality !== modality) return false;
+        if (contract !== "all" && job.contract !== contract) return false;
+
+        const jobLocNorm = normalizeText(job.location || "");
+        if (uf && !jobLocNorm.includes(uf.toLowerCase()) && !jobLocNorm.includes("brasil") && !jobLocNorm.includes("remoto")) {
+          return false;
+        }
+        if (city && !jobLocNorm.includes(city) && !jobLocNorm.includes("brasil") && !jobLocNorm.includes("remoto")) {
+          return false;
+        }
+
+        if (kw) {
+          const hay = normalizeText(`${job.title} ${job.company} ${job.area} ${job.full_text || job.excerpt || ""}`);
+          if (!hay.includes(kw)) return false;
+        }
+        return true;
+      });
+
+      const enriched = filtered.map(job => ({
+        ...job,
+        matchInfo: computeRealJobMatch(job, cvText, cvKeywords)
+      }));
+
+      if (cvKeywords.length > 0) {
+        enriched.sort((a, b) => (b.matchInfo?.pct || 0) - (a.matchInfo?.pct || 0));
+      }
+
+      document.getElementById("jobsCountBadge").textContent = `${enriched.length} ${enriched.length === 1 ? "vaga real" : "vagas reais"}`;
+
+      if (enriched.length === 0) {
+        container.innerHTML = `
+          <div class="glass rounded-2xl p-6 text-center space-y-2">
+            <p class="text-sm font-bold text-slate-200">Nenhuma vaga auditada corresponde exatamente a este filtro no momento.</p>
+            <p class="text-xs text-slate-400">
+              ${REAL_CURATED_JOBS.length === 0
+                ? "Rode o workflow 'NATIVAGAS Radar Gratuito 24x7' na aba Actions do GitHub para carregar o primeiro lote de vagas reais."
+                : "Tente limpar o campo de palavra-chave ou mudar a área/modalidade para ver as demais vagas reais já auditadas."}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const modLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
+      const contractLabels = { clt: "CLT", pj: "PJ", intern: "Estágio" };
+
+      container.innerHTML = enriched.map(job => {
+        const matchBadge = job.matchInfo
+          ? `<span class="text-xs font-extrabold px-2.5 py-1 rounded-lg ${job.matchInfo.pct >= 50 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-amber-500/20 text-amber-300 border border-amber-500/40"}">${job.matchInfo.pct}% Match Real</span>`
+          : `<span class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Cole seu CV para Match</span>`;
+
+        const matchedTermsLine = job.matchInfo && job.matchInfo.matched.length > 0
+          ? `<p class="text-[11px] text-emerald-400">✔ Em comum com seu CV: ${job.matchInfo.matched.join(", ")}</p>`
+          : "";
+
+        return `
+          <article class="glass rounded-2xl p-4 hover:border-emerald-500/50 transition space-y-2.5">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">${job.area}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">${modLabels[job.modality] || "Remoto"}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">${contractLabels[job.contract] || "CLT"}</span>
+                  <span class="text-[11px] text-slate-400">• ${job.location}</span>
+                </div>
+                <h3 class="text-sm font-bold text-white">${job.title}</h3>
+                <p class="text-xs font-medium text-slate-300">🏢 ${job.company}</p>
+              </div>
+              <div class="shrink-0">${matchBadge}</div>
+            </div>
+
+            <p class="text-xs text-slate-400 leading-relaxed bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              ${job.excerpt || "Descrição auditada pelo robô NATIVAGAS."}
+            </p>
+
+            ${matchedTermsLine}
+
+            <div class="pt-1 flex items-center justify-between">
+              <span class="text-[11px] text-slate-500">Link direto da vaga oficial</span>
+              <a href="${job.link}" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+                Candidatar-se na Vaga Real ↗
+              </a>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
 
     function renderCitySuggestions() {
@@ -423,273 +439,44 @@
       const query = normalizeText(inputEl.value);
 
       clearBtn.classList.toggle("hidden", inputEl.value.trim().length === 0);
+      let pool = selectedUf ? ALL_BRAZIL_MUNICIPALITIES.filter(c => c.uf === selectedUf) : ALL_BRAZIL_MUNICIPALITIES;
+      let matches = query.length > 0
+        ? [...pool.filter(c => normalizeText(c.name).startsWith(query)), ...pool.filter(c => !normalizeText(c.name).startsWith(query) && normalizeText(c.name).includes(query))].slice(0, 40)
+        : pool.slice(0, 40);
 
-      let pool = ALL_BRAZIL_MUNICIPALITIES;
-      if (selectedUf) {
-        pool = pool.filter(c => c.uf === selectedUf);
-      }
-
-      let matches = [];
-      if (query.length > 0) {
-        const startsWith = pool.filter(c => normalizeText(c.name).startsWith(query));
-        const contains = pool.filter(c => !normalizeText(c.name).startsWith(query) && normalizeText(c.name).includes(query));
-        matches = [...startsWith, ...contains].slice(0, 40);
-      } else {
-        matches = pool.slice(0, 40);
-      }
-
-      if (matches.length === 0 && query.length > 0) {
-        dropdown.innerHTML = `
-          <div class="px-3 py-2.5 text-xs text-slate-400">
-            Usar cidade digitada: <strong class="text-emerald-400">"${inputEl.value.trim()}"</strong> (Pressione Enter)
-          </div>
-        `;
-      } else {
-        dropdown.innerHTML = matches.map(c => `
-          <button
-            type="button"
-            onmousedown="selectCityOption('${c.name.replace(/'/g, "\\'")}', '${c.uf}')"
-            class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-emerald-600/25 hover:text-emerald-300 flex items-center justify-between transition"
-          >
-            <span>${c.name}</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${c.uf}</span>
-          </button>
-        `).join("");
-      }
-
+      dropdown.innerHTML = matches.map(c => `
+        <button type="button" onmousedown="selectCityOption('${c.name.replace(/'/g, "\\'")}', '${c.uf}')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-emerald-600/25 flex items-center justify-between">
+          <span>${c.name}</span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${c.uf}</span>
+        </button>
+      `).join("");
       dropdown.classList.remove("hidden");
     }
 
-    function selectCityOption(cityName, cityUf) {
-      document.getElementById("cityInput").value = cityName;
-      if (cityUf && !document.getElementById("stateSelect").value) {
-        document.getElementById("stateSelect").value = cityUf;
-      }
+    function selectCityOption(name, uf) {
+      document.getElementById("cityInput").value = name;
+      if (uf && !document.getElementById("stateSelect").value) document.getElementById("stateSelect").value = uf;
       document.getElementById("clearCityBtn").classList.remove("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      updateAllLinksAndSummary();
+      filterAndRenderJobs();
     }
 
     function clearCitySelection() {
       document.getElementById("cityInput").value = "";
       document.getElementById("clearCityBtn").classList.add("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      updateAllLinksAndSummary();
-    }
-
-    function buildLocationString(uf, city) {
-      if (city && uf) return `${city}, ${STATE_NAMES[uf] || uf}, Brasil`;
-      if (city) return `${city}, Brasil`;
-      if (uf) return `${STATE_NAMES[uf] || uf}, Brasil`;
-      return "Brasil";
-    }
-
-    function updateAllLinksAndSummary() {
-      const keyword = document.getElementById("searchKeywordInput").value.trim();
-      const modality = document.getElementById("modalitySelect").value;
-      const contract = document.getElementById("contractSelect").value;
-      const timePosted = document.getElementById("timePostedSelect").value;
-      const applicants = document.getElementById("applicantsSelect").value;
-      const uf = document.getElementById("stateSelect").value;
-      const city = document.getElementById("cityInput").value.trim();
-
-      // Mapeamento exato dos parâmetros oficiais do LinkedIn
-      const modMap = {
-        all: { li: "", text: "" },
-        remoto: { li: "&f_WT=2", text: "Remoto" },
-        hibrido: { li: "&f_WT=3", text: "Híbrido" },
-        presencial: { li: "&f_WT=1", text: "Presencial" }
-      };
-      const contractMap = {
-        all: { li: "", text: "" },
-        clt: { li: "&f_JT=F", text: "CLT" },
-        pj: { li: "&f_JT=C", text: "PJ" },
-        temp: { li: "&f_JT=T", text: "Temporário" },
-        intern: { li: "&f_JT=I", text: "Estágio" }
-      };
-
-      const chosenMod = modMap[modality] || modMap.all;
-      const chosenContract = contractMap[contract] || contractMap.all;
-      // LinkedIn usa f_JIYN=true (Menos de 10 candidaturas)
-      const lowAppParam = applicants === "low" ? "&f_JIYN=true" : "";
-      const locationStr = buildLocationString(uf, city);
-
-      // Mantém keywords limpo (apenas o cargo digitado, sem sujar a busca)
-      const qLi = encodeURIComponent(keyword);
-      const qLoc = encodeURIComponent(locationStr);
-
-      // 1. LinkedIn Vagas (com todos os parâmetros nativos aplicados)
-      document.getElementById("radarLinkedinJobs").href =
-        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=${qLoc}${chosenMod.li}${chosenContract.li}${lowAppParam}&f_TPR=${timePosted}`;
-
-      // 2. LinkedIn Posts de Recrutadores
-      const postParts = [keyword || "vaga", chosenMod.text, chosenContract.text, city || (uf ? STATE_NAMES[uf] : "")].filter(Boolean);
-      document.getElementById("radarLinkedinPosts").href =
-        `https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(postParts.join(" "))}&sortBy=%22date_posted%22`;
-
-      // 3. Portal Gupy
-      const gupyParts = ["site:gupy.io", keyword ? `"${keyword}"` : "", chosenMod.text ? `"${chosenMod.text}"` : "", city || uf || ""].filter(Boolean);
-      document.getElementById("radarGupy").href =
-        `https://www.google.com/search?q=${encodeURIComponent(gupyParts.join(" "))}&tbs=qdr:d`;
-
-      // 4. Indeed Brasil
-      const indeedKw = [keyword, chosenMod.text, chosenContract.text].filter(Boolean).join(" ");
-      const indeedLoc = city ? `${city}${uf ? ", " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
-      const indeedDays = (timePosted === "r3600" || timePosted === "r86400") ? "1" : (timePosted === "r604800" ? "7" : "30");
-      document.getElementById("radarIndeed").href =
-        `https://br.indeed.com/jobs?q=${encodeURIComponent(indeedKw)}&l=${encodeURIComponent(indeedLoc)}&fromage=${indeedDays}`;
-
-      // Atualiza o texto de resumo transparente
-      const modLabels = { all: "Todos os Modelos", remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
-      const contractLabels = { all: "Todos os Contratos", clt: "CLT", pj: "PJ", temp: "Temporário", intern: "Estágio" };
-      const timeLabels = { r3600: "Última 1 hora", r86400: "Últimas 24 horas", r604800: "Últimos 7 dias", r2592000: "Últimos 30 dias" };
-
-      const summaryParts = [
-        keyword ? `Cargo: "${keyword}"` : "Todas as vagas abertas",
-        modLabels[modality],
-        contractLabels[contract],
-        timeLabels[timePosted],
-        applicants === "low" ? "Menos de 10 candidatos" : null,
-        locationStr
-      ].filter(Boolean);
-
-      document.getElementById("activeFilterSummary").textContent = summaryParts.join(" • ");
-    }
-
-    function extractKeywords(text) {
-      if (!text || text.trim().length < 15) return [];
-      const words = text
-        .toLowerCase()
-        .replace(/[^\wà-ú\-]/g, " ")
-        .split(/\s+/)
-        .filter(w => w.length >= 3 && !STOPWORDS.has(w));
-
-      const freq = {};
-      words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-
-      return Object.entries(freq)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 22)
-        .map(entry => entry[0]);
-    }
-
-    function evaluateRealMatch() {
-      const cvText = document.getElementById("userCvInput").value.trim();
-      const jobText = document.getElementById("targetJobDesc").value.trim();
-
-      const cvKeywords = extractKeywords(cvText);
-      const chipsEl = document.getElementById("keywordsChips");
-
-      if (cvKeywords.length > 0) {
-        chipsEl.innerHTML = cvKeywords
-          .map(k => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${k}</span>`)
-          .join("");
-      } else {
-        chipsEl.innerHTML = `<span class="text-xs text-slate-500">Nenhum currículo inserido ainda.</span>`;
-      }
-
-      const badgeEl = document.getElementById("realMatchScoreBadge");
-      const breakdownEl = document.getElementById("matchBreakdownArea");
-
-      // Só calcula porcentagem quando EXISTE currículo real E descrição real de vaga
-      if (cvText.length < 30 || jobText.length < 30) {
-        badgeEl.textContent = "Aguardando currículo e descrição da vaga";
-        badgeEl.className = "text-xs font-extrabold px-3 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
-        breakdownEl.classList.add("hidden");
-        return;
-      }
-
-      const jobKeywords = extractKeywords(jobText);
-      if (jobKeywords.length === 0) return;
-
-      const cvNorm = normalizeText(cvText);
-      const matched = [];
-      const missing = [];
-
-      jobKeywords.forEach(jk => {
-        if (cvNorm.includes(normalizeText(jk))) {
-          matched.push(jk);
-        } else {
-          missing.push(jk);
-        }
-      });
-
-      const pct = Math.round((matched.length / jobKeywords.length) * 100);
-      badgeEl.textContent = `${pct}% de Aderência Real`;
-      badgeEl.className = pct >= 65
-        ? "text-xs font-extrabold px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-        : "text-xs font-extrabold px-3 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40";
-
-      document.getElementById("matchedSkillsText").textContent = matched.length > 0 ? matched.join(", ") : "Nenhum termo direto encontrado ainda.";
-      document.getElementById("missingSkillsText").textContent = missing.length > 0 ? missing.join(", ") : "Todos os termos principais já constam no seu currículo!";
-      breakdownEl.classList.remove("hidden");
+      filterAndRenderJobs();
     }
 
     function clearCvBox() {
       document.getElementById("userCvInput").value = "";
       localStorage.removeItem("nativagas_user_cv");
-      evaluateRealMatch();
-    }
-
-    function clearJobDescBox() {
-      document.getElementById("targetJobDesc").value = "";
-      document.getElementById("atsResultWrapper").classList.add("hidden");
-      evaluateRealMatch();
-    }
-
-    function runATSOptimizer() {
-      const cv = document.getElementById("userCvInput").value.trim();
-      const jobDesc = document.getElementById("targetJobDesc").value.trim();
-      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
-
-      if (cv.length < 30) {
-        alert("Cole primeiro o texto real do seu currículo no Passo 1.");
-        return;
-      }
-
-      const name = profile.name || "SEU NOME COMPLETO";
-      const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Pretendido";
-      const city = profile.city || document.getElementById("cityInput").value.trim() || "Brasil";
-      const cvKeywords = extractKeywords(cv).slice(0, 12).map(k => k.toUpperCase()).join(" • ");
-
-      let jobAlignment = "";
-      if (jobDesc.length >= 30) {
-        const jobKw = extractKeywords(jobDesc);
-        const cvNorm = normalizeText(cv);
-        const confirmed = jobKw.filter(k => cvNorm.includes(normalizeText(k))).map(k => k.toUpperCase());
-        if (confirmed.length > 0) {
-          jobAlignment = `\nCOMPETÊNCIAS COMPROVADAS ADERENTES À VAGA:\n${confirmed.join(" • ")}`;
-        }
-      }
-
-      const optimized = [
-        name.toUpperCase(),
-        `${role.toUpperCase()} | ${city}`,
-        "",
-        "PRINCIPAIS COMPETÊNCIAS EXTRAÍDAS DO SEU CURRÍCULO:",
-        cvKeywords,
-        jobAlignment,
-        "",
-        "CURRÍCULO ORIGINAL ESTRUTURADO:",
-        cv
-      ].filter(Boolean).join("\n");
-
-      document.getElementById("optimizedCvOutput").value = optimized;
-      document.getElementById("atsResultWrapper").classList.remove("hidden");
-    }
-
-    function copyOptimizedCv() {
-      const out = document.getElementById("optimizedCvOutput");
-      out.select();
-      document.execCommand("copy");
-      alert("Texto copiado!");
+      filterAndRenderJobs();
     }
 
     function openProfileModal() {
-      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
-      document.getElementById("profileNameInput").value = profile.name || "";
-      document.getElementById("profileRoleInput").value = profile.role || "";
-      document.getElementById("profileCityInput").value = profile.city || "";
+      const p = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
+      document.getElementById("profileNameInput").value = p.name || "";
+      document.getElementById("profileRoleInput").value = p.role || "";
       document.getElementById("profileModal").classList.remove("hidden");
       document.getElementById("profileModal").classList.add("flex");
     }
@@ -700,77 +487,36 @@
     }
 
     function saveUserProfile() {
-      const profile = {
+      const p = {
         name: document.getElementById("profileNameInput").value.trim(),
-        role: document.getElementById("profileRoleInput").value.trim(),
-        city: document.getElementById("profileCityInput").value.trim()
+        role: document.getElementById("profileRoleInput").value.trim()
       };
-      localStorage.setItem("nativagas_profile", JSON.stringify(profile));
-      if (profile.name) {
-        document.getElementById("activeUserLabel").textContent =
-          profile.role ? `${profile.name} (${profile.role})` : profile.name;
-      }
+      localStorage.setItem("nativagas_profile", JSON.stringify(p));
+      if (p.name) document.getElementById("activeUserLabel").textContent = p.role ? `${p.name} (${p.role})` : p.name;
       closeProfileModal();
     }
 
-    // Eventos
-    document.getElementById("searchKeywordInput").addEventListener("input", updateAllLinksAndSummary);
-    document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        updateAllLinksAndSummary();
-      }
-    });
+    document.getElementById("searchKeywordInput").addEventListener("input", filterAndRenderJobs);
+    document.getElementById("searchKeywordInput").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); filterAndRenderJobs(); } });
+    ["areaSelect", "modalitySelect", "contractSelect", "stateSelect"].forEach(id => document.getElementById(id).addEventListener("change", filterAndRenderJobs));
 
     const cityInputEl = document.getElementById("cityInput");
     cityInputEl.addEventListener("focus", renderCitySuggestions);
-    cityInputEl.addEventListener("input", function () {
-      renderCitySuggestions();
-      updateAllLinksAndSummary();
-    });
-    cityInputEl.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        document.getElementById("cityDropdownList").classList.add("hidden");
-        updateAllLinksAndSummary();
-      }
-    });
-    cityInputEl.addEventListener("blur", function () {
-      setTimeout(() => {
-        document.getElementById("cityDropdownList").classList.add("hidden");
-      }, 180);
-    });
+    cityInputEl.addEventListener("input", () => { renderCitySuggestions(); filterAndRenderJobs(); });
+    cityInputEl.addEventListener("blur", () => setTimeout(() => document.getElementById("cityDropdownList").classList.add("hidden"), 180));
 
-    ["modalitySelect", "contractSelect", "timePostedSelect", "applicantsSelect"].forEach(id => {
-      document.getElementById(id).addEventListener("change", updateAllLinksAndSummary);
-    });
-
-    document.getElementById("stateSelect").addEventListener("change", function () {
-      if (document.getElementById("cityInput").value) {
-        renderCitySuggestions();
-      }
-      updateAllLinksAndSummary();
-    });
-
-    document.getElementById("userCvInput").addEventListener("input", function (e) {
+    document.getElementById("userCvInput").addEventListener("input", e => {
       localStorage.setItem("nativagas_user_cv", e.target.value);
-      evaluateRealMatch();
+      filterAndRenderJobs();
     });
-
-    document.getElementById("targetJobDesc").addEventListener("input", evaluateRealMatch);
 
     window.addEventListener("DOMContentLoaded", async () => {
       await loadAllBrazilianCities();
       const savedCv = localStorage.getItem("nativagas_user_cv");
       if (savedCv) document.getElementById("userCvInput").value = savedCv;
-
-      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
-      if (profile.name) {
-        document.getElementById("activeUserLabel").textContent =
-          profile.role ? `${profile.name} (${profile.role})` : profile.name;
-      }
-      updateAllLinksAndSummary();
-      evaluateRealMatch();
+      const p = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
+      if (p.name) document.getElementById("activeUserLabel").textContent = p.role ? `${p.name} (${p.role})` : p.name;
+      await loadRealCuratedJobs();
     });
   </script>
 </body>
