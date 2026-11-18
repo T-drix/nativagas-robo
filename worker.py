@@ -10,18 +10,13 @@ WHATSAPP_NUMBER = os.getenv("WHATSAPP_NUMBER", "")
 CALLMEBOT_APIKEY = os.getenv("CALLMEBOT_APIKEY", "")
 MIN_MATCH_ALERT = int(os.getenv("MIN_MATCH_ALERT", "65"))
 SENT_CACHE_FILE = "sent_jobs.json"
+CURATED_WEB_FILE = "vagas_curadas.json"
 
-CANDIDATE_PROFILE = {
-    "name": "Natália Cristine",
-    "linkedin_keywords_br": [
-        "WMS",
-        "Key User WMS",
-        "Torre de Controle",
-        "Analista de Logística",
-        "Planejamento Logístico",
-        "Power BI Logística",
-        "MIS",
-        "Comércio Exterior"
+# Perfil privado para os alertas do SEU WhatsApp
+ADMIN_PROFILE = {
+    "keywords": [
+        "WMS", "Key User WMS", "Torre de Controle", "Analista de Logística",
+        "Planejamento Logístico", "Power BI Logística", "MIS", "Comércio Exterior"
     ],
     "core_skills": {
         "wms": 22, "key user": 22, "torre de controle": 20, "logistica": 18,
@@ -34,132 +29,118 @@ CANDIDATE_PROFILE = {
     }
 }
 
+# Áreas públicas para alimentar o mural real do app (inclui Bancário, Finanças, Operações, RH, Dados, etc.)
+PUBLIC_WEB_QUERIES = [
+    {"area": "Bancário & Finanças", "kw": "Bancário"},
+    {"area": "Bancário & Finanças", "kw": "Analista Financeiro"},
+    {"area": "Operações & Logística", "kw": "Analista Operacional"},
+    {"area": "Operações & Logística", "kw": "Analista de Logística"},
+    {"area": "Atendimento & Sucesso", "kw": "Customer Success"},
+    {"area": "Recursos Humanos", "kw": "Analista de RH"},
+    {"area": "Tecnologia & Dados", "kw": "Analista de Dados"}
+]
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
     "Accept-Language": "pt-BR,pt;q=0.9"
 }
 
-def load_sent_jobs():
-    if os.path.exists(SENT_CACHE_FILE):
+def load_json_file(path, default):
+    if os.path.exists(path):
         try:
-            with open(SENT_CACHE_FILE, "r", encoding="utf-8") as f:
-                return set(json.load(f))
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
         except Exception:
-            return set()
-    return set()
+            return default
+    return default
 
-def save_sent_jobs(job_ids):
-    with open(SENT_CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(list(job_ids)[-800:], f, ensure_ascii=False, indent=2)
+def save_json_file(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-def fetch_linkedin_guest_jobs(keyword):
+def fetch_linkedin_guest_jobs(keyword, wt_filter=""):
     encoded_kw = urllib.parse.quote(keyword)
-    url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={encoded_kw}&location=Brazil&f_WT=2&f_TPR=r86400&start=0"
+    wt_param = f"&f_WT={wt_filter}" if wt_filter else ""
+    url = f"https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords={encoded_kw}&location=Brazil{wt_param}&f_TPR=r86400&start=0"
     jobs = []
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         if resp.status_code != 200:
-            print(f"[Aviso LinkedIn Search '{keyword}'] HTTP {resp.status_code}")
             return jobs
 
         cards = re.findall(
-            r'data-entity-urn="urn:li:jobPosting:(\d+)".*?base-search-card__title[^>]*>(.*?)</h3>.*?base-search-card__subtitle[^>]*>(.*?)</h4>',
+            r'data-entity-urn="urn:li:jobPosting:(\d+)".*?base-search-card__title[^>]*>(.*?)</h3>.*?base-search-card__subtitle[^>]*>(.*?)</h4>.*?job-search-card__location[^>]*>(.*?)</span>',
             resp.text,
             flags=re.DOTALL
         )
-        for job_id, raw_title, raw_company in cards:
+        for job_id, raw_title, raw_company, raw_loc in cards:
             title = re.sub(r"<[^>]+>", "", raw_title).strip()
             company = re.sub(r"<[^>]+>", "", raw_company).strip()
+            location = re.sub(r"<[^>]+>", "", raw_loc).strip()
             if job_id and title:
                 jobs.append({
                     "job_id": job_id,
                     "title": title,
                     "company": company or "Empresa no LinkedIn",
+                    "location": location or "Brasil",
                     "link": f"https://www.linkedin.com/jobs/view/{job_id}/"
                 })
     except Exception as e:
-        print(f"[Erro LinkedIn Search '{keyword}'] {e}")
+        print(f"[Erro Search '{keyword}'] {e}")
     return jobs
 
-def inspect_linkedin_job_description(job_id, title):
-    """
-    Lê a descrição completa da vaga e só aprova se:
-    1. Estiver em português;
-    2. NÃO exigir inglês avançado/fluente;
-    3. NÃO mencionar presencial/híbrido;
-    4. Confirmar EXPLICITAMENTE Remoto, Home Office ou Teletrabalho no texto.
-    """
+def inspect_job_details(job_id, title, location_str):
+    """Lê a descrição real da vaga, extrai palavras-chave reais e valida a modalidade."""
     detail_url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
     try:
         resp = requests.get(detail_url, headers=HEADERS, timeout=15)
         if resp.status_code != 200:
-            return False, "", f"Não foi possível ler a descrição (HTTP {resp.status_code})"
+            return None
 
         no_script = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", resp.text, flags=re.DOTALL | re.IGNORECASE)
         clean_text = re.sub(r"<[^>]+>", " ", no_script)
         clean_text = re.sub(r"\s+", " ", clean_text).strip()
         text_low = clean_text.lower()
-        full_check = f"{title.lower()} {text_low}"
+        full_check = f"{title.lower()} {location_str.lower()} {text_low}"
 
-        # 1. Garante que a vaga está escrita em português
-        pt_markers = ["requisitos", "atividades", "responsabilidades", "experiência", "benefícios", "contratação", "sobre a vaga", "local de trabalho"]
-        if sum(1 for m in pt_markers if m in text_low) < 2:
-            return False, "", "Vaga em inglês ou sem descrição detalhada em português"
+        # Identifica modalidade real lendo a descrição
+        modality = "presencial"
+        if any(k in full_check for k in ["100% remoto", "trabalho remoto", "modelo remoto", "home office", "teletrabalho", "remoto"]):
+            modality = "remoto"
+        elif any(k in full_check for k in ["híbrido", "hibrido", "modelo híbrido", "trabalho híbrido"]):
+            modality = "hibrido"
 
-        # 2. Bloqueia exigência de inglês fluente / avançado / bilíngue
-        english_requirements = [
-            "inglês fluente", "ingles fluente",
-            "inglês avançado", "ingles avancado",
-            "inglês imprescindível", "ingles imprescindivel",
-            "inglês obrigatório", "ingles obrigatorio",
-            "fluent english", "advanced english",
-            "english fluency", "bilíngue", "bilingue",
-            "conversação em inglês", "conversacao em ingles"
-        ]
-        if any(eng in full_check for eng in english_requirements):
-            return False, "", "Exige inglês fluente/avançado"
+        # Identifica contrato real
+        contract = "clt"
+        if any(k in full_check for k in ["pessoa jurídica", "contratação pj", "regime pj", " pj "]):
+            contract = "pj"
+        elif "estágio" in full_check or "estagio" in full_check:
+            contract = "intern"
 
-        # 3. Verifica campos específicos de local/modelo de trabalho
-        context_patterns = [
-            r"(?:local de trabalho|modelo de trabalho|regime de trabalho|modalidade|formato de trabalho|regime|atuação)\s*[:\-–]?\s*([^.;\n]{3,90})"
-        ]
-        extracted_contexts = []
-        for pat in context_patterns:
-            for m in re.finditer(pat, text_low):
-                extracted_contexts.append(m.group(1).strip())
+        # Verifica idioma e inglês fluente
+        pt_markers = ["requisitos", "atividades", "responsabilidades", "experiência", "benefícios", "sobre a vaga"]
+        is_portuguese = sum(1 for m in pt_markers if m in text_low) >= 2
+        requires_fluent_en = any(eng in full_check for eng in [
+            "inglês fluente", "ingles fluente", "inglês avançado", "ingles avancado",
+            "fluent english", "advanced english", "bilíngue", "bilingue"
+        ])
 
-        context_blob = " | ".join(extracted_contexts)
-        if context_blob and any(bad in context_blob for bad in ["presencial", "híbrido", "hibrido", "on-site"]):
-            return False, "", f"Local/modelo indica presencial/híbrido ({context_blob[:50]})"
+        return {
+            "description_excerpt": clean_text[:450] + ("..." if len(clean_text) > 450 else ""),
+            "full_text_low": text_low[:4500],
+            "modality": modality,
+            "contract": contract,
+            "is_portuguese": is_portuguese,
+            "requires_fluent_en": requires_fluent_en
+        }
+    except Exception:
+        return None
 
-        # 4. Bloqueia qualquer menção a presencial ou híbrido na descrição
-        negative_phrases = [
-            "100% presencial", "trabalho presencial", "atuação presencial",
-            "atuar presencialmente", "vaga presencial", "modelo presencial",
-            "regime presencial", "modelo híbrido", "trabalho híbrido",
-            "atuação híbrida", "vaga híbrida", "regime híbrido"
-        ]
-        if any(neg in full_check for neg in negative_phrases):
-            return False, "", "Descrição menciona trabalho presencial ou híbrido"
-
-        # 5. Exige confirmação explícita de Remoto, Home Office ou Teletrabalho
-        remote_keywords = [
-            "100% remoto", "trabalho remoto", "modelo remoto", "regime remoto",
-            "vaga remota", "remoto", "home office", "100% home office",
-            "teletrabalho", "trabalho à distância", "trabalho a distancia"
-        ]
-        if any(rk in full_check for rk in remote_keywords):
-            return True, text_low[:4000], "Confirmado: 100% Remoto e sem inglês fluente"
-
-        return False, "", "Não consta Remoto, Home Office ou Teletrabalho na descrição"
-    except Exception as e:
-        return False, "", f"Erro ao validar descrição ({e})"
-
-def calculate_match(title, description):
+def calculate_admin_match(title, description):
     text = f"{title} {description}".lower()
     score = 48
     matched_tags = []
-    for skill, weight in CANDIDATE_PROFILE["core_skills"].items():
+    for skill, weight in ADMIN_PROFILE["core_skills"].items():
         if skill in text:
             score += weight
             tag = skill.upper()
@@ -168,74 +149,95 @@ def calculate_match(title, description):
     return min(score, 99), matched_tags[:6]
 
 def send_whatsapp_callmebot(message):
-    if not CALLMEBOT_APIKEY:
-        print("[AVISO] CALLMEBOT_APIKEY vazia nos Secrets!")
+    if not CALLMEBOT_APIKEY or not WHATSAPP_NUMBER:
         return False
     url = "https://api.callmebot.com/whatsapp.php"
-    params = {
-        "phone": WHATSAPP_NUMBER,
-        "text": message,
-        "apikey": CALLMEBOT_APIKEY
-    }
+    params = {"phone": WHATSAPP_NUMBER, "text": message, "apikey": CALLMEBOT_APIKEY}
     try:
         r = requests.get(url, params=params, timeout=25)
-        print(f"[CallMeBot Resposta] HTTP {r.status_code}")
         return r.status_code == 200
-    except Exception as e:
-        print(f"[Erro envio WhatsApp] {e}")
+    except Exception:
         return False
 
 def run_cycle():
-    print(f"=== NATIVAGAS LinkedIn Brasil (Estrito Remoto + Sem Inglês Fluente): {datetime.now(timezone.utc).isoformat()} ===")
-    sent_jobs = load_sent_jobs()
-    candidates = []
+    print(f"=== NATIVAGAS Curadoria Real (App Web + WhatsApp): {datetime.now(timezone.utc).isoformat()} ===")
+    sent_jobs = set(load_json_file(SENT_CACHE_FILE, []))
+    existing_web_jobs = load_json_file(CURATED_WEB_FILE, {"jobs": []}).get("jobs", [])
+    web_jobs_map = {j["job_id"]: j for j in existing_web_jobs if "job_id" in j}
 
-    for kw in CANDIDATE_PROFILE["linkedin_keywords_br"]:
-        candidates.extend(fetch_linkedin_guest_jobs(kw))
-        time.sleep(2)
+    # 1. Curadoria para o Mural Público do App (Multi-Áreas)
+    for item in PUBLIC_WEB_QUERIES:
+        raw_list = fetch_linkedin_guest_jobs(item["kw"], wt_filter="2")[:4]
+        for job in raw_list:
+            jid = job["job_id"]
+            if jid in web_jobs_map:
+                continue
+            details = inspect_job_details(jid, job["title"], job["location"])
+            if not details or not details["is_portuguese"]:
+                continue
+            web_jobs_map[jid] = {
+                "job_id": jid,
+                "area": item["area"],
+                "title": job["title"],
+                "company": job["company"],
+                "location": job["location"],
+                "modality": details["modality"],
+                "contract": details["contract"],
+                "link": job["link"],
+                "excerpt": details["description_excerpt"],
+                "full_text": details["full_text_low"],
+                "curated_at": datetime.now(timezone.utc).isoformat()
+            }
+            time.sleep(1.5)
+        time.sleep(1.5)
 
-    print(f"Candidatas coletadas no LinkedIn Brasil: {len(candidates)}")
+    # Mantém as 80 vagas reais mais recentes no JSON público do site
+    curated_list = list(web_jobs_map.values())[-80:]
+    curated_list.reverse()
+    save_json_file(CURATED_WEB_FILE, {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "total": len(curated_list),
+        "jobs": curated_list
+    })
+    print(f"Vagas reais salvas para o App Web: {len(curated_list)}")
+
+    # 2. Curadoria privada para o SEU WhatsApp (100% Remoto + Português + Sem Inglês Fluente)
+    admin_candidates = []
+    for kw in ADMIN_PROFILE["keywords"]:
+        admin_candidates.extend(fetch_linkedin_guest_jobs(kw, wt_filter="2"))
+        time.sleep(1.5)
 
     new_alerts = 0
-    for job in candidates:
-        job_id = job["job_id"]
-        if job_id in sent_jobs:
+    for job in admin_candidates:
+        jid = job["job_id"]
+        if jid in sent_jobs:
+            continue
+        details = inspect_job_details(jid, job["title"], job["location"])
+        if not details:
+            continue
+        sent_jobs.add(jid)
+
+        if not details["is_portuguese"] or details["requires_fluent_en"] or details["modality"] != "remoto":
             continue
 
-        title = job["title"]
-        company = job["company"]
-        link = job["link"]
-
-        is_valid, full_desc, reason = inspect_linkedin_job_description(job_id, title)
-        
-        # Só salva no cache definitivo se foi lida com sucesso; se deu rate-limit HTTP 429, tenta novamente na próxima rodada
-        if "HTTP 429" not in reason:
-            sent_jobs.add(job_id)
-
-        if not is_valid:
-            print(f"[Descartada] {title} ({company}) -> {reason}")
-            time.sleep(1.5)
-            continue
-
-        match_pct, tags = calculate_match(title, full_desc)
+        match_pct, tags = calculate_admin_match(job["title"], details["full_text_low"])
         if match_pct >= MIN_MATCH_ALERT and new_alerts < 5:
             tags_str = ", ".join(tags) if tags else "Logística / WMS / Dados"
             msg = (
                 f"🇧🇷 *NATIVAGAS — {match_pct}% MATCH*\n\n"
-                f"🏢 *Empresa:* {company}\n"
-                f"💼 *Vaga:* {title}\n"
-                f"✅ *Validado:* 100% Remoto • Português\n"
+                f"🏢 *Empresa:* {job['company']}\n"
+                f"💼 *Vaga:* {job['title']}\n"
+                f"✅ *Curadoria:* 100% Remoto • Português\n"
                 f"🎯 *Skills:* {tags_str}\n\n"
-                f"🔗 *Candidatar-se direto:* {link}"
+                f"🔗 *Candidatar-se direto:* {job['link']}"
             )
             if send_whatsapp_callmebot(msg):
                 new_alerts += 1
                 time.sleep(4)
+        time.sleep(1.2)
 
-        time.sleep(1.5)
-
-    save_sent_jobs(sent_jobs)
-    print(f"=== Varredura concluída. Alertas enviados: {new_alerts} ===")
+    save_json_file(SENT_CACHE_FILE, list(sent_jobs)[-800:])
+    print(f"=== Concluído. Alertas WhatsApp: {new_alerts} ===")
 
 if __name__ == "__main__":
     run_cycle()
