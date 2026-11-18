@@ -12,7 +12,6 @@ MIN_MATCH_ALERT = int(os.getenv("MIN_MATCH_ALERT", "65"))
 SENT_CACHE_FILE = "sent_jobs.json"
 CURATED_WEB_FILE = "vagas_curadas.json"
 
-# Perfil privado para os alertas do SEU WhatsApp
 ADMIN_PROFILE = {
     "keywords": [
         "WMS", "Key User WMS", "Torre de Controle", "Analista de Logística",
@@ -29,15 +28,17 @@ ADMIN_PROFILE = {
     }
 }
 
-# Áreas públicas para alimentar o mural real do app (inclui Bancário, Finanças, Operações, RH, Dados, etc.)
 PUBLIC_WEB_QUERIES = [
-    {"area": "Bancário & Finanças", "kw": "Bancário"},
-    {"area": "Bancário & Finanças", "kw": "Analista Financeiro"},
-    {"area": "Operações & Logística", "kw": "Analista Operacional"},
-    {"area": "Operações & Logística", "kw": "Analista de Logística"},
-    {"area": "Atendimento & Sucesso", "kw": "Customer Success"},
-    {"area": "Recursos Humanos", "kw": "Analista de RH"},
-    {"area": "Tecnologia & Dados", "kw": "Analista de Dados"}
+    {"area": "Bancário & Finanças", "kw": "Bancário", "wt": "2"},
+    {"area": "Bancário & Finanças", "kw": "Atendimento Bancário", "wt": ""},
+    {"area": "Bancário & Finanças", "kw": "Analista Financeiro", "wt": "2"},
+    {"area": "Atendimento & Sucesso", "kw": "Atendimento ao Cliente", "wt": "2"},
+    {"area": "Atendimento & Sucesso", "kw": "Customer Success", "wt": "2"},
+    {"area": "Operações & Logística", "kw": "Analista Operacional", "wt": "2"},
+    {"area": "Operações & Logística", "kw": "Analista de Logística", "wt": "2"},
+    {"area": "Recursos Humanos", "kw": "Analista de RH", "wt": "2"},
+    {"area": "Tecnologia & Dados", "kw": "Analista de Dados", "wt": "2"},
+    {"area": "Comercial & Vendas", "kw": "Consultor Comercial", "wt": "2"}
 ]
 
 HEADERS = {
@@ -90,35 +91,35 @@ def fetch_linkedin_guest_jobs(keyword, wt_filter=""):
     return jobs
 
 def inspect_job_details(job_id, title, location_str):
-    """Lê a descrição real da vaga, extrai palavras-chave reais e valida a modalidade."""
     detail_url = f"https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
     try:
         resp = requests.get(detail_url, headers=HEADERS, timeout=15)
         if resp.status_code != 200:
             return None
 
-        no_script = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", resp.text, flags=re.DOTALL | re.IGNORECASE)
+        # Extrai apenas o corpo real da descrição da vaga (ignorando banners de login do LinkedIn)
+        desc_match = re.search(r'show-more-less-html__markup[^>]*>(.*?)</div>', resp.text, flags=re.DOTALL)
+        raw_desc = desc_match.group(1) if desc_match else resp.text
+
+        no_script = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw_desc, flags=re.DOTALL | re.IGNORECASE)
         clean_text = re.sub(r"<[^>]+>", " ", no_script)
         clean_text = re.sub(r"\s+", " ", clean_text).strip()
         text_low = clean_text.lower()
         full_check = f"{title.lower()} {location_str.lower()} {text_low}"
 
-        # Identifica modalidade real lendo a descrição
         modality = "presencial"
         if any(k in full_check for k in ["100% remoto", "trabalho remoto", "modelo remoto", "home office", "teletrabalho", "remoto"]):
             modality = "remoto"
         elif any(k in full_check for k in ["híbrido", "hibrido", "modelo híbrido", "trabalho híbrido"]):
             modality = "hibrido"
 
-        # Identifica contrato real
         contract = "clt"
         if any(k in full_check for k in ["pessoa jurídica", "contratação pj", "regime pj", " pj "]):
             contract = "pj"
         elif "estágio" in full_check or "estagio" in full_check:
             contract = "intern"
 
-        # Verifica idioma e inglês fluente
-        pt_markers = ["requisitos", "atividades", "responsabilidades", "experiência", "benefícios", "sobre a vaga"]
+        pt_markers = ["requisitos", "atividades", "responsabilidades", "experiência", "benefícios", "sobre a vaga", "descrição"]
         is_portuguese = sum(1 for m in pt_markers if m in text_low) >= 2
         requires_fluent_en = any(eng in full_check for eng in [
             "inglês fluente", "ingles fluente", "inglês avançado", "ingles avancado",
@@ -126,7 +127,7 @@ def inspect_job_details(job_id, title, location_str):
         ])
 
         return {
-            "description_excerpt": clean_text[:450] + ("..." if len(clean_text) > 450 else ""),
+            "description_excerpt": clean_text[:420] + ("..." if len(clean_text) > 420 else ""),
             "full_text_low": text_low[:4500],
             "modality": modality,
             "contract": contract,
@@ -160,14 +161,13 @@ def send_whatsapp_callmebot(message):
         return False
 
 def run_cycle():
-    print(f"=== NATIVAGAS Curadoria Real (App Web + WhatsApp): {datetime.now(timezone.utc).isoformat()} ===")
+    print(f"=== NATIVAGAS Curadoria Real: {datetime.now(timezone.utc).isoformat()} ===")
     sent_jobs = set(load_json_file(SENT_CACHE_FILE, []))
     existing_web_jobs = load_json_file(CURATED_WEB_FILE, {"jobs": []}).get("jobs", [])
     web_jobs_map = {j["job_id"]: j for j in existing_web_jobs if "job_id" in j}
 
-    # 1. Curadoria para o Mural Público do App (Multi-Áreas)
     for item in PUBLIC_WEB_QUERIES:
-        raw_list = fetch_linkedin_guest_jobs(item["kw"], wt_filter="2")[:4]
+        raw_list = fetch_linkedin_guest_jobs(item["kw"], wt_filter=item["wt"])[:12]
         for job in raw_list:
             jid = job["job_id"]
             if jid in web_jobs_map:
@@ -188,20 +188,18 @@ def run_cycle():
                 "full_text": details["full_text_low"],
                 "curated_at": datetime.now(timezone.utc).isoformat()
             }
-            time.sleep(1.5)
-        time.sleep(1.5)
+            time.sleep(1.2)
+        time.sleep(1.2)
 
-    # Mantém as 80 vagas reais mais recentes no JSON público do site
-    curated_list = list(web_jobs_map.values())[-80:]
+    curated_list = list(web_jobs_map.values())[-180:]
     curated_list.reverse()
     save_json_file(CURATED_WEB_FILE, {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "total": len(curated_list),
         "jobs": curated_list
     })
-    print(f"Vagas reais salvas para o App Web: {len(curated_list)}")
+    print(f"Total de vagas reais no mural web: {len(curated_list)}")
 
-    # 2. Curadoria privada para o SEU WhatsApp (100% Remoto + Português + Sem Inglês Fluente)
     admin_candidates = []
     for kw in ADMIN_PROFILE["keywords"]:
         admin_candidates.extend(fetch_linkedin_guest_jobs(kw, wt_filter="2"))
