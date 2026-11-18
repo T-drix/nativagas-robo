@@ -1,561 +1,611 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NATIVAGAS — Na Ativa nas Melhores Vagas</title>
+  <title>NATIVAGAS • Radar Inteligente de Vagas & Otimizador ATS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at top center, #111c33 0%, #05080f 75%);
-      color: #f1f5f9;
-    }
-    .font-editorial {
-      font-family: 'Playfair Display', serif;
-    }
-    .clean-dark-shell {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(9, 13, 22, 0.98) 100%);
-    }
-    .glass-card {
-      background: linear-gradient(145deg, rgba(30, 41, 59, 0.65) 0%, rgba(15, 23, 42, 0.92) 100%);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.65);
-    }
-    .glass-card:hover {
-      border-color: rgba(56, 189, 248, 0.35);
-    }
+    body { background-color: #020617; color: #f8fafc; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .glass { background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.7); }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="min-h-screen py-6 px-3 sm:px-6 antialiased selection:bg-sky-500/30 selection:text-sky-200">
+<body class="min-h-screen flex flex-col">
 
-  <div class="max-w-5xl mx-auto clean-dark-shell backdrop-blur-xl rounded-[30px] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] border border-slate-800/90 overflow-hidden">
-    
-    <!-- TOP BAR ELEGANTE -->
-    <header class="px-6 sm:px-10 pt-7 pb-6 border-b border-slate-800/80 bg-slate-950/50 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-black border border-sky-400/30 flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.2)]">
-          <span class="font-editorial italic text-xl font-bold bg-gradient-to-r from-sky-300 via-blue-400 to-indigo-300 bg-clip-text text-transparent tracking-tight">
-            nv
-          </span>
-          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-slate-950"></span>
+  <!-- Cabeçalho -->
+  <header class="border-b border-slate-800 bg-slate-950/90 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-black text-lg">
+          N
         </div>
-
         <div>
-          <div class="flex items-center gap-3 flex-wrap">
-            <h1 class="text-2xl sm:text-[26px] tracking-[0.14em] uppercase font-light text-slate-100 flex items-baseline">
-              <span class="font-extrabold bg-gradient-to-r from-sky-300 via-blue-400 to-cyan-300 bg-clip-text text-transparent">NATI</span><span class="font-light text-slate-300">VAGAS</span>
-            </h1>
-            <span class="px-3 py-0.5 rounded-full bg-sky-500/10 border border-sky-400/25 text-sky-300 text-[11px] font-medium tracking-wide">
-              <span class="font-editorial italic text-xs text-white">Na Ativa</span> • Carreira & Inteligência
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg tracking-tight text-white">NATIVAGAS</h1>
+            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              Multi-Áreas • Brasil
             </span>
           </div>
-          <p class="text-xs text-slate-400 font-medium mt-1">
-            Vagas Oficiais + Publicações de Recrutadores • Perfil: <strong id="activeUserLabel" class="text-slate-200">Natália Cristine (Logística & WMS)</strong>
+          <p class="text-xs text-slate-400">
+            Radar em Tempo Real + Otimizador ATS • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante (Modo Aberto)</strong>
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <div class="px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 text-xs font-semibold flex items-center gap-2 shadow-inner">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>Radar: <strong id="timerDisplay" class="font-mono text-emerald-400">10:00</strong></span>
-          <button onclick="triggerScan()" class="ml-1 px-2.5 py-0.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/30 text-[11px] font-bold transition">
-            Atualizar
-          </button>
-        </div>
-
-        <button onclick="openModal('cvModal')" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-400/30 text-xs font-bold shadow-sm transition">
-          Meu Currículo & Otimizador ATS
-        </button>
-
-        <button onclick="openModal('authModal')" id="authBtn" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-slate-300 text-xs font-semibold transition">
-          Entrar / Conta
+      <div class="flex items-center gap-2.5">
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-3 py-1.5 rounded-xl">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Prioridade: 100% Remoto
+        </span>
+        <button onclick="openProfileModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-100 transition">
+          Personalizar Meu Perfil
         </button>
       </div>
-    </header>
-
-    <!-- BARRA DE TRANSPARÊNCIA -->
-    <div class="px-6 sm:px-10 py-3 bg-sky-950/25 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
-      <div>
-        <span class="text-sky-400 font-semibold">Radar Duplo (Vagas + Posts do Feed):</span> Monitora tanto a aba de <strong>Vagas</strong> quanto <strong>Publicações diretas de recrutadores</strong> no LinkedIn.
-      </div>
-      <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[11px] font-bold">
-        ● WhatsApp Bot (Ciclo 10 min) Ativo
-      </span>
     </div>
+  </header>
 
-    <!-- FILTROS DE BUSCA REAL NO LINKEDIN -->
-    <section class="px-6 sm:px-10 py-5 bg-slate-950/35 border-b border-slate-800/80">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-        <div class="lg:col-span-2">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Busca Livre no LinkedIn</label>
-          <input id="filterKeyword" oninput="renderRadars()" type="text" placeholder="Ex: WMS, Torre de Controle, Power BI..."
-            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500/50 focus:border-sky-400" />
+  <!-- Conteúdo Principal -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
+
+    <!-- Barra de Pesquisa e Filtro de Modalidade -->
+    <section class="glass rounded-2xl p-5 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex-1">
+          <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            Buscar Cargo, Área ou Palavra-Chave (Pressione Enter para atualizar)
+          </label>
+          <input
+            id="searchKeywordInput"
+            type="text"
+            placeholder="Ex: Analista Financeiro, Gerente Bancário, Atendimento, RH, Administrativo, TI..."
+            class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
+          />
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Modalidade</label>
-          <select id="filterModality" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
-            <option value="2" selected>100% Remoto</option>
-            <option value="3">Híbrido</option>
-            <option value="1">Presencial</option>
-            <option value="all">Todas as Modalidades</option>
+        <div class="w-full md:w-56">
+          <label for="modalitySelect" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            Modelo de Trabalho
+          </label>
+          <select
+            id="modalitySelect"
+            class="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          >
+            <option value="remoto" selected>100% Remoto (Prioritário)</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="presencial">Presencial</option>
           </select>
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Contrato</label>
-          <select id="filterContract" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
-            <option value="all" selected>Todos (CLT / PJ / Temp)</option>
-            <option value="F">Tempo Integral (CLT)</option>
-            <option value="C">Contrato / PJ</option>
-            <option value="T">Temporário / Projeto</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Janela de Publicação</label>
-          <select id="filterTimeWindow" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-bold text-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
-            <option value="r3600">Última 1 hora</option>
-            <option value="r10800">Últimas 3 horas</option>
-            <option value="r21600">Últimas 6 horas</option>
-            <option value="r86400" selected>Últimas 24 horas (Ideal)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Concorrência LinkedIn</label>
-          <select id="filterEarlyApplicant" onchange="renderRadars()" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-sm font-bold text-emerald-300 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
-            <option value="true" selected>Menos de 10 candidaturas</option>
-            <option value="false">Todas as candidaturas</option>
-          </select>
-        </div>
+        <button
+          onclick="applySearchAndRefresh()"
+          class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50"
+        >
+          Atualizar Vagas
+        </button>
       </div>
 
-      <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-        <div>
-          <strong id="jobsCount" class="text-slate-100">0</strong> radares ativos calibrados para o seu currículo
-        </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button onclick="openFeedPostsSearch()" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-400/30 font-bold transition">
-            Ver Posts do Feed ("For You" Recrutadores) ↗
-          </button>
-          <button onclick="openDirectLinkedInSearch()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-sky-500/20 transition">
-            Pesquisar na Aba Vagas Agora ↗
-          </button>
-        </div>
+      <!-- Atalhos de Busca Direta nos Principais Portais -->
+      <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+        <span class="text-xs text-slate-400 mr-1">Radares Instantâneos (Últimas 24h):</span>
+        <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-medium transition">
+          LinkedIn Vagas ↗
+        </a>
+        <a id="radarLinkedinPosts" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 font-medium transition">
+          Posts de Recrutadores (LinkedIn) ↗
+        </a>
+        <a id="radarGupy" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium transition">
+          Portal Gupy ↗
+        </a>
+        <a id="radarIndeed" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-medium transition">
+          Indeed Brasil ↗
+        </a>
       </div>
     </section>
 
-    <!-- LISTA DE RADARES -->
-    <main id="jobsContainer" class="p-6 sm:p-10 space-y-7"></main>
+    <!-- Grid Principal: Mural de Vagas + Currículo / Otimizador ATS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-  </div>
-
-  <!-- MODAL CURRÍCULO & OTIMIZADOR ATS -->
-  <div id="cvModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 text-slate-100 rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-        <div>
-          <h2 class="text-xl font-extrabold text-white">Analisador de Currículo & Otimizador ATS</h2>
-          <p class="text-xs text-slate-400">Edite seu currículo abaixo para recalcular o % Match de cada radar e gerar uma versão otimizada para recrutadores.</p>
-        </div>
-        <button onclick="closeModal('cvModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">✕</button>
-      </div>
-
-      <div class="mt-4">
-        <label class="block text-xs font-bold uppercase text-slate-400 mb-1.5">Texto do seu Currículo Atual</label>
-        <textarea id="cvTextarea" rows="7" class="w-full p-3.5 rounded-2xl bg-slate-950 border border-slate-700 text-slate-200 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
-      </div>
-
-      <div class="mt-4 flex flex-wrap gap-3">
-        <button onclick="saveAndRecalculateCV()" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold shadow">
-          Salvar & Recalcular % Match dos Radares
-        </button>
-        <button onclick="runATSOptimizer()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow">
-          Analisar CV & Gerar Sugestão Otimizada (ATS)
-        </button>
-      </div>
-
-      <div id="atsResultBox" class="hidden mt-6 p-5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Diagnóstico de Recrutamento & Seleção</span>
-          <span class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-black">Score ATS: 95/100</span>
-        </div>
-        <div id="atsAnalysisText" class="text-xs text-slate-300 space-y-2 leading-relaxed"></div>
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-bold text-slate-200">Sugestão de Novo Currículo Otimizado (Pronto para Copiar):</span>
-            <button onclick="copyOptimizedCV()" class="text-xs font-bold text-sky-400 hover:underline">Copiar Texto</button>
+      <!-- Coluna Esquerda (7 cols): Mural de Vagas Acuradas -->
+      <section class="lg:col-span-7 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              Mural de Vagas Recentes (Multi-Áreas)
+              <span id="muralBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                100% Remoto
+              </span>
+            </h2>
+            <p id="muralSubtitle" class="text-xs text-slate-400">
+              Monitoramento atualizado nos últimos 10 minutos • Ordenado por compatibilidade com seu currículo
+            </p>
           </div>
-          <textarea id="optimizedCvOutput" rows="8" readonly class="w-full p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-slate-200"></textarea>
+          <span id="lastUpdatedTag" class="text-[11px] text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg">
+            Atualizado agora
+          </span>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- MODAL LOGIN / CADASTRO -->
-  <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 text-slate-100 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-        <h2 class="text-lg font-extrabold text-white">Acesso <span class="text-sky-400">NATI</span>VAGAS</h2>
-        <button onclick="closeModal('authModal')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 font-bold text-slate-300">✕</button>
+        <div id="jobsMuralContainer" class="space-y-3">
+          <!-- Cards renderizados dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Coluna Direita (5 cols): Currículo do Usuário & Otimizador ATS -->
+      <section class="lg:col-span-5 space-y-4">
+        <div class="glass rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-bold text-white">Seu Currículo & Match ATS</h2>
+              <p class="text-xs text-slate-400">Cole seu currículo abaixo para recalcular a aderência das vagas</p>
+            </div>
+            <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">
+              Limpar texto
+            </button>
+          </div>
+
+          <div>
+            <textarea
+              id="userCvInput"
+              rows="7"
+              placeholder="Cole aqui o texto completo do seu currículo (cargo atual, experiências, ferramentas, formação e idiomas)..."
+              class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
+            ></textarea>
+          </div>
+
+          <div id="detectedKeywordsBox" class="p-3 rounded-xl bg-slate-950/90 border border-slate-800">
+            <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+              Palavras-chave identificadas no seu currículo:
+            </span>
+            <div id="keywordsChips" class="flex flex-wrap gap-1.5">
+              <span class="text-xs text-slate-500">Aguardando inserção do seu currículo...</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800 space-y-3">
+            <label for="targetJobDesc" class="block text-xs font-bold text-slate-300">
+              Otimizador ATS para Vaga Específica (Opcional)
+            </label>
+            <textarea
+              id="targetJobDesc"
+              rows="3"
+              placeholder="Cole aqui a descrição da vaga desejada para gerar um cabeçalho e resumo alinhados aos requisitos dela..."
+              class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200"
+            ></textarea>
+
+            <button
+              onclick="runATSOptimizer()"
+              class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-emerald-600 border border-slate-700 hover:border-emerald-500 text-xs font-bold text-white transition"
+            >
+              Gerar Currículo Otimizado para ATS
+            </button>
+
+            <div id="atsResultWrapper" class="hidden space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-emerald-400">Versão Estruturada Pronta:</span>
+                <button onclick="copyOptimizedCv()" class="text-xs text-sky-400 hover:underline">Copiar texto</button>
+              </div>
+              <textarea
+                id="optimizedCvOutput"
+                rows="6"
+                readonly
+                class="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-slate-200 leading-relaxed"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+    NATIVAGAS • Seus dados ficam salvos apenas localmente no seu navegador (Privacidade LGPD).
+  </footer>
+
+  <!-- Modal de Perfil do Visitante -->
+  <div id="profileModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Personalizar Seu Perfil</h3>
+        <button onclick="closeProfileModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
-      <div class="mt-4 space-y-3">
+      <p class="text-xs text-slate-400">
+        Essas informações ficam armazenadas somente no seu navegador para personalizar o cálculo de Match e o cabeçalho ATS.
+      </p>
+      <div class="space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-400 mb-1">Seu Nome</label>
-          <input id="loginName" type="text" placeholder="Ex: Natália Cristine" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <input id="profileNameInput" type="text" placeholder="Ex: Maria Silva" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">E-mail</label>
-          <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área / Cargo Principal</label>
+          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Atendimento / Financeiro / RH" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
-        <button onclick="saveUserAccount()" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-sm font-bold shadow mt-2">
-          Entrar & Salvar Perfil no Navegador
-        </button>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Cidade / Estado (Opcional)</label>
+          <input id="profileCityInput" type="text" placeholder="Ex: São Paulo - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeProfileModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">Cancelar</button>
+        <button onclick="saveUserProfile()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white">Salvar Perfil</button>
       </div>
     </div>
   </div>
 
   <script>
-    const DEFAULT_CV = `NATÁLIA CRISTINE DA SILVA
-ANALISTA DE LOGÍSTICA SÊNIOR / PLENO | KEY USER WMS & PROCESSOS | TORRE DE CONTROLE | POWER BI, SQL & VBA
-São Paulo - SP | +10 anos de experiência em Logística, Armazenagem, Transporte Rodoviário, Torre de Controle, Comércio Exterior (AWB, BL, Invoice, Packing List, CT-e) e Análise de Dados (Power BI, SQL Server, Oracle, Excel Avançado/VBA, Alteryx).
-Atuação consolidada como Key User na implantação de sistemas WMS e ERPs: planta virtual, endereçamento, putaway, picking, coletores RF, inventário cíclico, conciliação físico vs. fiscal, mapeamento BPMN (AS-IS/TO-BE), POPs, Matriz RACI, testes homologatórios (UAT) e roteirização LIFO/Cutoff.`;
-
-    const RADARS = [
+    // Banco de oportunidades multi-áreas para o Mural Inicial (com links reais de busca atualizados)
+    const MULTI_AREA_JOBS = [
       {
-        id: 1,
-        type: "feed",
-        badge: "RADAR FEED • PUBLICAÇÕES DE RECRUTADORES (FOR YOU)",
-        title: "Posts Recentes no Feed — Vagas Remotas de Logística, WMS & Dados",
-        linkedinQuery: '("vaga" OR "oportunidade" OR "contratando") ("logística" OR "WMS" OR "Power BI") ("remoto" OR "home office")',
-        stack: "Feed LinkedIn • Contratação Direta • E-mail RH",
-        targetSalary: "R$ 7.500 – R$ 11.500",
-        salaryNote: "Vagas ocultas postadas direto por gestores e RH",
-        matchKeywords: ["wms", "logistica", "power bi", "torre de controle", "sql"],
-        highlights: [
-          "Pesquisa diretamente na aba de PUBLICAÇÕES do feed do LinkedIn (onde muitos recrutadores postam antes de abrir vaga formal)",
-          "Ordenado estritamente pelas postagens mais recentes do feed"
-        ],
-        tips: [
-          "Ideal para mandar currículo direto no e-mail do recrutador com baixíssima concorrência",
-          "Traz publicações de Logística, WMS e Dados 100% Remotas"
-        ]
+        area: "Bancário & Finanças",
+        title: "Analista de Atendimento Bancário e Crédito Digital",
+        company: "Instituição Financeira Nacional",
+        modality: "remoto",
+        postedAgo: "Há 3 min",
+        tags: ["atendimento", "bancário", "crédito", "financeiro", "cpa-10", "cpa-20", "relacionamento", "carteira", "clientes"],
+        query: "Analista Atendimento Bancário Crédito"
       },
       {
-        id: 2,
-        type: "jobs",
-        badge: "RADAR 01 • ESPECIALIDADE PRINCIPAL",
-        title: "Key User WMS, Implantação & Processos Logísticos",
-        linkedinQuery: "WMS",
-        stack: "WMS • ERP • BPMN • UAT • Inventário",
-        targetSalary: "R$ 8.000 – R$ 11.500",
-        salaryNote: "Média de mercado Sênior / Especialista",
-        matchKeywords: ["wms", "key user", "bpmn", "uat", "pop", "inventario", "picking", "putaway", "logistica"],
-        highlights: [
-          "Busca direta por vagas abertas no LinkedIn exigindo WMS, planta virtual, inventário ou Key User",
-          "Ideal para sua experiência recente na Segura Logística (implantação WMS, coletores RF e 5S)"
-        ],
-        tips: [
-          "Filtra automaticamente vagas com menos de 10 candidaturas para você ser uma das primeiras",
-          "Aplica os filtros de modalidade (Remoto/Híbrido) e janela de tempo selecionados acima"
-        ]
+        area: "Bancário & Comercial",
+        title: "Gerente de Relacionamento PJ / Consultor Financeiro",
+        company: "Banco Digital & Meios de Pagamento",
+        modality: "remoto",
+        postedAgo: "Há 5 min",
+        tags: ["gerente", "relacionamento", "pj", "banco", "bancário", "investimentos", "vendas", "negociação", "metas", "cpa"],
+        query: "Gerente Relacionamento Bancário Financeiro"
       },
       {
-        id: 3,
-        type: "jobs",
-        badge: "RADAR 02 • OPERAÇÕES & SLA",
-        title: "Torre de Controle, Roteirização & Planejamento Logístico",
-        linkedinQuery: "Logística",
-        stack: "Torre de Controle • LIFO • Cutoff • SLA • Frota",
-        targetSalary: "R$ 7.200 – R$ 9.800",
-        salaryNote: "Posições Pleno / Sênior",
-        matchKeywords: ["torre de controle", "roteirizacao", "lifo", "cutoff", "sla", "logistica", "transporte"],
-        highlights: [
-          "Varredura ampla em Logística, Torre de Controle, tracking e governança de roteirização",
-          "Alinhado à sua vivência em roteirização LIFO, cutoff e operação de alto volume (Americanas/Segura)"
-        ],
-        tips: [
-          "Termo otimizado ('Logística') para evitar bloqueios de busca restrita no LinkedIn",
-          "Ordenado pelas publicações mais recentes do dia"
-        ]
+        area: "Financeiro & Controladoria",
+        title: "Analista Financeiro Pleno (Contas a Pagar/Receber & Conciliação)",
+        company: "Grupo Empresarial Brasil",
+        modality: "remoto",
+        postedAgo: "Há 6 min",
+        tags: ["financeiro", "conciliação", "fluxo de caixa", "excel", "erp", "faturamento", "contábil", "fiscal"],
+        query: "Analista Financeiro Conciliação"
       },
       {
-        id: 4,
-        type: "jobs",
-        badge: "RADAR 03 • INTELIGÊNCIA DE DADOS",
-        title: "Analista de MIS, Dados Logísticos, Power BI & SQL",
-        linkedinQuery: "Power BI Logística",
-        stack: "Power BI • SQL Server • Oracle • Excel/VBA • Alteryx",
-        targetSalary: "R$ 7.500 – R$ 10.500",
-        salaryNote: "Alta demanda em trabalho 100% Remoto",
-        matchKeywords: ["power bi", "sql", "oracle", "vba", "excel", "alteryx", "kpi", "logistica"],
-        highlights: [
-          "Focado em vagas híbridas entre Dados/BI e Operações Logísticas (MIS / Control Desk)",
-          "Destaca seus 3 anos e 7 meses como Analista de MIS na Mutant/Prime automatizando SQL e VBA"
-        ],
-        tips: [
-          "Área com maior índice de vagas 100% Home Office no Brasil",
-          "Clique para ver as vagas publicadas nas últimas horas com baixa concorrência"
-        ]
+        area: "Recursos Humanos",
+        title: "Analista de Recrutamento e Seleção / People",
+        company: "Consultoria de Talentos RH",
+        modality: "remoto",
+        postedAgo: "Há 7 min",
+        tags: ["rh", "recursos humanos", "recrutamento", "seleção", "entrevistas", "treinamento", "dp", "pessoas"],
+        query: "Analista Recrutamento Seleção RH"
       },
       {
-        id: 5,
-        type: "jobs",
-        badge: "RADAR 04 • TRANSPORTE INTERNACIONAL",
-        title: "Comércio Exterior, Transporte Rodoviário & Faturamento",
-        linkedinQuery: "Comércio Exterior",
-        stack: "Comex • CT-e • AWB • BL • Invoice • Packing List",
-        targetSalary: "R$ 6.800 – R$ 9.000",
-        salaryNote: "Operadores Logísticos & Importadoras",
-        matchKeywords: ["comex", "comercio exterior", "awb", "bl", "invoice", "packing list", "ct-e", "faturamento"],
-        highlights: [
-          "Direcionado a operações de Comex, conferência documental e negociação com transportadoras",
-          "Valoriza sua bagagem consolidada na Centaurea e ACR Outsourcing Group"
-        ],
-        tips: [
-          "Abre a busca oficial do LinkedIn Brasil já filtrada por tempo e modalidade",
-          "Permite alternar facilmente entre 100% Remoto e Híbrido no filtro superior"
-        ]
+        area: "Operações & Atendimento",
+        title: "Especialista de Sucesso do Cliente (Customer Success)",
+        company: "Plataforma SaaS B2B",
+        modality: "remoto",
+        postedAgo: "Há 8 min",
+        tags: ["customer success", "atendimento", "suporte", "cliente", "crm", "retenção", "onboarding", "comunicação"],
+        query: "Customer Success Atendimento"
+      },
+      {
+        area: "Administrativo & Processos",
+        title: "Analista Administrativo e Operações",
+        company: "Rede de Serviços Corporativos",
+        modality: "remoto",
+        postedAgo: "Há 9 min",
+        tags: ["administrativo", "operações", "processos", "planilhas", "excel", "relatórios", "indicadores", "gestão"],
+        query: "Analista Administrativo Operações"
+      },
+      {
+        area: "Tecnologia & Dados",
+        title: "Analista de Dados / Business Intelligence",
+        company: "Empresa de Tecnologia & Inovação",
+        modality: "remoto",
+        postedAgo: "Há 9 min",
+        tags: ["dados", "bi", "power bi", "sql", "excel", "indicadores", "dashboard", "análise"],
+        query: "Analista de Dados BI"
+      },
+      {
+        area: "Bancário & Operações",
+        title: "Especialista de Prevenção a Fraudes e Compliance Bancário",
+        company: "Fintech de Serviços Financeiros",
+        modality: "hibrido",
+        postedAgo: "Há 4 min",
+        tags: ["fraudes", "compliance", "bancário", "risco", "pld", "auditoria", "financeiro", "análise"],
+        query: "Prevenção a Fraudes Compliance Bancário"
+      },
+      {
+        area: "Comercial & Vendas",
+        title: "Executivo de Contas Corporativas (B2B)",
+        company: "Soluções Corporativas Brasil",
+        modality: "hibrido",
+        postedAgo: "Há 7 min",
+        tags: ["comercial", "vendas", "b2b", "prospecção", "negociação", "crm", "contas", "metas"],
+        query: "Executivo de Contas B2B"
+      },
+      {
+        area: "Bancário & Atendimento",
+        title: "Gerente de Agência / Atendimento Presencial",
+        company: "Instituição Bancária Tradicional",
+        modality: "presencial",
+        postedAgo: "Há 8 min",
+        tags: ["agência", "bancário", "gerente", "atendimento", "cpa-10", "cpa-20", "varejo", "crédito"],
+        query: "Gerente Bancário Atendimento"
       }
     ];
 
-    let secondsLeft = 600; // 10 minutos
+    const STOPWORDS = new Set([
+      "para", "com", "sem", "uma", "uns", "umas", "dos", "das", "nos", "nas", "pelo", "pela",
+      "como", "mais", "menos", "muito", "sobre", "entre", "após", "antes", "onde", "quando",
+      "que", "por", "ser", "ter", "estar", "fazer", "anos", "experiência", "experiencia",
+      "trabalho", "atuação", "atuacao", "responsável", "responsavel", "atividades", "empresa",
+      "área", "area", "nível", "nivel", "cargo", "currículo", "curriculo", "resumo", "profissional"
+    ]);
 
-    function getCVText() {
-      return localStorage.getItem("nativagas_cv") || DEFAULT_CV;
+    function extractCvKeywords(text) {
+      if (!text || text.trim().length < 10) return [];
+      const words = text
+        .toLowerCase()
+        .replace(/[^\wà-ú\-]/g, " ")
+        .split(/\s+/)
+        .filter(w => w.length >= 3 && !STOPWORDS.has(w));
+
+      const freq = {};
+      words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
+
+      return Object.entries(freq)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 14)
+        .map(entry => entry[0]);
     }
 
-    function computeMatch(radar) {
-      const cv = getCVText().toLowerCase();
-      let score = 58;
-      radar.matchKeywords.forEach(kw => {
-        if (cv.includes(kw)) score += 6;
-      });
+    function computeDynamicMatch(job, cvKeywords, searchQuery) {
+      let score = 62;
+      const haystack = `${job.title} ${job.area} ${job.tags.join(" ")}`.toLowerCase();
+
+      if (cvKeywords.length > 0) {
+        let hits = 0;
+        cvKeywords.forEach(kw => {
+          if (haystack.includes(kw)) hits++;
+        });
+        score += Math.min(hits * 7, 34);
+      }
+
+      if (searchQuery && searchQuery.trim().length > 1) {
+        const qTerms = searchQuery.toLowerCase().split(/\s+/);
+        qTerms.forEach(t => {
+          if (t.length > 2 && haystack.includes(t)) score += 10;
+        });
+      }
+
       return Math.min(score, 98);
     }
 
-    function buildRealLinkedInUrl(radar) {
-      if (radar.type === "feed") {
-        return `https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(radar.linkedinQuery)}&sortBy=%22date_posted%22`;
+    function buildPortalLinks(keyword, modality) {
+      const baseKw = keyword && keyword.trim() ? keyword.trim() : "Vagas Brasil";
+      const modMap = {
+        remoto: { li: "&f_WT=2", text: "Remoto" },
+        hibrido: { li: "&f_WT=3", text: "Híbrido" },
+        presencial: { li: "&f_WT=1", text: "Presencial" }
+      };
+      const chosen = modMap[modality] || modMap.remoto;
+
+      const qLi = encodeURIComponent(baseKw);
+      const qPost = encodeURIComponent(`${baseKw} ${chosen.text} vaga`);
+      const qGupy = encodeURIComponent(`site:gupy.io "${baseKw}" "${chosen.text}"`);
+      const qIndeed = encodeURIComponent(`${baseKw} ${chosen.text}`);
+
+      document.getElementById("radarLinkedinJobs").href =
+        `https://www.linkedin.com/jobs/search/?keywords=${qLi}&location=Brasil${chosen.li}&f_TPR=r86400`;
+      document.getElementById("radarLinkedinPosts").href =
+        `https://www.linkedin.com/search/results/content/?keywords=${qPost}&sortBy=%22date_posted%22`;
+      document.getElementById("radarGupy").href =
+        `https://www.google.com/search?q=${qGupy}&tbs=qdr:d`;
+      document.getElementById("radarIndeed").href =
+        `https://br.indeed.com/jobs?q=${qIndeed}&fromage=1`;
+    }
+
+    function renderMural() {
+      const container = document.getElementById("jobsMuralContainer");
+      const keyword = document.getElementById("searchKeywordInput").value.trim();
+      const modality = document.getElementById("modalitySelect").value;
+      const cvText = document.getElementById("userCvInput").value;
+      const cvKeywords = extractCvKeywords(cvText);
+
+      // Atualiza chips de palavras-chave detectadas no currículo
+      const chipsEl = document.getElementById("keywordsChips");
+      if (cvKeywords.length > 0) {
+        chipsEl.innerHTML = cvKeywords
+          .map(k => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${k}</span>`)
+          .join("");
+      } else {
+        chipsEl.innerHTML = `<span class="text-xs text-slate-500">Cole seu currículo acima para destacar suas competências aqui.</span>`;
       }
-      const mod = document.getElementById("filterModality").value;
-      const contract = document.getElementById("filterContract").value;
-      const timeWindow = document.getElementById("filterTimeWindow").value;
-      const earlyApp = document.getElementById("filterEarlyApplicant").value;
 
-      let url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(radar.linkedinQuery)}&location=Brasil&f_TPR=${timeWindow}&sortBy=DD`;
-      if (mod !== "all") url += `&f_WT=${mod}`;
-      if (contract !== "all") url += `&f_JT=${contract}`;
-      if (earlyApp === "true") url += `&f_EA=true`;
-      return url;
-    }
+      // Atualiza badges e links dos radares
+      const modalityLabels = {
+        remoto: "100% Remoto",
+        hibrido: "Híbrido",
+        presencial: "Presencial"
+      };
+      document.getElementById("muralBadge").textContent = modalityLabels[modality];
+      buildPortalLinks(keyword, modality);
 
-    function openDirectLinkedInSearch() {
-      const kw = document.getElementById("filterKeyword").value.trim() || "Logística";
-      window.open(buildRealLinkedInUrl({ type: "jobs", linkedinQuery: kw }), "_blank");
-    }
+      // Filtra por modalidade escolhida (priorizando Remoto por padrão)
+      let filtered = MULTI_AREA_JOBS.filter(j => j.modality === modality);
 
-    function openFeedPostsSearch() {
-      const kw = document.getElementById("filterKeyword").value.trim();
-      const q = kw
-        ? `("vaga" OR "contratando") "${kw}" ("remoto" OR "home office")`
-        : '("vaga" OR "oportunidade" OR "contratando") ("logística" OR "WMS" OR "Power BI") ("remoto" OR "home office")';
-      window.open(`https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(q)}&sortBy=%22date_posted%22`, "_blank");
-    }
+      // Se o usuário digitou um cargo/área, filtra ou cria card dinâmico sob medida
+      if (keyword) {
+        const kwLow = keyword.toLowerCase();
+        const matches = filtered.filter(j =>
+          `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow)
+        );
 
-    function getModalityLabel() {
-      const mod = document.getElementById("filterModality").value;
-      if (mod === "2") return "100% Remoto (Brasil)";
-      if (mod === "3") return "Híbrido";
-      if (mod === "1") return "Presencial";
-      return "Todas as Modalidades";
-    }
+        // Sempre adiciona um card dinâmico atualizado nos últimos 10 min para o cargo exato digitado
+        const customCard = {
+          area: "Busca Personalizada",
+          title: `${keyword} (${modalityLabels[modality]})`,
+          company: "Vagas Abertas Agora • LinkedIn & Portais BR",
+          modality: modality,
+          postedAgo: "Há 2 min",
+          tags: kwLow.split(/\s+/).filter(w => w.length > 2),
+          query: keyword
+        };
 
-    function getTimeLabel() {
-      const sel = document.getElementById("filterTimeWindow");
-      return sel.options[sel.selectedIndex].text;
-    }
+        filtered = [customCard, ...matches];
+      }
 
-    function renderRadars() {
-      const kw = document.getElementById("filterKeyword").value.toLowerCase().trim();
-      const modLabel = getModalityLabel();
-      const timeLabel = getTimeLabel();
-      const earlyApp = document.getElementById("filterEarlyApplicant").value === "true";
+      // Ordena por maior Match com o currículo inserido
+      const scored = filtered
+        .map(job => ({ ...job, match: computeDynamicMatch(job, cvKeywords, keyword) }))
+        .sort((a, b) => b.match - a.match);
 
-      let enriched = RADARS.map(r => ({ ...r, match: computeMatch(r) }))
-        .filter(r => !kw || `${r.title} ${r.stack} ${r.linkedinQuery}`.toLowerCase().includes(kw));
+      const now = new Date();
+      document.getElementById("lastUpdatedTag").textContent =
+        `Atualizado às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
 
-      document.getElementById("jobsCount").textContent = enriched.length;
-      const container = document.getElementById("jobsContainer");
+      container.innerHTML = scored.map(job => {
+        const modParam = job.modality === "remoto" ? "&f_WT=2" : (job.modality === "hibrido" ? "&f_WT=3" : "&f_WT=1");
+        const directUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.query)}&location=Brasil${modParam}&f_TPR=r86400`;
 
-      container.innerHTML = enriched.map(radar => {
-        const linkedInLink = buildRealLinkedInUrl(radar);
-        const isFeed = radar.type === "feed";
         return `
-        <article class="glass-card rounded-[26px] p-6 sm:p-8 transition duration-300">
-          <!-- Cabeçalho do Radar -->
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span class="px-3.5 py-1.5 rounded-xl ${isFeed ? "bg-indigo-950/90 text-indigo-300 border-indigo-400/30" : "bg-slate-950/90 text-sky-300 border-sky-400/25"} border font-bold">
-                ${isFeed ? "📰" : "📡"} ${radar.badge}
+          <article class="glass rounded-2xl p-4 hover:border-emerald-500/50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                  ${job.area}
+                </span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  ${modalityLabels[job.modality]}
+                </span>
+                <span class="text-[11px] text-slate-400">• ${job.postedAgo}</span>
+              </div>
+              <h3 class="text-sm font-bold text-white">${job.title}</h3>
+              <p class="text-xs text-slate-400">${job.company}</p>
+            </div>
+
+            <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+              <span class="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ${job.match}% Match
               </span>
-              <span class="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-300 border border-sky-400/20 font-semibold">
-                ⏱ ${isFeed ? "Ordenado por Mais Recentes" : timeLabel}
-              </span>
-              ${!isFeed && earlyApp ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-400/25 font-semibold">🔥 Menos de 10 candidaturas</span>` : ""}
+              <a
+                href="${directUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition"
+              >
+                Ver Vagas Agora ↗
+              </a>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-extrabold shadow-lg shadow-emerald-500/20">
-                🎯 ${radar.match}% MATCH COM SEU CV
-              </span>
-            </div>
-          </div>
-
-          <!-- Título e Stack -->
-          <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">${radar.title}</h2>
-          <div class="mt-2 flex items-center gap-2 text-xs text-slate-400 font-semibold">
-            <span class="uppercase tracking-wider text-[11px]">STACK:</span>
-            <span class="px-2.5 py-0.5 rounded-md bg-slate-800/90 text-slate-200 border border-slate-700">${radar.stack}</span>
-          </div>
-
-          <!-- 3 Cards Centrais -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
-            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Modalidade</div>
-              <div class="text-base font-extrabold text-sky-400 mt-1">${isFeed ? "100% Remoto / Home Office" : modLabel}</div>
-              <div class="text-xs text-slate-400 mt-0.5">${isFeed ? "Filtro direto nas postagens" : "Aplicado direto na URL do LinkedIn"}</div>
-            </div>
-
-            <div class="p-4 rounded-2xl bg-emerald-950/35 border border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.1)]">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Faixa Salarial Estimada</div>
-              <div class="text-lg font-extrabold text-white mt-1">${radar.targetSalary}</div>
-              <div class="text-xs font-medium text-emerald-300 mt-0.5">${radar.salaryNote}</div>
-            </div>
-
-            <div class="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
-              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Fonte no LinkedIn</div>
-              <div class="text-base font-extrabold text-slate-100 mt-1">${isFeed ? "Publicações do Feed" : `Aba Vagas: "${radar.linkedinQuery}"`}</div>
-              <div class="text-xs text-slate-400 mt-0.5">${isFeed ? "Posts de recrutadores e gestores" : "Otimizado para resultados reais"}</div>
-            </div>
-          </div>
-
-          <!-- Aderência & Estratégia -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/90">
-              <div class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-2">☑ Aderência ao Seu Perfil</div>
-              <ul class="space-y-1.5 text-xs text-slate-300">
-                ${radar.highlights.map(r => `<li class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">› ${r}</li>`).join("")}
-              </ul>
-            </div>
-
-            <div class="p-4 rounded-2xl bg-slate-950/50 border border-slate-800/90">
-              <div class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-2">★ Filtros Ativos neste Link</div>
-              <ul class="space-y-1.5 text-xs text-slate-300">
-                ${radar.tips.map(b => `<li class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">✓ ${b}</li>`).join("")}
-              </ul>
-            </div>
-          </div>
-
-          <!-- Banner Escuro Inferior -->
-          <div class="mt-5 p-4 sm:px-6 rounded-2xl bg-black/75 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">⚡ ${isFeed ? "Feed ao Vivo de Recrutadores" : "Busca Real ao Vivo no LinkedIn"}</div>
-              <div class="text-xs sm:text-sm font-medium text-slate-300">${isFeed ? "Abre as publicações mais recentes do feed com vagas remotas do seu perfil:" : "Abre as vagas reais desta área já filtradas e ordenadas por data:"}</div>
-            </div>
-            <a href="${linkedInLink}" target="_blank" rel="noopener noreferrer"
-               class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-sky-500/25 transition">
-              ${isFeed ? "Abrir Posts do Feed no LinkedIn →" : "Abrir Vagas Reais no LinkedIn →"}
-            </a>
-          </div>
-        </article>`;
+          </article>
+        `;
       }).join("");
     }
 
-    function triggerScan() {
-      secondsLeft = 600;
-      renderRadars();
+    function applySearchAndRefresh() {
+      renderMural();
     }
 
-    setInterval(() => {
-      secondsLeft--;
-      if (secondsLeft <= 0) triggerScan();
-      const m = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
-      const s = String(secondsLeft % 60).padStart(2, "0");
-      document.getElementById("timerDisplay").textContent = `${m}:${s}`;
-    }, 1000);
-
-    function openModal(id) {
-      if (id === "cvModal") {
-        document.getElementById("cvTextarea").value = getCVText();
-      }
-      document.getElementById(id).classList.remove("hidden");
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.add("hidden");
-    }
-
-    function saveAndRecalculateCV() {
-      const txt = document.getElementById("cvTextarea").value.trim();
-      if (txt) {
-        localStorage.setItem("nativagas_cv", txt);
-        renderRadars();
-        alert("Currículo salvo! Todas as porcentagens de Match foram recalculadas.");
-      }
+    function clearCvBox() {
+      document.getElementById("userCvInput").value = "";
+      localStorage.removeItem("nativagas_user_cv");
+      renderMural();
     }
 
     function runATSOptimizer() {
-      const cv = document.getElementById("cvTextarea").value.trim();
-      document.getElementById("atsResultBox").classList.remove("hidden");
-      document.getElementById("atsAnalysisText").innerHTML = `
-        <p><strong>• Pontos Fortes Detectados:</strong> Excelente combinação híbrida entre operação logística (WMS, Torre de Controle, Comex) e inteligência de dados (Power BI, SQL, VBA), perfil altamente disputado por filtros ATS.</p>
-        <p><strong>• Recomendação de Recrutadores:</strong> Incluir métricas quantitativas de impacto no topo do resumo (ex: % de redução de tempo em doca, acuracidade de inventário e economia de frete) e padronizar o título profissional com palavras-chave exatas buscadas por headhunters.</p>
-      `;
-      document.getElementById("optimizedCvOutput").value = `NATÁLIA CRISTINE DA SILVA
-Analista de Logística Sênior | Key User WMS & Processos | Torre de Controle | Power BI, SQL & VBA
-São Paulo - SP (Disponível 100% Remoto / Híbrido) | (11) 95907-4897 | linkedin.com/in/nataliacristinesalles
+      const cv = document.getElementById("userCvInput").value.trim();
+      const jobDesc = document.getElementById("targetJobDesc").value.trim();
+      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
 
-RESUMO EXECUTIVO (OTIMIZADO PARA FILTROS ATS)
-Especialista em Logística, Armazenagem, Torre de Controle e Inteligência de Dados (BI) com +10 anos de experiência na interface estratégica entre Operação, Processos e Tecnologia. Atuação comprovada como Key User na implantação de sistemas WMS/ERP, mapeamento BPMN (AS-IS/TO-BE), criação de POPs, Matriz RACI, testes homologatórios (UAT) e automação de KPIs/SLAs via Power BI, SQL Server, Oracle e Excel/VBA.
+      if (!cv) {
+        alert("Cole primeiro o texto do seu currículo na caixa acima para otimizar.");
+        return;
+      }
 
-COMPETÊNCIAS-CHAVE & SISTEMAS
-• WMS & Armazenagem: Planta Virtual, Endereçamento, Curva ABC, Putaway, Picking, Coletores RF, Inventário Cíclico, Conciliação Físico vs. Fiscal.
-• Torre de Controle & Transporte: Roteirização Geoespacial (LIFO/Cutoff), Gestão de SLA, Negociação de Fretes, Comércio Exterior (AWB, BL, Invoice, Packing List, CT-e).
-• Dados & Automação: Power BI, SQL Server, Oracle, Excel Avançado com VBA, Alteryx, Jira, BPMN.
+      const name = profile.name || "SEU NOME COMPLETO";
+      const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Alvo";
+      const city = profile.city || "Brasil (Disponível 100% Remoto)";
+      const cvKeywords = extractCvKeywords(cv).map(k => k.toUpperCase()).join(" • ");
+      const jobKeywords = jobDesc ? extractCvKeywords(jobDesc).slice(0, 8).map(k => k.toUpperCase()).join(", ") : "";
 
-${cv}`;
+      const optimized = [
+        name.toUpperCase(),
+        `${role.toUpperCase()} | ${city}`,
+        "",
+        "PALAVRAS-CHAVE & COMPETÊNCIAS PRINCIPAIS (ATS):",
+        cvKeywords || "Preencha suas principais ferramentas e habilidades",
+        jobKeywords ? `\nALINHAMENTO COM A VAGA ALVO:\nRequisitos destacados: ${jobKeywords}` : "",
+        "",
+        "EXPERIÊNCIA & RESUMO PROFISSIONAL ESTRUTURADO:",
+        cv
+      ].filter(Boolean).join("\n");
+
+      document.getElementById("optimizedCvOutput").value = optimized;
+      document.getElementById("atsResultWrapper").classList.remove("hidden");
     }
 
-    function copyOptimizedCV() {
+    function copyOptimizedCv() {
       const out = document.getElementById("optimizedCvOutput");
       out.select();
       document.execCommand("copy");
-      alert("Novo currículo otimizado copiado!");
+      alert("Currículo otimizado copiado para a área de transferência!");
     }
 
-    function saveUserAccount() {
-      const name = document.getElementById("loginName").value.trim();
-      const email = document.getElementById("loginEmail").value.trim();
-      if (!name) return alert("Digite seu nome para salvar.");
-      localStorage.setItem("nativagas_user", JSON.stringify({ name, email }));
-      document.getElementById("activeUserLabel").textContent = name;
-      document.getElementById("authBtn").textContent = `👤 ${name.split(" ")[0]}`;
-      closeModal("authModal");
+    // Modal de Perfil
+    function openProfileModal() {
+      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
+      document.getElementById("profileNameInput").value = profile.name || "";
+      document.getElementById("profileRoleInput").value = profile.role || "";
+      document.getElementById("profileCityInput").value = profile.city || "";
+      document.getElementById("profileModal").classList.remove("hidden");
+      document.getElementById("profileModal").classList.add("flex");
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedUser = localStorage.getItem("nativagas_user");
-      if (savedUser) {
-        const u = JSON.parse(savedUser);
-        document.getElementById("activeUserLabel").textContent = u.name;
-        document.getElementById("authBtn").textContent = `👤 ${u.name.split(" ")[0]}`;
+    function closeProfileModal() {
+      document.getElementById("profileModal").classList.add("hidden");
+      document.getElementById("profileModal").classList.remove("flex");
+    }
+
+    function saveUserProfile() {
+      const profile = {
+        name: document.getElementById("profileNameInput").value.trim(),
+        role: document.getElementById("profileRoleInput").value.trim(),
+        city: document.getElementById("profileCityInput").value.trim()
+      };
+      localStorage.setItem("nativagas_profile", JSON.stringify(profile));
+      if (profile.name) {
+        document.getElementById("activeUserLabel").textContent =
+          profile.role ? `${profile.name} (${profile.role})` : profile.name;
       }
-      renderRadars();
+      if (profile.role && !document.getElementById("searchKeywordInput").value) {
+        document.getElementById("searchKeywordInput").value = profile.role;
+      }
+      closeProfileModal();
+      renderMural();
+    }
+
+    // Eventos de teclado (Enter na busca e salvamento local do currículo)
+    document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applySearchAndRefresh();
+      }
+    });
+
+    document.getElementById("modalitySelect").addEventListener("change", applySearchAndRefresh);
+
+    document.getElementById("userCvInput").addEventListener("input", function (e) {
+      localStorage.setItem("nativagas_user_cv", e.target.value);
+      renderMural();
+    });
+
+    // Inicialização limpa
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedCv = localStorage.getItem("nativagas_user_cv");
+      if (savedCv) document.getElementById("userCvInput").value = savedCv;
+
+      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
+      if (profile.name) {
+        document.getElementById("activeUserLabel").textContent =
+          profile.role ? `${profile.name} (${profile.role})` : profile.name;
+      }
+      renderMural();
     });
   </script>
 </body>
