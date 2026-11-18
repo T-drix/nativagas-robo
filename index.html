@@ -52,16 +52,16 @@
 
     <!-- Painel Completo de Busca e Filtros -->
     <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
-      <!-- Linha 1: Palavra-chave + Botão -->
+      <!-- Linha 1: Palavra-chave (Opcional) + Botão -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div class="flex-1">
           <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Cargo, Área ou Palavra-Chave (Pressione Enter para atualizar)
+            Cargo, Área ou Palavra-Chave <span class="text-slate-500 font-normal normal-case">(Opcional — deixe em branco para buscar qualquer vaga nos filtros abaixo)</span>
           </label>
           <input
             id="searchKeywordInput"
             type="text"
-            placeholder="Ex: Analista Financeiro, Gerente Bancário, Atendimento, RH, Administrativo, TI..."
+            placeholder="Deixe vazio para todas as vagas ou digite: Bancário, Financeiro, RH, Atendimento..."
             class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
           />
         </div>
@@ -70,7 +70,7 @@
           onclick="applySearchAndRefresh()"
           class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 shrink-0"
         >
-          Atualizar Vagas
+          Buscar Vagas
         </button>
       </div>
 
@@ -185,7 +185,6 @@
               ✕
             </button>
           </div>
-          <!-- Lista flutuante filtrada em tempo real -->
           <div
             id="cityDropdownList"
             class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-40 divide-y divide-slate-800/70"
@@ -195,7 +194,7 @@
 
       <!-- Atalhos de Busca Direta nos Principais Portais -->
       <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-        <span class="text-xs text-slate-400 mr-1">Radares Instantâneos (Com seus filtros):</span>
+        <span class="text-xs text-slate-400 mr-1">Abrir Todas as Vagas nos Portais (Com seus filtros):</span>
         <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-medium transition">
           LinkedIn Vagas ↗
         </a>
@@ -228,7 +227,7 @@
               </span>
             </h2>
             <p id="muralSubtitle" class="text-xs text-slate-400">
-              Monitoramento atualizado nos últimos 10 minutos • Ordenado por compatibilidade com seu currículo
+              Monitoramento atualizado • Busca aberta por filtros ou por cargo específico
             </p>
           </div>
           <span id="lastUpdatedTag" class="text-[11px] text-slate-400 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg">
@@ -345,7 +344,6 @@
   </div>
 
   <script>
-    // Lista completa dos 5.570 municípios do Brasil carregada automaticamente da API oficial do IBGE
     let ALL_BRAZIL_MUNICIPALITIES = [];
 
     const STATE_NAMES = {
@@ -497,7 +495,6 @@
         .trim();
     }
 
-    // Carrega todos os 5.570 municípios do IBGE com cache local para abrir instantaneamente
     async function loadAllBrazilianCities() {
       const cached = localStorage.getItem("nativagas_ibge_cities_v1");
       if (cached) {
@@ -537,7 +534,6 @@
 
       let matches = [];
       if (query.length > 0) {
-        // Prioriza cidades que começam com o que foi digitado, depois as que contêm o termo
         const startsWith = pool.filter(c => normalizeText(c.name).startsWith(query));
         const contains = pool.filter(c => !normalizeText(c.name).startsWith(query) && normalizeText(c.name).includes(query));
         matches = [...startsWith, ...contains].slice(0, 40);
@@ -631,7 +627,8 @@
     }
 
     function buildPortalLinks(keyword, modality, contract, timePosted, lowApplicants, uf, city) {
-      const baseKw = keyword && keyword.trim() ? keyword.trim() : "Vagas";
+      // Se o campo de cargo estiver vazio, deixa keywords aberto ("") para trazer TODAS as vagas nos filtros
+      const baseKw = keyword && keyword.trim() ? keyword.trim() : "";
       const contractText = contract === "clt" ? "CLT" : (contract === "pj" ? "PJ" : (contract === "temp" ? "Temporário" : ""));
       const fullKw = `${baseKw} ${contractText}`.trim();
 
@@ -647,8 +644,8 @@
 
       const qLi = encodeURIComponent(fullKw);
       const qLoc = encodeURIComponent(locationStr);
-      const qPost = encodeURIComponent(`${fullKw} ${chosen.text} ${city || uf || ""} vaga`.trim());
-      const qGupy = encodeURIComponent(`site:gupy.io "${baseKw}" "${chosen.text}" ${city || uf || ""}`.trim());
+      const qPost = encodeURIComponent(`${fullKw || "vaga"} ${chosen.text} ${city || uf || ""}`.trim());
+      const qGupy = encodeURIComponent(`site:gupy.io ${baseKw ? `"${baseKw}"` : ""} "${chosen.text}" ${city || uf || ""}`.trim());
       const qIndeed = encodeURIComponent(`${fullKw} ${chosen.text}`.trim());
       const indeedLoc = encodeURIComponent(city ? `${city}, ${uf}` : (uf ? STATE_NAMES[uf] : "Brasil"));
       const indeedDays = timePosted === "r3600" || timePosted === "r86400" ? "1" : (timePosted === "r604800" ? "7" : "30");
@@ -687,6 +684,8 @@
 
       const modalityLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
       const contractLabels = { all: "CLT / PJ", clt: "CLT", pj: "PJ", temp: "Temporário / Estágio" };
+      const timeLabels = { r3600: "Última 1 hora", r86400: "Últimas 24h", r604800: "Últimos 7 dias", r2592000: "Últimos 30 dias" };
+
       document.getElementById("muralBadge").textContent = modalityLabels[modality];
       document.getElementById("regionBadge").textContent = city ? `${city}${uf ? " - " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
 
@@ -700,32 +699,34 @@
         filtered = filtered.filter(j => j.lowApplicants);
       }
 
-      if (keyword || city || uf) {
-        const kwLow = keyword.toLowerCase();
-        const matches = keyword
-          ? filtered.filter(j => `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow))
-          : filtered;
+      const kwLow = keyword.toLowerCase();
+      const matches = keyword
+        ? filtered.filter(j => `${j.title} ${j.area} ${j.tags.join(" ")}`.toLowerCase().includes(kwLow))
+        : filtered;
 
-        const titleLabel = keyword || "Vagas Recentes";
-        const regionLabel = city ? ` • ${city}${uf ? "/" + uf : ""}` : (uf ? ` • ${uf}` : "");
-        const customCard = {
-          area: "Busca Sob Medida",
-          title: `${titleLabel} (${modalityLabels[modality]}${regionLabel})`,
-          company: `Filtro: ${contractLabels[contract]} • Portais Brasil`,
-          modality: modality,
-          contract: contract === "all" ? "clt" : contract,
-          applicants: applicants === "low" ? "< 10 candidatos" : "Recente",
-          lowApplicants: true,
-          postedAgo: "Agora",
-          tags: kwLow ? kwLow.split(/\s+/).filter(w => w.length > 2) : [],
-          query: keyword || "Vagas"
-        };
+      // Sempre gera o card principal com TODOS os filtros aplicados (mesmo com o cargo em branco!)
+      const titleLabel = keyword ? keyword : "Todas as Vagas Abertas (Qualquer Cargo)";
+      const regionLabel = city ? ` • ${city}${uf ? "/" + uf : ""}` : (uf ? ` • ${uf}` : " • Brasil");
+      const openSearchCard = {
+        area: keyword ? "Busca por Cargo + Filtros" : "Busca Aberta por Filtros",
+        title: `${titleLabel} (${modalityLabels[modality]}${regionLabel})`,
+        company: `Filtros ativos: ${contractLabels[contract]} • ${timeLabels[timePosted]}${applicants === "low" ? " • < 10 candidatos" : ""}`,
+        modality: modality,
+        contract: contract === "all" ? "clt" : contract,
+        applicants: applicants === "low" ? "< 10 candidatos" : "Todas as candidaturas",
+        lowApplicants: true,
+        postedAgo: timeLabels[timePosted],
+        tags: kwLow ? kwLow.split(/\s+/).filter(w => w.length > 2) : [],
+        query: keyword // Se vazio, vai como "" para trazer TODAS as vagas nos filtros!
+      };
 
-        filtered = [customCard, ...matches];
-      }
+      const finalList = [openSearchCard, ...matches];
 
-      const scored = filtered
-        .map(job => ({ ...job, match: computeDynamicMatch(job, cvKeywords, keyword) }))
+      const scored = finalList
+        .map((job, idx) => ({
+          ...job,
+          match: idx === 0 ? 99 : computeDynamicMatch(job, cvKeywords, keyword)
+        }))
         .sort((a, b) => b.match - a.match);
 
       const now = new Date();
@@ -737,15 +738,16 @@
       const lowAppParam = applicants === "low" ? "&f_EA=true" : "";
       const locEncoded = encodeURIComponent(buildLocationString(uf, city));
 
-      container.innerHTML = scored.map(job => {
+      container.innerHTML = scored.map((job, idx) => {
         const directUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.query)}&location=${locEncoded}${modParam}${contractParam}${lowAppParam}&f_TPR=${timePosted}`;
         const contractTag = job.contract === "pj" ? "PJ" : (job.contract === "temp" ? "Temp/Estágio" : "CLT");
+        const isTopFilterCard = idx === 0;
 
         return `
-          <article class="glass rounded-2xl p-4 hover:border-emerald-500/50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <article class="glass rounded-2xl p-4 ${isTopFilterCard ? "border-emerald-500/60 bg-emerald-950/15" : "hover:border-emerald-500/50"} transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="space-y-1.5">
               <div class="flex flex-wrap items-center gap-1.5">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${isTopFilterCard ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-slate-800 text-slate-300 border border-slate-700"}">
                   ${job.area}
                 </span>
                 <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
@@ -762,7 +764,7 @@
 
             <div class="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
               <span class="text-xs font-extrabold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                ${job.match}% Match
+                ${isTopFilterCard ? "Filtro Exato" : `${job.match}% Match`}
               </span>
               <a
                 href="${directUrl}"
@@ -859,7 +861,6 @@
       renderMural();
     }
 
-    // Eventos de teclado e autocomplete da Cidade
     document.getElementById("searchKeywordInput").addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
