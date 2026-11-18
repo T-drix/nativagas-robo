@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NATIVAGAS • Curadoria Real de Vagas & Analisador ATS</title>
+  <title>NATIVAGAS • Curadoria Real de Vagas, Filtros Avançados & ATS</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #020617; color: #f8fafc; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
@@ -26,18 +26,18 @@
           <div class="flex items-center gap-2">
             <h1 class="font-extrabold text-lg tracking-tight text-white">NATIVAGAS</h1>
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Vagas Reais Auditadas
+              Vagas Reais + Filtros Completos
             </span>
           </div>
           <p class="text-xs text-slate-400">
-            Curadoria Automática com Leitura de Descrição • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante</strong>
+            Curadoria Auditada, Busca nos Portais & Analisador ATS • Perfil: <strong id="activeUserLabel" class="text-slate-200">Visitante</strong>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5">
         <span id="curatedSyncBadge" class="text-xs text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
-          Carregando base real...
+          Sincronizando base real...
         </span>
         <button onclick="openProfileModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-100 transition">
           Meu Perfil
@@ -49,51 +49,52 @@
   <!-- Conteúdo Principal -->
   <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 space-y-6">
 
-    <!-- Painel de Filtros sobre as Vagas Reais -->
+    <!-- Painel Completo de Busca e TODOS os 7 Filtros -->
     <section class="glass rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div class="flex-1">
           <label for="searchKeywordInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Filtrar nas Vagas Curadas <span class="text-slate-500 font-normal normal-case">(Cargo, habilidade, empresa ou deixe vazio para ver todas)</span>
+            Cargo, Área ou Palavra-Chave <span class="text-slate-500 font-normal normal-case">(Opcional — pressione Enter para buscar vagas reais ao vivo e nos portais)</span>
           </label>
           <input
             id="searchKeywordInput"
             type="text"
-            placeholder="Ex: Bancário, Financeiro, Operacional, Atendimento, RH, Dados..."
+            placeholder="Ex: Analista Operacional, Atendimento, Bancário, Financeiro, RH, Dados ou deixe vazio..."
             class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white placeholder-slate-500"
           />
         </div>
 
         <button
-          onclick="filterAndRenderJobs()"
+          id="searchSubmitBtn"
+          onclick="executeFullSearch()"
           class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-950/50 shrink-0"
         >
-          Filtrar Vagas
+          Buscar Vagas Reais
         </button>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
-        <!-- Área -->
+      <!-- Grade com TODOS os 7 Filtros -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 pt-1">
         <div>
           <label for="areaSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Área Profissional
+            Área
           </label>
-          <select id="areaSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+          <select id="areaSelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="all" selected>Todas as Áreas</option>
             <option value="Bancário & Finanças">Bancário & Finanças</option>
-            <option value="Operações & Logística">Operações & Logística</option>
             <option value="Atendimento & Sucesso">Atendimento & Sucesso</option>
+            <option value="Operações & Logística">Operações & Logística</option>
             <option value="Recursos Humanos">Recursos Humanos</option>
             <option value="Tecnologia & Dados">Tecnologia & Dados</option>
+            <option value="Comercial & Vendas">Comercial & Vendas</option>
           </select>
         </div>
 
-        <!-- Modelo de Trabalho -->
         <div>
           <label for="modalitySelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Modelo Auditado
+            Modelo
           </label>
-          <select id="modalitySelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+          <select id="modalitySelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="all" selected>Todos os Modelos</option>
             <option value="remoto">100% Remoto</option>
             <option value="hibrido">Híbrido</option>
@@ -101,25 +102,46 @@
           </select>
         </div>
 
-        <!-- Tipo de Contrato -->
         <div>
           <label for="contractSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
             Contrato
           </label>
-          <select id="contractSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+          <select id="contractSelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="all" selected>Todos (CLT / PJ)</option>
             <option value="clt">CLT</option>
             <option value="pj">PJ</option>
+            <option value="temp">Temporário</option>
             <option value="intern">Estágio</option>
           </select>
         </div>
 
-        <!-- Estado (UF) -->
+        <div>
+          <label for="timePostedSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Tempo de Postagem
+          </label>
+          <select id="timePostedSelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="r3600">Última 1 hora</option>
+            <option value="r86400" selected>Últimas 24 horas</option>
+            <option value="r604800">Últimos 7 dias</option>
+            <option value="r2592000">Últimos 30 dias</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="applicantsSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Candidaturas
+          </label>
+          <select id="applicantsSelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+            <option value="all" selected>Qualquer volume</option>
+            <option value="low">Menos de 10 cand.</option>
+          </select>
+        </div>
+
         <div>
           <label for="stateSelect" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
             Estado (UF)
           </label>
-          <select id="stateSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
+          <select id="stateSelect" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white">
             <option value="" selected>Brasil (Todos)</option>
             <option value="AC">Acre (AC)</option><option value="AL">Alagoas (AL)</option>
             <option value="AP">Amapá (AP)</option><option value="AM">Amazonas (AM)</option>
@@ -138,7 +160,7 @@
           </select>
         </div>
 
-        <!-- Cidade (Base IBGE 5.570 municípios) -->
+        <!-- Cidade (Rótulo limpo: CIDADE) -->
         <div class="relative">
           <label for="cityInput" class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
             Cidade
@@ -148,55 +170,74 @@
               id="cityInput"
               type="text"
               autocomplete="off"
-              placeholder="Digite qualquer cidade..."
-              class="w-full pl-3 pr-7 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
+              placeholder="Todas ou digite..."
+              class="w-full pl-2.5 pr-6 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-white placeholder-slate-500"
             />
             <button id="clearCityBtn" type="button" onclick="clearCitySelection()" class="hidden absolute right-2 text-slate-400 hover:text-white text-xs">✕</button>
           </div>
           <div id="cityDropdownList" class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl z-40 divide-y divide-slate-800/70"></div>
         </div>
       </div>
+
+      <!-- Barra Permanente com os 4 Portais Diretos Filtrados -->
+      <div class="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs text-slate-400">
+          Pesquisa Direta nos Portais (com todos os filtros acima aplicados):
+        </span>
+        <div class="flex flex-wrap items-center gap-2">
+          <a id="radarLinkedinJobs" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-semibold transition">
+            LinkedIn Vagas ↗
+          </a>
+          <a id="radarLinkedinPosts" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 font-semibold transition">
+            Posts de Recrutadores ↗
+          </a>
+          <a id="radarGupy" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold transition">
+            Portal Gupy ↗
+          </a>
+          <a id="radarIndeed" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold transition">
+            Indeed Brasil ↗
+          </a>
+        </div>
+      </div>
     </section>
 
-    <!-- Grid Principal: Vagas Reais Curadas (7 cols) + Currículo & Match Real (5 cols) -->
+    <!-- Grid Principal: Vagas Reais na Tela (7 cols) + Currículo & Otimizador ATS Completo (5 cols) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Lista de Vagas Reais Auditadas -->
+      <!-- Coluna Esquerda: Lista de Vagas Reais (Curadas + Busca ao Vivo) -->
       <section class="lg:col-span-7 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 class="text-base font-bold text-white flex items-center gap-2">
-              Vagas Reais Auditadas pelo Robô
+              Vagas Reais Auditadas & Ao Vivo
               <span id="jobsCountBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 0 vagas
               </span>
             </h2>
-            <p class="text-xs text-slate-400">
-              Cada vaga abaixo foi lida diretamente na fonte original pelo robô NATIVAGAS.
+            <p id="searchStatusSubtitle" class="text-xs text-slate-400">
+              Vagas reais coletadas da base auditada e em tempo real. Clique no card para abrir a vaga oficial.
             </p>
           </div>
         </div>
 
-        <div id="realJobsContainer" class="space-y-3">
-          <!-- Cards de vagas reais carregados do vagas_curadas.json -->
-        </div>
+        <div id="realJobsContainer" class="space-y-3"></div>
       </section>
 
-      <!-- Coluna Direita: Currículo Real (Calcula o Match verdadeiro em cada card) -->
+      <!-- Coluna Direita: Currículo Real + Analisador de Vaga Específica + Otimizador ATS -->
       <section class="lg:col-span-5 space-y-4">
-        <div class="glass rounded-2xl p-5 space-y-4 sticky top-20">
+        <div class="glass rounded-2xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-base font-bold text-white">Seu Currículo Real</h2>
-              <p class="text-xs text-slate-400">Cole seu currículo para calcular o % Match real em cada vaga ao lado</p>
+              <h2 class="text-base font-bold text-white">Seu Currículo Real & Match ATS</h2>
+              <p class="text-xs text-slate-400">Cole seu currículo para calcular o % Match real em cada vaga</p>
             </div>
             <button onclick="clearCvBox()" class="text-xs text-slate-400 hover:text-rose-400 transition">Limpar</button>
           </div>
 
           <textarea
             id="userCvInput"
-            rows="9"
-            placeholder="Cole aqui o texto completo do seu currículo. O sistema só calcula o % Match quando você insere suas experiências reais aqui..."
+            rows="7"
+            placeholder="Cole aqui o texto completo do seu currículo (cargos, experiências, ferramentas, formação e idiomas)..."
             class="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:outline-none text-xs text-slate-200 leading-relaxed"
           ></textarea>
 
@@ -208,13 +249,68 @@
               <span class="text-xs text-slate-500">Aguardando currículo...</span>
             </div>
           </div>
+
+          <!-- Analisador de Vaga Específica + Otimizador ATS -->
+          <div class="pt-3 border-t border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <label for="targetJobDesc" class="block text-xs font-bold text-slate-300">
+                Analisar Descrição de uma Vaga Específica (Opcional)
+              </label>
+              <button onclick="clearJobDescBox()" class="text-[11px] text-slate-400 hover:text-rose-400">Limpar</button>
+            </div>
+            <textarea
+              id="targetJobDesc"
+              rows="4"
+              placeholder="Cole aqui a descrição completa da vaga que você abriu para ver o Match detalhado (o que você já tem e o que falta)..."
+              class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-sky-500 focus:outline-none text-xs text-slate-200"
+            ></textarea>
+
+            <div id="realMatchPanel" class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-300">Aderência Real (CV × Vaga colada):</span>
+                <span id="realMatchScoreBadge" class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
+                  Aguardando CV e vaga
+                </span>
+              </div>
+              <div id="matchBreakdownArea" class="hidden space-y-1.5 text-xs">
+                <div>
+                  <span class="text-emerald-400 font-semibold">✔ Encontrados no seu currículo:</span>
+                  <p id="matchedSkillsText" class="text-slate-300">—</p>
+                </div>
+                <div>
+                  <span class="text-amber-400 font-semibold">⚠ Faltam no seu currículo:</span>
+                  <p id="missingSkillsText" class="text-slate-300">—</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="runATSOptimizer()"
+              class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition"
+            >
+              Estruturar Meu Currículo para ATS
+            </button>
+
+            <div id="atsResultWrapper" class="hidden space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-emerald-400">Versão Estruturada Pronta:</span>
+                <button onclick="copyOptimizedCv()" class="text-xs text-sky-400 hover:underline">Copiar texto</button>
+              </div>
+              <textarea
+                id="optimizedCvOutput"
+                rows="6"
+                readonly
+                class="w-full p-3 rounded-xl bg-slate-950 border border-emerald-500/40 text-xs text-slate-200 leading-relaxed"
+              ></textarea>
+            </div>
+          </div>
         </div>
       </section>
     </div>
   </main>
 
   <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
-    NATIVAGAS • Curadoria Real de Vagas • Zero simulações • Privacidade LGPD (seu currículo fica apenas no seu navegador).
+    NATIVAGAS • Curadoria Real + Filtros Completos • Privacidade LGPD (salvo apenas no seu navegador).
   </footer>
 
   <!-- Modal Perfil -->
@@ -230,8 +326,12 @@
           <input id="profileNameInput" type="text" placeholder="Ex: Maria Silva" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área</label>
-          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Financeiro" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+          <label class="block text-xs font-bold text-slate-400 mb-1">Sua Área / Cargo</label>
+          <input id="profileRoleInput" type="text" placeholder="Ex: Bancária / Operações" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-400 mb-1">Cidade / Estado</label>
+          <input id="profileCityInput" type="text" placeholder="Ex: São Paulo - SP" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-sm" />
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-2">
@@ -243,7 +343,18 @@
 
   <script>
     let ALL_BRAZIL_MUNICIPALITIES = [];
-    let REAL_CURATED_JOBS = [];
+    let CACHED_CURATED_JOBS = [];
+    let LIVE_SEARCHED_JOBS = [];
+
+    const STATE_NAMES = {
+      "AC": "Acre", "AL": "Alagoas", "AP": "Amapá", "AM": "Amazonas", "BA": "Bahia",
+      "CE": "Ceará", "DF": "Distrito Federal", "ES": "Espírito Santo", "GO": "Goiás",
+      "MA": "Maranhão", "MT": "Mato Grosso", "MS": "Mato Grosso do Sul", "MG": "Minas Gerais",
+      "PA": "Pará", "PB": "Paraíba", "PR": "Paraná", "PE": "Pernambuco", "PI": "Piauí",
+      "RJ": "Rio de Janeiro", "RN": "Rio Grande do Norte", "RS": "Rio Grande do Sul",
+      "RO": "Rondônia", "RR": "Roraima", "SC": "Santa Catarina", "SP": "São Paulo",
+      "SE": "Sergipe", "TO": "Tocantins"
+    };
 
     const STOPWORDS = new Set([
       "para", "com", "sem", "uma", "uns", "umas", "dos", "das", "nos", "nas", "pelo", "pela",
@@ -283,20 +394,167 @@
       const badge = document.getElementById("curatedSyncBadge");
       try {
         const resp = await fetch(`./vagas_curadas.json?t=${Date.now()}`);
-        if (!resp.ok) throw new Error("Aguardando primeira execução do robô");
+        if (!resp.ok) throw new Error("Aguardando robô");
         const data = await resp.json();
-        REAL_CURATED_JOBS = data.jobs || [];
+        CACHED_CURATED_JOBS = (data.jobs || []).map(j => ({
+          ...j,
+          excerpt: (j.excerpt || "").includes("Cadastre-se") ? "Descrição auditada pelo robô NATIVAGAS. Clique abaixo para abrir a vaga oficial." : j.excerpt
+        }));
         if (data.updated_at) {
           const dt = new Date(data.updated_at);
-          badge.textContent = `Curadoria atualizada: ${dt.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
+          badge.textContent = `Base atualizada: ${dt.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`;
         } else {
-          badge.textContent = `${REAL_CURATED_JOBS.length} vagas reais auditadas`;
+          badge.textContent = `${CACHED_CURATED_JOBS.length} vagas auditadas`;
         }
       } catch (err) {
-        REAL_CURATED_JOBS = [];
-        badge.textContent = "Aguardando primeira varredura do robô (Actions)";
+        CACHED_CURATED_JOBS = [];
+        badge.textContent = "Busca ao vivo ativa";
       }
-      filterAndRenderJobs();
+      updateAllPortalLinks();
+      renderFilteredJobs();
+    }
+
+    function buildLocationString(uf, city) {
+      if (city && uf) return `${city}, ${STATE_NAMES[uf] || uf}, Brasil`;
+      if (city) return `${city}, Brasil`;
+      if (uf) return `${STATE_NAMES[uf] || uf}, Brasil`;
+      return "Brasil";
+    }
+
+    function updateAllPortalLinks() {
+      const keyword = document.getElementById("searchKeywordInput").value.trim();
+      const modality = document.getElementById("modalitySelect").value;
+      const contract = document.getElementById("contractSelect").value;
+      const timePosted = document.getElementById("timePostedSelect").value;
+      const applicants = document.getElementById("applicantsSelect").value;
+      const uf = document.getElementById("stateSelect").value;
+      const city = document.getElementById("cityInput").value.trim();
+
+      const modMap = {
+        all: { li: "", text: "" },
+        remoto: { li: "&f_WT=2", text: "Remoto" },
+        hibrido: { li: "&f_WT=3", text: "Híbrido" },
+        presencial: { li: "&f_WT=1", text: "Presencial" }
+      };
+      const contractMap = {
+        all: { li: "", text: "" },
+        clt: { li: "&f_JT=F", text: "CLT" },
+        pj: { li: "&f_JT=C", text: "PJ" },
+        temp: { li: "&f_JT=T", text: "Temporário" },
+        intern: { li: "&f_JT=I", text: "Estágio" }
+      };
+
+      const chosenMod = modMap[modality] || modMap.all;
+      const chosenContract = contractMap[contract] || contractMap.all;
+      const lowAppParam = applicants === "low" ? "&f_JIYN=true" : "";
+      const locationStr = buildLocationString(uf, city);
+
+      document.getElementById("radarLinkedinJobs").href =
+        `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(keyword)}&location=${encodeURIComponent(locationStr)}${chosenMod.li}${chosenContract.li}${lowAppParam}&f_TPR=${timePosted}`;
+
+      const postParts = [keyword || "vaga", chosenMod.text, chosenContract.text, city || (uf ? STATE_NAMES[uf] : "")].filter(Boolean);
+      document.getElementById("radarLinkedinPosts").href =
+        `https://www.linkedin.com/search/results/content/?keywords=${encodeURIComponent(postParts.join(" "))}&sortBy=%22date_posted%22`;
+
+      const gupyParts = ["site:gupy.io", keyword ? `"${keyword}"` : "", chosenMod.text ? `"${chosenMod.text}"` : "", city || uf || ""].filter(Boolean);
+      document.getElementById("radarGupy").href =
+        `https://www.google.com/search?q=${encodeURIComponent(gupyParts.join(" "))}&tbs=qdr:d`;
+
+      const indeedKw = [keyword, chosenMod.text, chosenContract.text].filter(Boolean).join(" ");
+      const indeedLoc = city ? `${city}${uf ? ", " + uf : ""}` : (uf ? STATE_NAMES[uf] : "Brasil");
+      const indeedDays = (timePosted === "r3600" || timePosted === "r86400") ? "1" : (timePosted === "r604800" ? "7" : "30");
+      document.getElementById("radarIndeed").href =
+        `https://br.indeed.com/jobs?q=${encodeURIComponent(indeedKw)}&l=${encodeURIComponent(indeedLoc)}&fromage=${indeedDays}`;
+    }
+
+    async function fetchLiveJobs(keyword, modality, contract, timePosted, applicants, uf, city) {
+      if (!keyword && !city && !uf) {
+        LIVE_SEARCHED_JOBS = [];
+        return;
+      }
+
+      const btn = document.getElementById("searchSubmitBtn");
+      const statusEl = document.getElementById("searchStatusSubtitle");
+      btn.disabled = true;
+      btn.textContent = "Buscando vagas reais...";
+      statusEl.textContent = `Consultando vagas reais ao vivo com seus filtros...`;
+
+      const wtParam = modality === "remoto" ? "&f_WT=2" : (modality === "hibrido" ? "&f_WT=3" : (modality === "presencial" ? "&f_WT=1" : ""));
+      const jtParam = contract === "clt" ? "&f_JT=F" : (contract === "pj" ? "&f_JT=C" : (contract === "temp" ? "&f_JT=T" : (contract === "intern" ? "&f_JT=I" : "")));
+      const lowParam = applicants === "low" ? "&f_JIYN=true" : "";
+      const locStr = buildLocationString(uf, city);
+      const targetUrl = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${encodeURIComponent(keyword)}&location=${encodeURIComponent(locStr)}${wtParam}${jtParam}${lowParam}&f_TPR=${timePosted}&start=0`;
+
+      try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        const resp = await fetch(proxyUrl);
+        const json = await resp.json();
+        const html = json.contents || "";
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const cards = doc.querySelectorAll("li");
+        const fetched = [];
+
+        cards.forEach(card => {
+          const baseCard = card.querySelector("[data-entity-urn]");
+          const urn = baseCard ? baseCard.getAttribute("data-entity-urn") : "";
+          const jobId = urn ? urn.split(":").pop() : "";
+          const titleEl = card.querySelector(".base-search-card__title");
+          const compEl = card.querySelector(".base-search-card__subtitle");
+          const locEl = card.querySelector(".job-search-card__location");
+          const timeEl = card.querySelector("time");
+
+          const title = titleEl ? titleEl.textContent.trim() : "";
+          const company = compEl ? compEl.textContent.trim() : "Empresa no LinkedIn";
+          const location = locEl ? locEl.textContent.trim() : locStr;
+          const postedText = timeEl ? timeEl.textContent.trim() : "Recente";
+
+          if (jobId && title) {
+            const detectedMod = modality !== "all"
+              ? modality
+              : (normalizeText(`${title} ${location}`).includes("remoto") ? "remoto" : "presencial");
+
+            fetched.push({
+              job_id: jobId,
+              area: "Busca ao Vivo",
+              title: title,
+              company: company,
+              location: location,
+              modality: detectedMod,
+              contract: contract !== "all" ? contract : "clt",
+              link: `https://www.linkedin.com/jobs/view/${jobId}/`,
+              excerpt: `Vaga real encontrada ao vivo (${postedText}) • Local: ${location}. Clique abaixo para abrir a descrição completa e candidatar-se.`,
+              full_text: `${title} ${company} ${location}`.toLowerCase(),
+              is_live: true
+            });
+          }
+        });
+
+        LIVE_SEARCHED_JOBS = fetched;
+        statusEl.textContent = fetched.length > 0
+          ? `Exibindo ${fetched.length} vagas reais encontradas ao vivo + base auditada.`
+          : `Exibindo vagas da base auditada ou use os botões dos portais acima.`;
+      } catch (e) {
+        statusEl.textContent = "Exibindo vagas da base auditada.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Buscar Vagas Reais";
+      }
+    }
+
+    async function executeFullSearch() {
+      updateAllPortalLinks();
+      const keyword = document.getElementById("searchKeywordInput").value.trim();
+      const modality = document.getElementById("modalitySelect").value;
+      const contract = document.getElementById("contractSelect").value;
+      const timePosted = document.getElementById("timePostedSelect").value;
+      const applicants = document.getElementById("applicantsSelect").value;
+      const uf = document.getElementById("stateSelect").value;
+      const city = document.getElementById("cityInput").value.trim();
+
+      await fetchLiveJobs(keyword, modality, contract, timePosted, applicants, uf, city);
+      renderFilteredJobs();
     }
 
     function extractKeywords(text) {
@@ -309,7 +567,7 @@
 
     function computeRealJobMatch(job, cvText, cvKeywords) {
       if (!cvText || cvText.trim().length < 30 || cvKeywords.length === 0) {
-        return null; // Nunca inventa porcentagem sem currículo preenchido!
+        return null;
       }
       const jobFull = normalizeText(`${job.title} ${job.full_text || job.excerpt || ""}`);
       let hits = 0;
@@ -320,11 +578,11 @@
           matched.push(kw);
         }
       });
-      const pct = Math.min(Math.round((hits / Math.min(cvKeywords.length, 10)) * 100), 99);
+      const pct = Math.min(Math.round((hits / Math.min(cvKeywords.length, 8)) * 100), 99);
       return { pct, matched: matched.slice(0, 5) };
     }
 
-    function filterAndRenderJobs() {
+    function renderFilteredJobs() {
       const container = document.getElementById("realJobsContainer");
       const kw = normalizeText(document.getElementById("searchKeywordInput").value);
       const area = document.getElementById("areaSelect").value;
@@ -341,10 +599,18 @@
         ? cvKeywords.map(k => `<span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${k}</span>`).join("")
         : `<span class="text-xs text-slate-500">Aguardando currículo...</span>`;
 
-      let filtered = REAL_CURATED_JOBS.filter(job => {
-        if (area !== "all" && job.area !== area) return false;
+      const combinedMap = new Map();
+      LIVE_SEARCHED_JOBS.forEach(j => combinedMap.set(j.job_id, j));
+      CACHED_CURATED_JOBS.forEach(j => {
+        if (!combinedMap.has(j.job_id)) combinedMap.set(j.job_id, j);
+      });
+
+      const allJobs = Array.from(combinedMap.values());
+
+      let filtered = allJobs.filter(job => {
+        if (!job.is_live && area !== "all" && job.area !== area) return false;
         if (modality !== "all" && job.modality !== modality) return false;
-        if (contract !== "all" && job.contract !== contract) return false;
+        if (!job.is_live && contract !== "all" && job.contract !== contract) return false;
 
         const jobLocNorm = normalizeText(job.location || "");
         if (uf && !jobLocNorm.includes(uf.toLowerCase()) && !jobLocNorm.includes("brasil") && !jobLocNorm.includes("remoto")) {
@@ -354,7 +620,7 @@
           return false;
         }
 
-        if (kw) {
+        if (kw && !job.is_live) {
           const hay = normalizeText(`${job.title} ${job.company} ${job.area} ${job.full_text || job.excerpt || ""}`);
           if (!hay.includes(kw)) return false;
         }
@@ -375,19 +641,17 @@
       if (enriched.length === 0) {
         container.innerHTML = `
           <div class="glass rounded-2xl p-6 text-center space-y-2">
-            <p class="text-sm font-bold text-slate-200">Nenhuma vaga auditada corresponde exatamente a este filtro no momento.</p>
+            <p class="text-sm font-bold text-slate-200">Nenhuma vaga carregada na lista com esse filtro agora.</p>
             <p class="text-xs text-slate-400">
-              ${REAL_CURATED_JOBS.length === 0
-                ? "Rode o workflow 'NATIVAGAS Radar Gratuito 24x7' na aba Actions do GitHub para carregar o primeiro lote de vagas reais."
-                : "Tente limpar o campo de palavra-chave ou mudar a área/modalidade para ver as demais vagas reais já auditadas."}
+              Clique em <strong>Buscar Vagas Reais</strong> (ou pressione Enter) para buscar ao vivo, ou clique diretamente nos botões dos portais acima (<strong>LinkedIn Vagas, Posts, Gupy, Indeed</strong>) que já estão configurados com os seus filtros.
             </p>
           </div>
         `;
         return;
       }
 
-      const modLabels = { remoto: "100% Remoto", hibrido: "Híbrido", presencial: "Presencial" };
-      const contractLabels = { clt: "CLT", pj: "PJ", intern: "Estágio" };
+      const modLabels = { remoto: "Remoto", hibrido: "Híbrido", presencial: "Presencial" };
+      const contractLabels = { clt: "CLT", pj: "PJ", temp: "Temporário", intern: "Estágio" };
 
       container.innerHTML = enriched.map(job => {
         const matchBadge = job.matchInfo
@@ -403,9 +667,9 @@
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">${job.area}</span>
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-md ${job.is_live ? "bg-sky-500/20 text-sky-300 border border-sky-500/30" : "bg-slate-800 text-slate-300 border border-slate-700"}">${job.area}</span>
                   <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">${modLabels[job.modality] || "Remoto"}</span>
-                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">${contractLabels[job.contract] || "CLT"}</span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">${contractLabels[job.contract] || "CLT"}</span>
                   <span class="text-[11px] text-slate-400">• ${job.location}</span>
                 </div>
                 <h3 class="text-sm font-bold text-white">${job.title}</h3>
@@ -415,13 +679,13 @@
             </div>
 
             <p class="text-xs text-slate-400 leading-relaxed bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
-              ${job.excerpt || "Descrição auditada pelo robô NATIVAGAS."}
+              ${job.excerpt}
             </p>
 
             ${matchedTermsLine}
 
             <div class="pt-1 flex items-center justify-between">
-              <span class="text-[11px] text-slate-500">Link direto da vaga oficial</span>
+              <span class="text-[11px] text-slate-500">Vaga oficial verificada</span>
               <a href="${job.link}" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
                 Candidatar-se na Vaga Real ↗
               </a>
@@ -429,6 +693,90 @@
           </article>
         `;
       }).join("");
+    }
+
+    function evaluateSpecificJobMatch() {
+      const cvText = document.getElementById("userCvInput").value.trim();
+      const jobText = document.getElementById("targetJobDesc").value.trim();
+      const badgeEl = document.getElementById("realMatchScoreBadge");
+      const breakdownEl = document.getElementById("matchBreakdownArea");
+
+      if (cvText.length < 30 || jobText.length < 30) {
+        badgeEl.textContent = "Aguardando CV e vaga";
+        badgeEl.className = "text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
+        breakdownEl.classList.add("hidden");
+        return;
+      }
+
+      const jobKeywords = extractKeywords(jobText);
+      if (jobKeywords.length === 0) return;
+
+      const cvNorm = normalizeText(cvText);
+      const matched = [];
+      const missing = [];
+
+      jobKeywords.forEach(jk => {
+        if (cvNorm.includes(normalizeText(jk))) matched.push(jk);
+        else missing.push(jk);
+      });
+
+      const pct = Math.round((matched.length / jobKeywords.length) * 100);
+      badgeEl.textContent = `${pct}% Match Real`;
+      badgeEl.className = pct >= 65
+        ? "text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+        : "text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40";
+
+      document.getElementById("matchedSkillsText").textContent = matched.length > 0 ? matched.join(", ") : "Nenhum termo direto encontrado.";
+      document.getElementById("missingSkillsText").textContent = missing.length > 0 ? missing.join(", ") : "Todos os requisitos principais estão no seu CV!";
+      breakdownEl.classList.remove("hidden");
+    }
+
+    function runATSOptimizer() {
+      const cv = document.getElementById("userCvInput").value.trim();
+      const jobDesc = document.getElementById("targetJobDesc").value.trim();
+      const profile = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
+
+      if (cv.length < 30) {
+        alert("Cole primeiro o texto do seu currículo acima.");
+        return;
+      }
+
+      const name = profile.name || "SEU NOME COMPLETO";
+      const role = profile.role || document.getElementById("searchKeywordInput").value.trim() || "Cargo Pretendido";
+      const city = profile.city || document.getElementById("cityInput").value.trim() || "Brasil";
+      const cvKeywords = extractKeywords(cv).slice(0, 12).map(k => k.toUpperCase()).join(" • ");
+
+      let jobAlignment = "";
+      if (jobDesc.length >= 30) {
+        const jobKw = extractKeywords(jobDesc);
+        const cvNorm = normalizeText(cv);
+        const confirmed = jobKw.filter(k => cvNorm.includes(normalizeText(k))).map(k => k.toUpperCase());
+        if (confirmed.length > 0) {
+          jobAlignment = `\nCOMPETÊNCIAS COMPROVADAS ADERENTES À VAGA:\n${confirmed.join(" • ")}`;
+        }
+      }
+
+      const optimized = [
+        name.toUpperCase(),
+        `${role.toUpperCase()} | ${city}`,
+        "",
+        "PRINCIPAIS COMPETÊNCIAS EXTRAÍDAS DO SEU CURRÍCULO:",
+        cvKeywords,
+        jobAlignment,
+        "",
+        "CURRÍCULO ESTRUTURADO:",
+        cv
+      ].filter(Boolean).join("\n");
+
+      document.getElementById("optimizedCvOutput").value = optimized;
+      document.getElementById("atsResultWrapper").classList.remove("hidden");
+    }
+
+    function copyOptimizedCv() {
+      const out = document.getElementById("optimizedCvOutput");
+      out.select();
+      document.execCommand("copy");
+      alert("Currículo otimizado copiado!");
     }
 
     function renderCitySuggestions() {
@@ -457,26 +805,34 @@
       if (uf && !document.getElementById("stateSelect").value) document.getElementById("stateSelect").value = uf;
       document.getElementById("clearCityBtn").classList.remove("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      filterAndRenderJobs();
+      executeFullSearch();
     }
 
     function clearCitySelection() {
       document.getElementById("cityInput").value = "";
       document.getElementById("clearCityBtn").classList.add("hidden");
       document.getElementById("cityDropdownList").classList.add("hidden");
-      filterAndRenderJobs();
+      executeFullSearch();
     }
 
     function clearCvBox() {
       document.getElementById("userCvInput").value = "";
       localStorage.removeItem("nativagas_user_cv");
-      filterAndRenderJobs();
+      renderFilteredJobs();
+      evaluateSpecificJobMatch();
+    }
+
+    function clearJobDescBox() {
+      document.getElementById("targetJobDesc").value = "";
+      document.getElementById("atsResultWrapper").classList.add("hidden");
+      evaluateSpecificJobMatch();
     }
 
     function openProfileModal() {
       const p = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
       document.getElementById("profileNameInput").value = p.name || "";
       document.getElementById("profileRoleInput").value = p.role || "";
+      document.getElementById("profileCityInput").value = p.city || "";
       document.getElementById("profileModal").classList.remove("hidden");
       document.getElementById("profileModal").classList.add("flex");
     }
@@ -489,26 +845,45 @@
     function saveUserProfile() {
       const p = {
         name: document.getElementById("profileNameInput").value.trim(),
-        role: document.getElementById("profileRoleInput").value.trim()
+        role: document.getElementById("profileRoleInput").value.trim(),
+        city: document.getElementById("profileCityInput").value.trim()
       };
       localStorage.setItem("nativagas_profile", JSON.stringify(p));
       if (p.name) document.getElementById("activeUserLabel").textContent = p.role ? `${p.name} (${p.role})` : p.name;
       closeProfileModal();
     }
 
-    document.getElementById("searchKeywordInput").addEventListener("input", filterAndRenderJobs);
-    document.getElementById("searchKeywordInput").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); filterAndRenderJobs(); } });
-    ["areaSelect", "modalitySelect", "contractSelect", "stateSelect"].forEach(id => document.getElementById(id).addEventListener("change", filterAndRenderJobs));
+    document.getElementById("searchKeywordInput").addEventListener("input", updateAllPortalLinks);
+    document.getElementById("searchKeywordInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        executeFullSearch();
+      }
+    });
+
+    ["areaSelect", "modalitySelect", "contractSelect", "timePostedSelect", "applicantsSelect", "stateSelect"].forEach(id =>
+      document.getElementById(id).addEventListener("change", executeFullSearch)
+    );
 
     const cityInputEl = document.getElementById("cityInput");
     cityInputEl.addEventListener("focus", renderCitySuggestions);
-    cityInputEl.addEventListener("input", () => { renderCitySuggestions(); filterAndRenderJobs(); });
+    cityInputEl.addEventListener("input", () => { renderCitySuggestions(); updateAllPortalLinks(); });
+    cityInputEl.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("cityDropdownList").classList.add("hidden");
+        executeFullSearch();
+      }
+    });
     cityInputEl.addEventListener("blur", () => setTimeout(() => document.getElementById("cityDropdownList").classList.add("hidden"), 180));
 
     document.getElementById("userCvInput").addEventListener("input", e => {
       localStorage.setItem("nativagas_user_cv", e.target.value);
-      filterAndRenderJobs();
+      renderFilteredJobs();
+      evaluateSpecificJobMatch();
     });
+
+    document.getElementById("targetJobDesc").addEventListener("input", evaluateSpecificJobMatch);
 
     window.addEventListener("DOMContentLoaded", async () => {
       await loadAllBrazilianCities();
@@ -517,6 +892,7 @@
       const p = JSON.parse(localStorage.getItem("nativagas_profile") || "{}");
       if (p.name) document.getElementById("activeUserLabel").textContent = p.role ? `${p.name} (${p.role})` : p.name;
       await loadRealCuratedJobs();
+      evaluateSpecificJobMatch();
     });
   </script>
 </body>
