@@ -30,10 +30,13 @@ jobs:
           MIN_MATCH_ALERT: "72"
         run: python worker.py
 
-      - name: Salvar historico de vagas enviadas
+      - name: Salvar histórico e vagas curadas no repositório
         run: |
-          git config user.name "NATIVAGAS Bot"
-          git config user.email "bot@nativagas.local"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add sent_jobs.json vagas_curadas.json || true
+          git commit -m "Atualiza vagas curadas reais e histórico" || exit 0
+          git push
           git add sent_jobs.json || true
           git commit -m "Atualiza historico de vagas enviadas" || exit 0
           git push
